@@ -1,0 +1,10 @@
+import {Config} from "./Config.js";import {Tree} from "../entities/Tree.js";import {Enemy} from "../entities/Enemy.js";
+export class World{
+ constructor(player){this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;this.trees=[];this.enemies=[];this.spawn=0;let seed=9127;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};for(let i=0;i<Config.TREE.count;i++){let x=70+rand()*(this.width-140),y=70+rand()*(this.height-140);if(Math.hypot(x-player.x,y-player.y)<190){i--;continue;}this.trees.push(new Tree(x,y,.8+rand()*.65,i%3,rand()<.5?-1:1));}}
+ canMove(px,py){return !this.trees.some(t=>t.blocks(px,py,this.player.r));}
+ movePlayer(dx,dy){const nx=this.player.x+dx,ny=this.player.y+dy;if(this.canMove(nx,this.player.y))this.player.x=nx;if(this.canMove(this.player.x,ny))this.player.y=ny;this.player.x=Math.max(25,Math.min(this.width-25,this.player.x));this.player.y=Math.max(25,Math.min(this.height-25,this.player.y));}
+ spawnEnemy(){const a=Math.random()*Math.PI*2,d=480+Math.random()*420;let x=this.player.x+Math.cos(a)*d,y=this.player.y+Math.sin(a)*d;x=Math.max(35,Math.min(this.width-35,x));y=Math.max(35,Math.min(this.height-35,y));this.enemies.push(new Enemy(x,y,this.player.level));}
+ update(dt){this.trees.forEach(t=>t.update(dt));this.enemies.forEach(e=>e.update(dt,this.player));this.enemies=this.enemies.filter(e=>!e.dead);this.spawn-=dt;if(this.spawn<=0&&this.enemies.length<35){this.spawnEnemy();this.spawn=Math.max(.35,1.4-this.player.level*.08);}}
+ findTree(range=95){let found=null,dist=range;for(const t of this.trees){if(t.state!=="standing")continue;const d=Math.hypot(t.x-this.player.x,t.y+7*t.s-this.player.y);if(d<dist){dist=d;found=t;}}return found;}
+ collectDrops(inventory,particles){for(const t of this.trees){if(t.state==="fallen"&&t.drop&&Math.hypot(this.player.x-t.drop.x,this.player.y-t.drop.y)<30){const q=t.drop.qty;inventory.add("wood","Madeira","🪵",q);particles.push({x:t.drop.x,y:t.drop.y,t:1,text:"+"+q+" MADEIRA"});t.drop=null;}}}
+}
