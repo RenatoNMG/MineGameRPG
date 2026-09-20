@@ -1,0 +1,5 @@
+export class Input{
+  constructor(){this.keys={};this.attack=false;addEventListener("keydown",e=>{this.keys[e.key.toLowerCase()]=true;if(e.code==="Space"){e.preventDefault();this.attack=true;}if(e.key.toLowerCase()==="i")document.dispatchEvent(new CustomEvent("game:inventory"));if(e.key.toLowerCase()==="p")document.dispatchEvent(new CustomEvent("game:pause"));});addEventListener("keyup",e=>this.keys[e.key.toLowerCase()]=false);document.querySelectorAll("[data-key]").forEach(b=>{const k=b.dataset.key;b.addEventListener("pointerdown",()=>this.keys[k]=true);["pointerup","pointercancel","pointerleave"].forEach(x=>b.addEventListener(x,()=>this.keys[k]=false));});document.querySelector("[data-attack]")?.addEventListener("pointerdown",()=>this.attack=true);}
+  consumeAttack(){const a=this.attack;this.attack=false;return a;}
+  axis(){return{dx:(this.keys.d||this.keys.arrowright?1:0)-(this.keys.a||this.keys.arrowleft?1:0),dy:(this.keys.s||this.keys.arrowdown?1:0)-(this.keys.w||this.keys.arrowup?1:0)};}
+}
