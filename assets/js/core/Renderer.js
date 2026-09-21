@@ -27,8 +27,6 @@ export class Renderer{
     }
     c.closePath();
   };
-  c.fillStyle="rgba(10,25,18,.42)";
-  c.beginPath();c.ellipse(0,8,puddle.rx*1.08,puddle.ry*.92,0,0,Math.PI*2);c.fill();
   c.fillStyle="#c89a68";shape(1.08,1.12);c.fill();
   c.fillStyle="#4aa9dc";shape(1.01,1.03);c.fill();
   c.fillStyle="#138ac6";shape(.92,.91);c.fill();
