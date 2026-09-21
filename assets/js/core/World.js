@@ -8,7 +8,7 @@ import {Config} from "./Config.js";import {Tree} from "../entities/Tree.js";impo
  movePlayer(dx,dy){const nx=this.player.x+dx,ny=this.player.y+dy;if(this.canMove(nx,this.player.y))this.player.x=nx;if(this.canMove(this.player.x,ny))this.player.y=ny;this.player.x=Math.max(25,Math.min(this.width-25,this.player.x));this.player.y=Math.max(25,Math.min(this.height-25,this.player.y));}
  spawnEnemy(){}
  update(dt){this.trees.forEach(t=>t.update(dt));}
- findTree(range=95){let found=null,dist=range;for(const t of this.trees){if(t.state!=="standing")continue;const d=Math.hypot(t.x-this.player.x,t.y+7*t.s-this.player.y);if(d<dist){dist=d;found=t;}}return found;}
- findStone(range=75){let found=null,dist=range;for(const s of this.stones){if(s.collected)continue;const d=Math.hypot(s.x-this.player.x,s.y-this.player.y);if(d<dist){dist=d;found=s;}}return found;}
+ findTree(range=58){let found=null,dist=range;for(const t of this.trees){if(t.state!=="standing")continue;const d=Math.hypot(t.x-this.player.x,t.y+7*t.s-this.player.y);if(d<dist){dist=d;found=t;}}return found;}
+ findStone(range=50){let found=null,dist=range;for(const s of this.stones){if(s.collected)continue;const d=Math.hypot(s.x-this.player.x,s.y-this.player.y);if(d<dist){dist=d;found=s;}}return found;}
  collectDrops(inventory,particles){for(const t of this.trees){if(t.state==="fallen"&&t.drop&&Math.hypot(this.player.x-t.drop.x,this.player.y-t.drop.y)<30){const q=t.drop.qty;inventory.add("wood","Madeira","🪵",q);particles.push({x:t.drop.x,y:t.drop.y,t:1,text:"+"+q+" MADEIRA"});t.drop=null;}}for(const s of this.stones){if(s.collected&&s.hp===0&&Math.hypot(this.player.x-s.x,this.player.y-s.y)<32){const q=5;inventory.add("stone","Pedra","🪨",q);particles.push({x:s.x,y:s.y,t:1,text:"+5 PEDRAS"});s.hp=-1;}}}
 }
