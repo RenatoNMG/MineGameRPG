@@ -7,12 +7,14 @@ export class Chicken{
     if(d<75){
       const dx=this.x-world.player.x,dy=this.y-world.player.y,len=Math.hypot(dx,dy)||1;
       this.dir=dx<0?-1:1;
-      this.x+=(dx/len)*this.speed*2.2*dt;
-      this.y+=(dy/len)*this.speed*2.2*dt;
+      const nx=this.x+(dx/len)*this.speed*2.2*dt;
+      const ny=this.y+(dy/len)*this.speed*2.2*dt;
+      if(!world.waterBlocks(nx,ny,13)){this.x=nx;this.y=ny;}
     }else{
       if(this.timer<=0){this.dir=Math.random()<.5?-1:1;this.timer=1+Math.random()*2.5;}
-      this.x+=this.dir*this.speed*.35*dt;
-      this.y+=Math.sin((this.x+this.y)*.03)*this.speed*.08*dt;
+      const nx=this.x+this.dir*this.speed*.35*dt;
+      const ny=this.y+Math.sin((this.x+this.y)*.03)*this.speed*.08*dt;
+      if(!world.waterBlocks(nx,ny,13)){this.x=nx;this.y=ny;}else{this.dir*=-1;}
     }
     this.x=Math.max(30,Math.min(world.width-30,this.x));
     this.y=Math.max(30,Math.min(world.height-30,this.y));
