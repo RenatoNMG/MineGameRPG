@@ -1,7 +1,37 @@
+import {createItem,getItem} from "../data/items/index.js";
+
 export class Inventory{
-  constructor(slots=20){this.slots=slots;this.items=[{id:"wood",name:"Madeira",icon:"🪵",qty:3,max:99},{id:"stone",name:"Pedra",icon:"🪨",qty:2,max:99}];}
-  qty(id){return this.items.find(x=>x.id===id)?.qty||0;}
-  add(id,name,icon,qty,max=99){let item=this.items.find(x=>x.id===id);if(item)item.qty=Math.min(item.max||max,item.qty+qty);else if(this.items.length<this.slots)this.items.push({id,name,icon,qty,max});}
-  remove(id,qty){const item=this.items.find(x=>x.id===id);if(!item||item.qty<qty)return false;item.qty-=qty;if(item.qty<=0)this.items.splice(this.items.indexOf(item),1);return true;}
-  get(id){return this.items.find(x=>x.id===id)||null;}
+  constructor(slots=20){
+    this.slots=slots;
+    this.items=[createItem("wood",3),createItem("stone",2)];
+  }
+
+  qty(id){
+    return this.items.find(x=>x.id===id)?.qty||0;
+  }
+
+  add(id,qty=1){
+    const definition=getItem(id);
+    if(!definition||qty<=0)return false;
+    let item=this.items.find(x=>x.id===id);
+    if(item){
+      item.qty=Math.min(item.maxStack,item.qty+qty);
+      return true;
+    }
+    if(this.items.length>=this.slots)return false;
+    this.items.push(createItem(id,Math.min(qty,definition.maxStack)));
+    return true;
+  }
+
+  remove(id,qty){
+    const item=this.items.find(x=>x.id===id);
+    if(!item||item.qty<qty)return false;
+    item.qty-=qty;
+    if(item.qty<=0)this.items.splice(this.items.indexOf(item),1);
+    return true;
+  }
+
+  get(id){
+    return this.items.find(x=>x.id===id)||null;
+  }
 }
