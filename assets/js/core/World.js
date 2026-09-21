@@ -3,7 +3,7 @@ export class World{
  constructor(player){this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;this.trees=[];this.stones=[];this.enemies=[];this.spawn=0;let seed=9127;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};for(let i=0;i<Config.TREE.count;i++){let x=70+rand()*(this.width-140),y=70+rand()*(this.height-140);if(Math.hypot(x-player.x,y-player.y)<190){i--;continue;}this.trees.push(new Tree(x,y,.8+rand()*.65,i%3,rand()<.5?-1:1));}
  // Pedras: algumas ficam próximas da área inicial para o jogador perceber imediatamente o novo recurso.
  const addStone=(x,y,s,type)=>this.stones.push(new Stone(x,y,s,type));
- const near=[[-210,-120],[-95,170],[145,-155],[245,95],[-300,40],[320,-180],[80,285],[-260,-230]];
+ const near=[[-150,-90],[-80,120],[125,-105],[175,90],[-185,55],[210,-145],[70,175],[-170,-165]];
  near.forEach(([dx,dy],i)=>addStone(player.x+dx,player.y+dy,.9+(i%3)*.15,i%3));
  for(let i=8;i<Config.STONE.count;i++){let x=50+rand()*(this.width-100),y=50+rand()*(this.height-100);if(Math.hypot(x-player.x,y-player.y)<130||this.trees.some(t=>Math.hypot(t.x-x,t.y-y)<55)||this.stones.some(s=>Math.hypot(s.x-x,s.y-y)<35)){i--;continue;}addStone(x,y,.65+rand()*.7,i%3);}}
  canMove(px,py){return !this.trees.some(t=>t.blocks(px,py,this.player.r))&&!this.stones.some(s=>s.blocks(px,py,this.player.r));}
