@@ -1,7 +1,7 @@
 export class Chicken{
-  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.speed=18;this.timer=.5+Math.random()*2;}
+  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.speed=18;this.timer=.5+Math.random()*2;this.eggTimer=8+Math.random()*7;}
   update(dt,world){
-    this.timer-=dt;
+    this.timer-=dt;this.eggTimer-=dt;if(this.eggTimer<=0){world.eggs.push({x:this.x,y:this.y+10});this.eggTimer=8+Math.random()*7;}
     const d=Math.hypot(this.x-world.player.x,this.y-world.player.y);
     if(d<75){
       const dx=this.x-world.player.x,dy=this.y-world.player.y,len=Math.hypot(dx,dy)||1;
