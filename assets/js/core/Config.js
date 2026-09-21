@@ -1,1 +1,1 @@
-export const Config={WORLD:{width:2600,height:1800},PLAYER:{radius:15,speed:185,maxHp:100},TREE:{count:95},STONE:{count:45},COMBAT:{attackCooldown:.32},INVENTORY:{slots:20}};
+export const Config={WORLD:{width:2600,height:1800},PLAYER:{radius:15,speed:185,maxHp:100},TREE:{count:95},STONE:{count:45},COMBAT:{attackCooldown:.32},SURVIVAL:{hungerDrain:.08,thirstDrain:.12,starvationDamage:2.5},INVENTORY:{slots:20}};
