@@ -4,7 +4,14 @@ export class World{
  // Pedras: algumas ficam próximas da área inicial para o jogador perceber imediatamente o novo recurso.
  const addStone=(x,y,s,type)=>this.stones.push(new Stone(x,y,s,type));
  const near=[[-150,-90],[-80,120],[125,-105],[175,90],[-185,55],[210,-145],[70,175],[-170,-165]];
- near.forEach(([dx,dy],i)=>addStone(player.x+dx,player.y+dy,.9+(i%3)*.15,i%3));
+ near.forEach(([dx,dy],i)=>{
+   let x=player.x+dx,y=player.y+dy;
+   if(this.trees.some(t=>Math.hypot(t.x-x,t.y-y)<75)){
+     x=player.x+dx+(dx>=0?55:-55);
+     y=player.y+dy+(dy>=0?45:-45);
+   }
+   addStone(x,y,.95+(i%3)*.15,i%3);
+ });
  for(let i=8;i<Config.STONE.count;i++){let x=50+rand()*(this.width-100),y=50+rand()*(this.height-100);if(Math.hypot(x-player.x,y-player.y)<130||this.trees.some(t=>Math.hypot(t.x-x,t.y-y)<55)||this.stones.some(s=>Math.hypot(s.x-x,s.y-y)<35)){i--;continue;}addStone(x,y,.65+rand()*.7,i%3);}}
  canMove(px,py){return !this.trees.some(t=>t.blocks(px,py,this.player.r))&&!this.stones.some(s=>s.blocks(px,py,this.player.r));}
  movePlayer(dx,dy){const nx=this.player.x+dx,ny=this.player.y+dy;if(this.canMove(nx,this.player.y))this.player.x=nx;if(this.canMove(this.player.x,ny))this.player.y=ny;this.player.x=Math.max(25,Math.min(this.width-25,this.player.x));this.player.y=Math.max(25,Math.min(this.height-25,this.player.y));}
