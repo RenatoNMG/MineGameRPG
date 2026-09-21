@@ -11,6 +11,7 @@ import {Config} from "./Config.js";import {Tree} from "../entities/Tree.js";impo
  update(dt){this.trees.forEach(t=>t.update(dt));this.chickens.forEach(ch=>ch.update(dt,this));}
  findTree(range=58){let found=null,dist=range;for(const t of this.trees){if(t.state!=="standing")continue;const d=Math.hypot(t.x-this.player.x,t.y+7*t.s-this.player.y);if(d<dist){dist=d;found=t;}}return found;}
  findLooseWood(range=50){let found=null,dist=range;for(const wood of this.looseWood){if(wood.collected)continue;const d=Math.hypot(wood.x-this.player.x,wood.y-this.player.y);if(d<dist){dist=d;found=wood;}}return found;}
+ findEgg(range=50){let found=null,dist=range;for(const egg of this.eggs){if(egg.collected)continue;const d=Math.hypot(egg.x-this.player.x,egg.y-this.player.y);if(d<dist){dist=d;found=egg;}}return found;}
  findStone(range=50){let found=null,dist=range;for(const s of this.stones){if(s.collected)continue;const d=Math.hypot(s.x-this.player.x,s.y-this.player.y);if(d<dist){dist=d;found=s;}}return found;}
  collectDrops(inventory,particles){for(const t of this.trees){if(t.state==="fallen"&&t.drop&&Math.hypot(this.player.x-t.drop.x,this.player.y-t.drop.y)<30){const q=t.drop.qty;if(inventory.add("wood",q))particles.push({x:t.drop.x,y:t.drop.y,t:1,text:"+"+q+" MADEIRA"});t.drop=null;}}for(const s of this.stones){if(s.collected&&s.hp===0&&Math.hypot(this.player.x-s.x,this.player.y-s.y)<32){const q=5;if(inventory.add("stone",q))particles.push({x:s.x,y:s.y,t:1,text:"+5 PEDRAS"});s.hp=-1;}}}
 }
