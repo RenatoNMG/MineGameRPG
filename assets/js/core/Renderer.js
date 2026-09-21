@@ -9,7 +9,7 @@ export class Renderer{
   const c=this.ctx;
   c.save();
   c.translate(ch.x,ch.y);
-  c.scale(ch.dir,1);
+  c.scale(ch.dir*.65,.65);
   c.fillStyle="rgba(10,12,10,.28)";
   c.beginPath();c.ellipse(0,10,13,5,0,0,Math.PI*2);c.fill();
   c.fillStyle="#eee9d8";
