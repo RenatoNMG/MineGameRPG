@@ -1,5 +1,4 @@
-import {Config} from "./Config.js";import {Tree} from "../entities/Tree.js";import {Stone} from "../entities/Stone.js";import {Enemy} from "../entities/Enemy.js";
-export class World{
+import {Config} from "./Config.js";import {Tree} from "../entities/Tree.js";import {Stone} from "../entities/Stone.js";export class World{
  constructor(player){this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;this.trees=[];this.stones=[];this.enemies=[];this.spawn=0;let seed=9127;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};for(let i=0;i<Config.TREE.count;i++){let x=70+rand()*(this.width-140),y=70+rand()*(this.height-140);if(Math.hypot(x-player.x,y-player.y)<190){i--;continue;}this.trees.push(new Tree(x,y,.8+rand()*.65,i%3,rand()<.5?-1:1));}
  // Pedras: algumas ficam próximas da área inicial para o jogador perceber imediatamente o novo recurso.
  const addStone=(x,y,s,type)=>this.stones.push(new Stone(x,y,s,type));
