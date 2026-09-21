@@ -1,9 +1,5 @@
 export class Chicken{
-  constructor(x,y,dir=1){
-    this.x=x;this.y=y;this.dir=dir;this.speed=18;
-    this.timer=.5+Math.random()*2;
-    this.eggTimer=12+Math.random()*18;
-  }
+  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.speed=18;this.timer=.5+Math.random()*2;this.eggTimer=12+Math.random()*18;}
   update(dt,world){
     this.timer-=dt;
     this.eggTimer-=dt;
@@ -20,9 +16,11 @@ export class Chicken{
     }
     this.x=Math.max(30,Math.min(world.width-30,this.x));
     this.y=Math.max(30,Math.min(world.height-30,this.y));
-    if(this.eggTimer<=0){
+    if(this.eggTimer<=0&&world.eggs.length<5){
       world.eggs.push({x:this.x,y:this.y});
       this.eggTimer=15+Math.random()*20;
+    }else if(this.eggTimer<=0){
+      this.eggTimer=3+Math.random()*5;
     }
   }
 }
