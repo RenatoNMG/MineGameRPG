@@ -1,5 +1,23 @@
+import {RECIPES} from "../data/recipes.js";
+
 export class Crafting{
-  constructor(inventory){this.inventory=inventory;this.recipes=[{id:"woodenAxe",name:"Machado de madeira",icon:"🪓",cost:[["wood",3],["stone",2]],output:{id:"woodenAxe",name:"Machado de madeira",icon:"🪓",qty:1,max:1}},{id:"pickaxe",name:"Picareta de madeira",icon:"⛏️",cost:[["stone",3],["wood",2]],output:{id:"pickaxe",name:"Picareta de madeira",icon:"⛏️",qty:1,max:1}}];}
-  canCraft(recipe){return recipe.cost.every(([id,q])=>this.inventory.qty(id)>=q)&&(!this.inventory.get(recipe.output.id)||this.inventory.qty(recipe.output.id)+recipe.output.qty<=recipe.output.max);}
-  craft(recipe){if(!this.canCraft(recipe))return false;for(const [id,q] of recipe.cost)this.inventory.remove(id,q);this.inventory.add(recipe.output.id,recipe.output.name,recipe.output.icon,recipe.output.qty,recipe.output.max);return true;}
+  constructor(inventory){
+    this.inventory=inventory;
+    this.recipes=RECIPES;
+  }
+
+  canCraft(recipe){
+    const [outputId,outputQty]=recipe.output;
+    const output=this.inventory.get(outputId);
+    const definition=this.inventory.get(outputId)||{maxStack:1};
+    return recipe.cost.every(([id,q])=>this.inventory.qty(id)>=q)&&
+      (!output||this.inventory.qty(outputId)+outputQty<=definition.maxStack);
+  }
+
+  craft(recipe){
+    if(!this.canCraft(recipe))return false;
+    for(const [id,q] of recipe.cost)this.inventory.remove(id,q);
+    const [outputId,outputQty]=recipe.output;
+    return this.inventory.add(outputId,outputQty);
+  }
 }
