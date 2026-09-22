@@ -19,3 +19,15 @@ export function createItem(id,qty=1){
   if(!definition)return null;
   return {...definition,qty};
 }
+
+export function validateItems(){
+  const required=["id","name","icon","category","maxStack","visual"];
+  const errors=[];
+  for(const [id,item] of Object.entries(ITEMS)){
+    const missing=required.filter(key=>item[key]===undefined||item[key]===null);
+    if(missing.length)errors.push(id+": "+missing.join(","));
+    if(item.id!==id)errors.push(id+": id divergente");
+    if(!Number.isInteger(item.maxStack)||item.maxStack<1)errors.push(id+": maxStack invalido");
+  }
+  return errors;
+}
