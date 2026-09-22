@@ -1,4 +1,5 @@
 import {RECIPES} from "../data/recipes.js";
+import {getItem} from "../data/items/index.js";
 
 export class Crafting{
   constructor(inventory){
@@ -9,7 +10,8 @@ export class Crafting{
   canCraft(recipe){
     const [outputId,outputQty]=recipe.output;
     const output=this.inventory.get(outputId);
-    const definition=this.inventory.get(outputId)||{maxStack:1};
+    const definition=getItem(outputId);
+    if(!definition||!Number.isInteger(outputQty)||outputQty<1)return false;
     return recipe.cost.every(([id,q])=>this.inventory.qty(id)>=q)&&
       (!output||this.inventory.qty(outputId)+outputQty<=definition.maxStack);
   }
