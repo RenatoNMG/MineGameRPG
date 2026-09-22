@@ -1,10 +1,11 @@
 import {Config} from "../core/Config.js";
 import {ItemSystem} from "./ItemSystem.js";
 import {ToolSystem} from "./ToolSystem.js";
+import {DropSystem} from "./DropSystem.js";
 
 export class InteractionSystem{
   static interact({player,world,inventory,equipped,particles}){
-    const dropped=world.collectDroppedItem(inventory,particles);
+    const dropped=DropSystem.collectItem({player,world,inventory,particles});
     if(dropped)return {type:"itemCollected"};
 
     const water=world.findWater(70);
