@@ -14,7 +14,15 @@ export class Chicken{
       if(this.timer<=0){this.dir=Math.random()<.5?-1:1;this.timer=1+Math.random()*2.5;}
       const nx=this.x+this.dir*this.speed*.35*dt;
       const ny=this.y+Math.sin((this.x+this.y)*.03)*this.speed*.08*dt;
-      if(!world.objectBlocks(nx,ny,13,this)){this.x=nx;this.y=ny;}else{this.dir*=-1;}
+      if(!world.objectBlocks(nx,ny,13,this)){this.x=nx;this.y=ny;}
+      else{
+        const side=this.dir*(Math.random()<.5?1:-1);
+        const sx=this.x,sy=this.y+side*this.speed*.6*dt;
+        const bx=this.x-this.dir*this.speed*.6*dt,by=this.y+side*this.speed*.6*dt;
+        if(!world.objectBlocks(sx,sy,13,this)){this.y=sy;}
+        else if(!world.objectBlocks(bx,by,13,this)){this.x=bx;this.y=by;}
+        else{this.dir*=-1;this.timer=.2+Math.random()*.5;}
+      }
     }
     this.x=Math.max(30,Math.min(world.width-30,this.x));
     this.y=Math.max(30,Math.min(world.height-30,this.y));
