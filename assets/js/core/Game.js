@@ -1,18 +1,34 @@
-import {Config} from "./Config.js";import {Player} from "../entities/Player.js";import {World} from "./World.js";import {Inventory} from "../systems/Inventory.js";import {Crafting} from "../systems/Crafting.js";import {Input} from "../systems/Input.js";import {Renderer} from "./Renderer.js";import {ItemSystem} from "../systems/ItemSystem.js";import {InteractionSystem} from "../systems/InteractionSystem.js";import {DropSystem} from "../systems/DropSystem.js";import {EventSystem} from "../systems/EventSystem.js";
+import {Config} from "./Config.js";
+import {Player} from "../entities/Player.js";
+import {World} from "./World.js";
+import {Inventory} from "../systems/Inventory.js";
+import {Crafting} from "../systems/Crafting.js";
+import {Input} from "../systems/Input.js";
+import {Renderer} from "./Renderer.js";
+import {EventSystem} from "../systems/EventSystem.js";
+import {GameUI} from "../systems/GameUI.js";
+import {GameLoop} from "../systems/GameLoop.js";
+
 export class Game{
- constructor(){this.canvas=document.querySelector("#world");this.player=new Player(Config.WORLD.width/2,Config.WORLD.height/2);this.world=new World(this.player);this.inventory=new Inventory(Config.INVENTORY.slots);this.crafting=new Crafting(this.inventory);this.input=new Input();this.renderer=new Renderer(this.canvas,this.player,this.world);this.particles=[];this.events=new EventSystem();this.paused=false;this.time=0;this.quickbar=[null,null,null,null,null,null];this.equipped=null;this.inventoryOpen=false;this.bindUI();this.renderInventory();this.renderQuickbar();this.last=performance.now();requestAnimationFrame(t=>this.loop(t));}
- bindUI(){document.querySelector("#inventoryBtn").onclick=()=>this.toggleInventory();document.querySelector("#closeInventory").onclick=()=>this.toggleInventory();document.querySelector("#inventoryTab").onclick=()=>this.switchTab("inventory");document.querySelector("#craftTab").onclick=()=>this.switchTab("craft");document.querySelector("#pause").onclick=()=>this.togglePause();document.querySelector("#resume").onclick=()=>this.togglePause();document.querySelector("#save").onclick=()=>{document.querySelector("#save").textContent="Salvamento desativado durante os testes";setTimeout(()=>document.querySelector("#save").textContent="Salvar progresso",1500)};document.addEventListener("game:inventory",()=>this.toggleInventory());document.addEventListener("game:pause",()=>this.togglePause());}
- togglePause(){if(this.inventoryOpen)return;this.paused=!this.paused;document.querySelector("#paused").classList.toggle("hidden",!this.paused);}
- toggleInventory(){this.inventoryOpen=!this.inventoryOpen;document.querySelector("#inventory").classList.toggle("hidden",!this.inventoryOpen);this.paused=this.inventoryOpen;if(this.inventoryOpen){this.switchTab("inventory");this.renderInventory();}}
- switchTab(tab){const inv=tab==="inventory";document.querySelector("#inventoryGrid").classList.toggle("hidden",!inv);document.querySelector("#itemInfo").classList.toggle("hidden",!inv);document.querySelector("#craftPanel").classList.toggle("hidden",inv);document.querySelector("#inventoryTab").classList.toggle("active",inv);document.querySelector("#craftTab").classList.toggle("active",!inv);document.querySelector("#inventoryTab").setAttribute("aria-selected",inv);document.querySelector("#craftTab").setAttribute("aria-selected",!inv);if(!inv)this.renderCraft();}
- dropItem(){if(this.paused)return;const result=DropSystem.dropItem({player:this.player,world:this.world,inventory:this.inventory,equipped:this.equipped,particles:this.particles});if(!result.ok&&result.type==="empty"){this.equipped=null;this.renderQuickbar();return;}if(result.ok){if(result.empty)this.equipped=null;this.renderInventory();this.events.emit("itemDropped",{itemId:result.itemId});}}
- attack(){if(this.paused||this.player.attackCd>0)return;const result=InteractionSystem.interact({player:this.player,world:this.world,inventory:this.inventory,equipped:this.equipped,particles:this.particles});if(result.type==="itemUsed"&&this.inventory.qty(result.itemId)<=0)this.equipped=null;if(result.type==="itemCollected"||result.type==="itemUsed")this.renderInventory();if(result.type!=="none")this.events.emit(result.type,result);}
- update(dt){if(this.paused)return;this.time+=dt;this.player.updateCooldown(dt);this.player.updateNeeds(dt);const {dx,dy}=this.input.axis();this.player.move(dx,dy,dt,(mx,my)=>this.world.movePlayer(mx,my));if(this.input.consumeDrop())this.dropItem();if(this.input.consumeAttack())this.attack();this.world.update(dt);DropSystem.collectResourceDrops({player:this.player,world:this.world,inventory:this.inventory,particles:this.particles});this.particles.forEach(p=>p.t-=dt);this.particles=this.particles.filter(p=>p.t>0);if(this.player.hp<=0){this.player.respawn();this.world.enemies=[];this.particles.push({x:this.player.x,y:this.player.y,t:1.5,text:"VOCÊ CAIU — RETORNOU"});}this.updateHUD();}
- updateHUD(){const q=id=>document.querySelector(id);q("#hp").style.width=Math.max(0,this.player.hp/this.player.max*100)+"%";q("#hunger").style.width=Math.max(0,this.player.hunger)+"%";q("#thirst").style.width=Math.max(0,this.player.thirst)+"%";q("#xp").style.width=this.player.xp/this.player.next*100+"%";q("#level").textContent="Lv."+this.player.level;q("#gold").textContent=this.player.gold;q("#kills").textContent=this.player.kills;q("#enemyCount").textContent=this.world.enemies.length;q("#timer").textContent=new Date(this.time*1000).toISOString().slice(14,19);q("#zone").textContent=this.player.level>=5?"MINA ABANDONADA":this.player.level>=3?"RUÍNAS DE ELDOR":"FLORESTA SOMBRIA";}
- loop(now){const dt=Math.min(.033,(now-this.last)/1000);this.last=now;this.update(dt);this.renderer.render(this.particles,this.equipped);requestAnimationFrame(t=>this.loop(t));}
- renderInventory(){const grid=document.querySelector("#inventoryGrid");grid.innerHTML="";for(let i=0;i<this.inventory.slots;i++){const item=this.inventory.items[i],b=document.createElement("button");b.className="slot"+(item?" filled":"");b.innerHTML=item?'<span class="item-icon">'+item.icon+'</span><small>'+item.qty+"</small>":"";if(item)b.onclick=()=>this.equip(item,i);grid.appendChild(b);}document.querySelector("#inventoryCount").textContent=this.inventory.items.reduce((a,x)=>a+x.qty,0)+" / 20";this.renderQuickbar();}
- useItem(item,i){if(item.category==="consumable"&&item.heal&&this.player.hp>=this.player.max){document.querySelector("#itemInfo").textContent="Sua vida já está cheia.";return;}if(ItemSystem.use(item,this.player,this.inventory)){document.querySelector("#itemInfo").textContent="Usado: "+item.name+".";if(this.equipped?.id===item.id&&this.inventory.qty(item.id)<=0)this.equipped=null;this.renderInventory();}}
- equip(item,index=null){this.equipped=item;if(index!==null)this.quickbar[index]=item.id;else{const at=this.quickbar.indexOf(item.id);if(at<0){const empty=this.quickbar.indexOf(null);if(empty>=0)this.quickbar[empty]=item.id;}}this.renderQuickbar();document.querySelector("#itemInfo").textContent="Equipado: "+item.name+".";}
- renderQuickbar(){const box=document.querySelector("#quickbar");if(!box)return;box.innerHTML="";this.quickbar.forEach((id,i)=>{const item=id&&this.inventory.get(id),b=document.createElement("button");b.type="button";b.className="quick-slot"+(item?" filled":" empty")+(this.equipped&&item&&this.equipped.id===item.id?" active":"");b.innerHTML=item?'<span class="quick-key">'+(i+1)+'</span><span class="quick-icon">'+item.icon+'</span><span class="quick-qty">'+item.qty+"</span>":'<span class="quick-key">'+(i+1)+'</span><span class="quick-empty">＋</span>';b.onclick=()=>item&&this.equip(item,i);box.appendChild(b);});}
- renderCraft(){const box=document.querySelector("#recipes");box.innerHTML="";this.crafting.recipes.forEach(recipe=>{const row=document.createElement("div");row.className="recipe";row.innerHTML='<span class="recipe-icon">'+recipe.icon+'</span><div class="recipe-main"><div class="recipe-name">'+recipe.name+'</div><div class="recipe-cost">'+recipe.cost.map(([id,q])=>q+"× "+(this.inventory.get(id)?.name||id)).join(" · ")+" · Você: "+recipe.cost.map(([id])=>this.inventory.qty(id)).join("/")+'</div></div>';const b=document.createElement("button");b.type="button";b.textContent="Criar";b.disabled=!this.crafting.canCraft(recipe);b.onclick=()=>{if(this.crafting.craft(recipe)){document.querySelector("#itemInfo").textContent="Criado: "+this.inventory.get(recipe.output[0])?.name+".";this.events.emit("crafted",{recipeId:recipe.id,output:recipe.output});this.renderInventory();this.renderCraft();}};row.appendChild(b);box.appendChild(row);});}
+  constructor(){
+    this.canvas=document.querySelector("#world");
+    this.player=new Player(Config.WORLD.width/2,Config.WORLD.height/2);
+    this.world=new World(this.player);
+    this.inventory=new Inventory(Config.INVENTORY.slots);
+    this.crafting=new Crafting(this.inventory);
+    this.input=new Input();
+    this.renderer=new Renderer(this.canvas,this.player,this.world);
+    this.particles=[];
+    this.events=new EventSystem();
+    this.paused=false;
+    this.time=0;
+    this.quickbar=[null,null,null,null,null,null];
+    this.equipped=null;
+    this.inventoryOpen=false;
+    this.ui=new GameUI(this);
+    this.loop=new GameLoop(this);
+    this.ui.renderInventory();
+    this.ui.renderQuickbar();
+    this.loop.start();
+  }
 }
