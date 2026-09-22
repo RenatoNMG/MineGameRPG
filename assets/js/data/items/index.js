@@ -1,13 +1,23 @@
-import {RESOURCE_ITEMS} from "./resources.js";
-import {TOOL_ITEMS} from "./tools.js";
-import {WEAPON_ITEMS} from "./weapons.js";
-import {CONSUMABLE_ITEMS} from "./consumables.js";
+import {WOOD} from "./wood.js";
+import {STONE} from "./stone.js";
+import {EGG} from "./egg.js";
+import {WOODEN_AXE} from "./woodenAxe.js";
+import {PICKAXE} from "./pickaxe.js";
+import {AXE} from "./axe.js";
+import {SWORD} from "./sword.js";
+import {TORCH} from "./torch.js";
+import {POTION} from "./potion.js";
 
 export const ITEMS={
-  ...RESOURCE_ITEMS,
-  ...TOOL_ITEMS,
-  ...WEAPON_ITEMS,
-  ...CONSUMABLE_ITEMS
+  wood:WOOD,
+  stone:STONE,
+  egg:EGG,
+  woodenAxe:WOODEN_AXE,
+  pickaxe:PICKAXE,
+  axe:AXE,
+  sword:SWORD,
+  torch:TORCH,
+  potion:POTION
 };
 
 export function getItem(id){
