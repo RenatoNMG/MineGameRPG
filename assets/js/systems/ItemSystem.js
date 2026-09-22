@@ -12,14 +12,19 @@ export class ItemSystem{
     return {valid:true,item};
   }
 
-  static use(item,player,inventory){
+  static canUse(item){
     if(!item)return false;
     const check=this.validate(item.id);
     if(!check.valid)return false;
-    if(item.category!=="food"&&item.category!=="consumable")return false;
+    return item.category==="food"||item.category==="consumable";
+  }
+
+  static use(item,player,inventory){
+    if(!this.canUse(item))return false;
+    if(!inventory.remove(item.id,1))return false;
     if(item.effects?.hunger!==undefined)player.hunger=Math.min(100,player.hunger+item.effects.hunger);
     if(item.effects?.thirst!==undefined)player.thirst=Math.min(100,player.thirst+item.effects.thirst);
     if(item.heal!==undefined)player.hp=Math.min(player.max,player.hp+item.heal);
-    return inventory.remove(item.id,1);
+    return true;
   }
 }
