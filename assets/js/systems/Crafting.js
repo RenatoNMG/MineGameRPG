@@ -1,4 +1,4 @@
-import {RECIPES} from "../data/recipes.js";
+import {RECIPES,getRecipe} from "../data/recipes/index.js";
 import {getItem} from "../data/items/index.js";
 
 export class Crafting{
@@ -7,13 +7,17 @@ export class Crafting{
     this.recipes=RECIPES;
   }
 
+  getRecipe(id){
+    return getRecipe(id);
+  }
+
   canCraft(recipe){
+    if(!recipe||!Array.isArray(recipe.cost)||!Array.isArray(recipe.output))return false;
     const [outputId,outputQty]=recipe.output;
-    const output=this.inventory.get(outputId);
     const definition=getItem(outputId);
     if(!definition||!Number.isInteger(outputQty)||outputQty<1)return false;
     return recipe.cost.every(([id,q])=>this.inventory.qty(id)>=q)&&
-      (!output||this.inventory.qty(outputId)+outputQty<=definition.maxStack);
+      (!this.inventory.get(outputId)||this.inventory.qty(outputId)+outputQty<=definition.maxStack);
   }
 
   craft(recipe){
