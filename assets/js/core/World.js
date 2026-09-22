@@ -1,22 +1,29 @@
-import {Config} from "./Config.js";import {Tree} from "../entities/Tree.js";import {Stone} from "../entities/Stone.js";import {Enemy} from "../entities/Enemy.js";import {Chicken} from "../entities/Chicken.js";import {Chick} from "../entities/Chick.js";export class World{
- constructor(player){this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];this.droppedItems=[];this.enemies=[];this.spawn=0;this.eggHatchTime=90;let seed=9127;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};for(let i=0;i<Config.TREE.count;i++){let x=70+rand()*(this.width-140),y=70+rand()*(this.height-140),s=.8+rand()*.65;if(Math.hypot(x-player.x,y-player.y)<190||this.trees.some(t=>Math.hypot(t.x-x,(t.y+7*t.s)-y)<15*t.s+15)){i--;continue;}this.trees.push(new Tree(x,y,s,i%3,rand()<.5?-1:1));}
- const addStone=(x,y,s,type,loose=false)=>{const stone=new Stone(x,y,s,type);stone.loose=loose;this.stones.push(stone);};
- const objectFree=(x,y,r)=>{if(Math.hypot(x-player.x,y-player.y)<r+35)return false;if(this.trees.some(t=>Math.hypot(t.x-x,(t.y+7*t.s)-y)<r+15*t.s))return false;if(this.stones.some(s=>!s.collected&&Math.hypot(s.x-x,s.y-y)<r+s.radius+8))return false;if(this.looseWood.some(o=>!o.collected&&Math.hypot(o.x-x,o.y-y)<r+18))return false;if(this.chickens.some(ch=>Math.hypot(ch.x-x,ch.y-y)<r+20))return false;if(this.chicks.some(ch=>Math.hypot(ch.x-x,ch.y-y)<r+12))return false;return true;};
- const near=[[-150,-90],[-80,120],[125,-105],[175,90],[-185,55],[210,-145],[70,175],[-170,-165]];
- near.forEach(([dx,dy],i)=>{let s=.95+(i%3)*.15,x=player.x+dx,y=player.y+dy,tries=0;while(!objectFree(x,y,18*s)&&tries++<12){x=player.x+dx+(dx>=0?1:-1)*(55+tries*12);y=player.y+dy+(dy>=0?1:-1)*(45+tries*10);}if(objectFree(x,y,18*s))addStone(x,y,s,i%3,i<3);});
- for(let i=0;i<7;i++){let x=50+rand()*(this.width-100),y=50+rand()*(this.height-100);if(!objectFree(x,y,18)){i--;continue;}this.looseWood.push({x,y,collected:false,variant:i%3});}
- for(let i=0;i<3;i++){let x=90+rand()*(this.width-180),y=90+rand()*(this.height-180);if(!objectFree(x,y,13)){i--;continue;}this.chickens.push(new Chicken(x,y,rand()<.5?-1:1));}
- for(let i=0;i<5;i++){let x=80+rand()*(this.width-160),y=80+rand()*(this.height-160),rx=58+rand()*38,ry=34+rand()*24,angle=(rand()-.5)*.7,treeGap=Math.max(rx,ry)+42;if(Math.hypot(x-player.x,y-player.y)<170||this.trees.some(t=>Math.hypot(t.x-x,t.y-y)<treeGap)||this.stones.some(s=>Math.hypot(s.x-x,s.y-y)<Math.max(rx,ry)+12)||this.looseWood.some(o=>!o.collected&&Math.hypot(o.x-x,o.y-y)<Math.max(rx,ry)+18)||this.chickens.some(ch=>Math.hypot(ch.x-x,ch.y-y)<Math.max(rx,ry)+20)){i--;continue;}this.waterPuddles.push({x,y,rx,ry,angle});}
- for(let i=8;i<Config.STONE.count;i++){let x=50+rand()*(this.width-100),y=50+rand()*(this.height-100),s=.65+rand()*.7;if(!objectFree(x,y,18+18*s)){i--;continue;}addStone(x,y,s,i%3);}}
- objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null){if(this.trees.some(t=>t.blocks(x,y,r)))return true;if(this.stones.some(s=>s.blocks(x,y,r)))return true;if(this.waterBlocks(x,y,r))return true;if(this.chickens.some(ch=>ch!==ignoreChicken&&Math.hypot(ch.x-x,ch.y-y)<r+11))return true;if(this.chicks.some(ch=>ch!==ignoreChick&&Math.hypot(ch.x-x,ch.y-y)<r+7))return true;return false;}
- findWater(range=65){let found=null,dist=range;for(const water of this.waterPuddles){const d=Math.hypot(water.x-this.player.x,water.y-this.player.y);if(d<dist){dist=d;found=water;}}return found;}
- waterBlocks(x,y,r=0){for(const water of this.waterPuddles){const dx=x-water.x,dy=y-water.y;const c=Math.cos(-(water.angle||0)),s=Math.sin(-(water.angle||0));const lx=dx*c-dy*s,ly=dx*s+dy*c;const rx=Math.max(1,water.rx+r+1),ry=Math.max(1,water.ry+r+1);if((lx*lx)/(rx*rx)+(ly*ly)/(ry*ry)<1)return true;}return false;}
- canMove(px,py){if(this.trees.some(t=>t.blocks(px,py,this.player.r)))return false;if(this.stones.some(s=>s.blocks(px,py,this.player.r)))return false;if(this.waterBlocks(px,py,this.player.r+1))return false;return true;}
- movePlayer(dx,dy){const nx=this.player.x+dx,ny=this.player.y+dy;if(this.canMove(nx,this.player.y))this.player.x=nx;if(this.canMove(this.player.x,ny))this.player.y=ny;this.player.x=Math.max(25,Math.min(this.width-25,this.player.x));this.player.y=Math.max(25,Math.min(this.height-25,this.player.y));}
- spawnEnemy(){}
- update(dt){this.trees.forEach(t=>t.update(dt));this.chickens.forEach(ch=>ch.update(dt,this));this.chicks.forEach(ch=>ch.update(dt,this));for(let i=this.eggs.length-1;i>=0;i--){const egg=this.eggs[i];egg.age=(egg.age||0)+dt;if(egg.age>=this.eggHatchTime){const chick=new Chick(egg.x,egg.y,Math.random()<.5?-1:1);this.chicks.push(chick);this.eggs.splice(i,1);}}}
- findTree(range=58){let found=null,dist=range;for(const t of this.trees){if(t.state!=="standing")continue;const d=Math.hypot(t.x-this.player.x,t.y+7*t.s-this.player.y);if(d<dist){dist=d;found=t;}}return found;}
- findLooseWood(range=50){let found=null,dist=range;for(const wood of this.looseWood){if(wood.collected)continue;const d=Math.hypot(wood.x-this.player.x,wood.y-this.player.y);if(d<dist){dist=d;found=wood;}}return found;}
- findEgg(range=50){let found=null,dist=range;for(const egg of this.eggs){if(egg.collected)continue;const d=Math.hypot(egg.x-this.player.x,egg.y-this.player.y);if(d<dist){dist=d;found=egg;}}return found;}
- findStone(range=50){let found=null,dist=range;for(const s of this.stones){if(s.collected)continue;const d=Math.hypot(s.x-this.player.x,s.y-this.player.y);if(d<dist){dist=d;found=s;}}return found;}
+import {Config} from "./Config.js";
+import {Enemy} from "../entities/Enemy.js";
+import {WorldGenerator} from "../systems/WorldGenerator.js";
+import {CollisionSystem} from "../systems/CollisionSystem.js";
+import {WorldQuery} from "../systems/WorldQuery.js";
+import {SpawnSystem} from "../systems/SpawnSystem.js";
+
+export class World{
+  constructor(player){
+    this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
+    this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];this.droppedItems=[];this.enemies=[];
+    const generated=WorldGenerator.generate({player,width:this.width,height:this.height});
+    Object.assign(this,generated);
+    this.collision=new CollisionSystem(this);
+    this.query=new WorldQuery(this);
+    this.spawnSystem=new SpawnSystem(this);
+  }
+  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick);}
+  waterBlocks(x,y,r=0){return this.collision.waterBlocks(x,y,r);}
+  canMove(px,py){return this.collision.canMove(px,py);}
+  movePlayer(dx,dy){this.collision.movePlayer(dx,dy);}
+  findWater(range=65){return this.query.findWater(range);}
+  findTree(range=58){return this.query.findTree(range);}
+  findLooseWood(range=50){return this.query.findLooseWood(range);}
+  findEgg(range=50){return this.query.findEgg(range);}
+  findStone(range=50){return this.query.findStone(range);}
+  spawnEnemy(){}
+  update(dt){this.trees.forEach(t=>t.update(dt));this.spawnSystem.update(dt);}
 }
