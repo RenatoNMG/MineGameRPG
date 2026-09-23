@@ -1,6 +1,7 @@
 import {WOOD} from "./wood.js";
 import {STONE} from "./stone.js";
 import {EGG} from "./egg.js";
+import {CHICKEN_MEAT} from "./chickenMeat.js";
 import {WOODEN_AXE} from "./woodenAxe.js";
 import {PICKAXE} from "./pickaxe.js";
 import {AXE} from "./axe.js";
@@ -12,6 +13,7 @@ export const ITEMS=Object.freeze({
   wood:WOOD,
   stone:STONE,
   egg:EGG,
+  chickenMeat:CHICKEN_MEAT,
   woodenAxe:WOODEN_AXE,
   pickaxe:PICKAXE,
   axe:AXE,
