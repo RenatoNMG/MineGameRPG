@@ -1,4 +1,4 @@
-import {RECIPES,getRecipe} from "../data/recipes/index.js";
+import {RECIPES,getRecipe} from "../data/recipes/index.js?v=2.38";
 import {getItem} from "../data/items/index.js";
 
 export class Crafting{
