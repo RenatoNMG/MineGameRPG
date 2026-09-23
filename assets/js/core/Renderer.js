@@ -1,9 +1,9 @@
-import {WorldRenderer} from "./WorldRenderer.js";
-import {AnimalRenderer} from "./AnimalRenderer.js";
-import {ItemRenderer} from "./ItemRenderer.js";
-import {EnemyRenderer} from "./EnemyRenderer.js";
-import {CharacterLayerSystem} from "../player/CharacterLayerSystem.js";
-import {CharacterLayerRenderer} from "../player/CharacterLayerRenderer.js";
+import {WorldRenderer} from "./WorldRenderer.js?v=216";
+import {AnimalRenderer} from "./AnimalRenderer.js?v=216";
+import {ItemRenderer} from "./ItemRenderer.js?v=216";
+import {EnemyRenderer} from "./EnemyRenderer.js?v=216";
+import {CharacterLayerSystem} from "../player/CharacterLayerSystem.js?v=216";
+import {CharacterLayerRenderer} from "../player/CharacterLayerRenderer.js?v=216";
 
 export class Renderer{
  constructor(canvas,player,world){
