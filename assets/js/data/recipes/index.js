@@ -1,6 +1,6 @@
 import {WOODEN_AXE_RECIPE} from "./woodenAxe.js";
 import {PICKAXE_RECIPE} from "./pickaxe.js";
-import {FENCE_RECIPE} from "./fence.js";
+import {FENCE_RECIPE} from "./fence.js?v=2.38";
 
 export const RECIPES=Object.freeze([
   WOODEN_AXE_RECIPE,
@@ -8,9 +8,7 @@ export const RECIPES=Object.freeze([
   FENCE_RECIPE
 ]);
 
-export function getRecipe(id){
-  return RECIPES.find(recipe=>recipe.id===id)||null;
-}
+export function getRecipe(id){return RECIPES.find(recipe=>recipe.id===id)||null;}
 
 export function validateRecipes(){
   const errors=[];
