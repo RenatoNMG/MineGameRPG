@@ -13,6 +13,17 @@ export class AnimalSystem{
   }
   moveChicken(chicken,dt){
     const w=this.world,d=Math.hypot(chicken.x-w.player.x,chicken.y-w.player.y);
+    let roosterThreat=null,roosterDistance=Infinity;
+    for(const rooster of w.roosters){const rd=Math.hypot(chicken.x-rooster.x,chicken.y-rooster.y);if(rd<roosterDistance){roosterDistance=rd;roosterThreat=rooster;}}
+    if(roosterThreat&&roosterDistance<110){
+      const dx=chicken.x-roosterThreat.x,dy=chicken.y-roosterThreat.y,len=Math.hypot(dx,dy)||1;
+      chicken.dir=dx<0?-1:1;
+      const fleeSpeed=chicken.speed*1.5;
+      const nx=chicken.x+(dx/len)*fleeSpeed*dt,ny=chicken.y+(dy/len)*fleeSpeed*dt;
+      if(!w.objectBlocks(nx,ny,13,chicken)){chicken.x=nx;chicken.y=ny;}
+      else this.wanderChicken(chicken,dt);
+      return;
+    }
     if(d<75){
       const dx=chicken.x-w.player.x,dy=chicken.y-w.player.y,len=Math.hypot(dx,dy)||1;
       chicken.dir=dx<0?-1:1;
