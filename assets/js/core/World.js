@@ -9,7 +9,7 @@ import {TransformationSystem} from "../systems/TransformationSystem.js";
 export class World{
   constructor(player){
     this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
-    this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];this.droppedItems=[];this.enemies=[];
+    this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];this.droppedItems=[];this.enemies=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
     this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);
   }
