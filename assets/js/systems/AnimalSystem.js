@@ -3,7 +3,7 @@ import {Rooster} from "../entities/Rooster.js";
 
 export class AnimalSystem{
   constructor(world){this.world=world;this.maxEggs=20;}
-  update(dt){const w=this.world;for(const chicken of w.chickens)this.updateChicken(chicken,dt);for(const rooster of w.roosters)this.updateRooster(rooster,dt);for(const chick of w.chicks)this.updateChick(chick,dt);}
+  update(dt){const w=this.world;for(const chicken of w.chickens)this.updateChicken(chicken,dt);for(const rooster of w.roosters){if(rooster.carried)continue;this.updateRooster(rooster,dt);}for(const chick of w.chicks)this.updateChick(chick,dt);}
   updateChicken(chicken,dt){
     const w=this.world;if(chicken.carried)return;
     chicken.timer-=dt;chicken.eggTimer-=dt;
