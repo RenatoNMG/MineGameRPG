@@ -3,12 +3,7 @@ import {Rooster} from "../entities/Rooster.js";
 
 export class AnimalSystem{
   constructor(world){this.world=world;this.maxEggs=20;}
-  update(dt){
-    const w=this.world;
-    for(const chicken of w.chickens)this.updateChicken(chicken,dt);
-    for(const rooster of w.roosters)this.updateRooster(rooster,dt);
-    for(const chick of w.chicks)this.updateChick(chick,dt);
-  }
+  update(dt){const w=this.world;for(const chicken of w.chickens)this.updateChicken(chicken,dt);for(const rooster of w.roosters)this.updateRooster(rooster,dt);for(const chick of w.chicks)this.updateChick(chick,dt);}
   updateChicken(chicken,dt){
     const w=this.world;if(chicken.carried)return;
     chicken.timer-=dt;chicken.eggTimer-=dt;this.move(chicken,dt,13,2.2);
@@ -20,17 +15,12 @@ export class AnimalSystem{
     let target=null,best=Infinity;
     for(const chicken of w.chickens){if(chicken.carried)continue;const d=Math.hypot(chicken.x-rooster.x,chicken.y-rooster.y);if(d<120&&d<best){best=d;target=chicken;}}
     if(target){
-      const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;
-      rooster.dir=dx<0?-1:1;
-      if(rooster.mateTimer<=0&&best<22){
-        target.timer=.35;rooster.mateTimer=7+Math.random()*5;
-      }else{
-        const nx=rooster.x+(dx/len)*rooster.speed*1.8*dt,ny=rooster.y+(dy/len)*rooster.speed*1.8*dt;
-        if(!w.objectBlocks(nx,ny,15,null,null)){rooster.x=nx;rooster.y=ny;}
-      }
+      const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;
+      if(rooster.mateTimer<=0&&best<22){rooster.mateTimer=7+Math.random()*5;rooster.timer=.25;}
+      else{const nx=rooster.x+(dx/len)*rooster.speed*1.8*dt,ny=rooster.y+(dy/len)*rooster.speed*1.8*dt;if(!w.objectBlocks(nx,ny,15,null,null)){rooster.x=nx;rooster.y=ny;}else{rooster.dir*=-1;rooster.timer=.3;}}
     }else this.move(rooster,dt,15,1.8);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
   updateChick(chick,dt){const w=this.world;chick.timer-=dt;this.move(chick,dt,7,1.8);chick.x=Math.max(25,Math.min(w.width-25,chick.x));chick.y=Math.max(25,Math.min(w.height-25,chick.y));}
-  move(animal,dt,r,mult){const w=this.world,d=Math.hypot(animal.x-w.player.x,animal.y-w.player.y);if(d<75){const dx=animal.x-w.player.x,dy=animal.y-w.player.y,len=Math.hypot(dx,dy)||1;animal.dir=dx<0?-1:1;const nx=animal.x+(dx/len)*animal.speed*mult*dt,ny=animal.y+(dy/len)*animal.speed*mult*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}}else{if(animal.timer<=0){animal.dir=Math.random()<.5?-1:1;animal.timer=1+Math.random()*2.5;}const nx=animal.x+animal.dir*animal.speed*.35*dt,ny=animal.y+Math.sin((animal.x+animal.y)*.03)*animal.speed*.08*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}else{animal.dir*=-1;animal.timer=.2+Math.random()*.5;}}}
+  move(animal,dt,r,mult){const w=this.world,d=Math.hypot(animal.x-w.player.x,animal.y-w.player.y);if(d<75){const dx=animal.x-w.player.x,dy=animal.y-w.player.y,len=Math.hypot(dx,dy)||1;animal.dir=dx<0?-1:1;const nx=animal.x+(dx/len)*animal.speed*mult*dt,ny=animal.y+(dy/len)*animal.speed*mult*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}else{animal.timer=.25;animal.dir*=-1;}}else{if(animal.timer<=0){animal.dir=Math.random()<.5?-1:1;animal.timer=1+Math.random()*2.5;}const nx=animal.x+animal.dir*animal.speed*.35*dt,ny=animal.y+Math.sin((animal.x+animal.y)*.03)*animal.speed*.08*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}else{animal.dir*=-1;animal.timer=.2+Math.random()*.5;}}}
 }
