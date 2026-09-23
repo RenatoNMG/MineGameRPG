@@ -1,13 +1,13 @@
-import {Config} from "./Config.js";
-import {Player} from "../entities/Player.js";
-import {World} from "./World.js";
-import {Inventory} from "../systems/Inventory.js";
-import {Crafting} from "../systems/Crafting.js";
-import {Input} from "../systems/Input.js";
-import {Renderer} from "./Renderer.js";
-import {EventSystem} from "../systems/EventSystem.js";
-import {GameUI} from "../systems/GameUI.js";
-import {GameLoop} from "../systems/GameLoop.js";
+import {Config} from "./Config.js?v=216";
+import {Player} from "../entities/Player.js?v=216";
+import {World} from "./World.js?v=216";
+import {Inventory} from "../systems/Inventory.js?v=216";
+import {Crafting} from "../systems/Crafting.js?v=216";
+import {Input} from "../systems/Input.js?v=216";
+import {Renderer} from "./Renderer.js?v=216";
+import {EventSystem} from "../systems/EventSystem.js?v=216";
+import {GameUI} from "../systems/GameUI.js?v=216";
+import {GameLoop} from "../systems/GameLoop.js?v=216";
 
 export class Game{
   constructor(){
