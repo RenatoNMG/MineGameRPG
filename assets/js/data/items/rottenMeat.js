@@ -1,1 +1,1 @@
-export const ROTTEN_MEAT={id:"rottenMeat",name:"Carne Podre",icon:"🤢",category:"food",maxStack:99,visual:"rottenMeat",effects:{hunger:5}};
+export const ROTTEN_MEAT={id:"rottenMeat",name:"Carne Podre",icon:"🤢",category:"food",behavior:"food",maxStack:99,visual:"rottenMeat",effects:{hunger:5}};
