@@ -9,6 +9,7 @@ import {AXE} from "./axe.js";
 import {SWORD} from "./sword.js";
 import {TORCH} from "./torch.js";
 import {POTION} from "./potion.js";
+import {FENCE} from "./fence.js";
 
 export const ITEMS=Object.freeze({
   wood:WOOD,
@@ -21,7 +22,8 @@ export const ITEMS=Object.freeze({
   axe:AXE,
   sword:SWORD,
   torch:TORCH,
-  potion:POTION
+  potion:POTION,
+  fence:FENCE
 });
 
 export function getItem(id){
