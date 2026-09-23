@@ -1,9 +1,11 @@
 import {WOODEN_AXE_RECIPE} from "./woodenAxe.js";
 import {PICKAXE_RECIPE} from "./pickaxe.js";
+import {FENCE_RECIPE} from "./fence.js";
 
 export const RECIPES=Object.freeze([
   WOODEN_AXE_RECIPE,
-  PICKAXE_RECIPE
+  PICKAXE_RECIPE,
+  FENCE_RECIPE
 ]);
 
 export function getRecipe(id){
