@@ -6,7 +6,7 @@ import {EnemyRenderer} from "./EnemyRenderer.js";
 export class Renderer{
  constructor(canvas,player,world){
   this.canvas=canvas;this.ctx=canvas.getContext("2d");this.player=player;this.world=world;this.W=0;this.H=0;this.time=0;
-  this.sprite=new Image();this.sprite.src="./assets/player.svg";
+  this.sprite=new Image();this.sprite.src="./assets/player.svg";this.backSprite=new Image();this.backSprite.src="./assets/player_back.svg";
   this.worldRenderer=new WorldRenderer(this);this.animalRenderer=new AnimalRenderer(this);this.itemRenderer=new ItemRenderer(this);this.enemyRenderer=new EnemyRenderer(this);
   this.resize();addEventListener("resize",()=>this.resize());
   const tile=document.createElement("canvas");tile.width=96;tile.height=96;const g=tile.getContext("2d");g.fillStyle="#304b2d";g.fillRect(0,0,96,96);
@@ -48,6 +48,7 @@ export class Renderer{
   objects.forEach(o=>o.draw());this.world.trees.forEach(t=>{if(t.state==="fallen"&&t.drop){c.font="18px Arial";c.textAlign="center";c.fillText("🪵",t.drop.x,t.drop.y-8);}});
   const bob=this.player.moving?Math.sin(this.time*12)*1.5:0;c.save();c.imageSmoothingEnabled=false;
   if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);
+  else if(this.player.moving&&this.player.movementAxis==="vertical"&&this.player.facing==="back"&&this.backSprite.complete&&this.backSprite.naturalWidth)c.drawImage(this.backSprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);
   else if(this.sprite.complete&&this.sprite.naturalWidth)c.drawImage(this.sprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);
   else{c.fillStyle="#314b3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}
   this.drawHeld(equipped,bob);const carried=this.world.chickens.find(ch=>ch.carried);if(carried)this.drawCarriedChicken(carried);c.restore();c.restore();
