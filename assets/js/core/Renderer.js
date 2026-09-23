@@ -26,19 +26,23 @@ export class Renderer{
  drawDroppedItem(...a){return this.itemRenderer.drawDroppedItem(...a);}
  drawEnemy(...a){return this.enemyRenderer.drawEnemy(...a);}
  drawPlayerSide(bob){
-  const c=this.ctx,p=this.player,dir=p.lastDir||1;c.save();c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));c.scale(dir*.62,.62);
+  const c=this.ctx,p=this.player,dir=p.lastDir||1;const walk=this.player.moving?Math.sin(this.time*12):0;const leg=walk*2.2;const arm=-walk*1.8;
+  c.save();c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));c.scale(dir*.62,.62);
   c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,24,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
-  c.fillStyle="#51352a";c.beginPath();c.moveTo(-5,10);c.lineTo(3,10);c.lineTo(4,20);c.lineTo(-5,20);c.closePath();c.fill();
-  c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,19);c.lineTo(3,19);c.lineTo(5,28);c.lineTo(-5,28);c.closePath();c.fill();
+  c.fillStyle="#51352a";c.save();c.translate(-1,15);c.rotate(leg*.035);c.fillRect(-4,-5,8,10);c.restore();c.save();c.translate(2,15);c.rotate(-leg*.035);c.fillRect(-4,-5,8,10);c.restore();
+  c.fillStyle="#262d27";c.save();c.translate(-1,23);c.rotate(leg*.04);c.fillRect(-4,-3,8,8);c.restore();c.save();c.translate(2,23);c.rotate(-leg*.04);c.fillRect(-4,-3,8,8);c.restore();
   c.fillStyle="#c58b62";c.beginPath();c.arc(1,-9,9,0,Math.PI*2);c.fill();
   c.fillStyle="#4a3027";c.beginPath();c.moveTo(-8,-13);c.quadraticCurveTo(-4,-23,3,-22);c.quadraticCurveTo(10,-20,10,-11);c.lineTo(5,-14);c.lineTo(1,-10);c.lineTo(-3,-14);c.closePath();c.fill();
   c.fillStyle="#182018";c.beginPath();c.arc(7,-8,1.5,0,Math.PI*2);c.fill();
   c.fillStyle="#314b3a";c.beginPath();c.moveTo(-7,0);c.lineTo(7,-1);c.lineTo(8,13);c.lineTo(-6,14);c.closePath();c.fill();
   c.fillStyle="#20352a";c.beginPath();c.moveTo(-7,0);c.quadraticCurveTo(-3,-4,3,-3);c.lineTo(8,3);c.lineTo(5,7);c.lineTo(-6,5);c.closePath();c.fill();
   c.fillStyle="#b49452";c.fillRect(-4,2,8,4);
-  c.fillStyle="#c58b62";c.beginPath();c.moveTo(6,2);c.lineTo(13,9);c.lineTo(9,12);c.lineTo(3,6);c.closePath();c.fill();
+  c.fillStyle="#c58b62";c.save();c.translate(0,6);c.rotate(arm*.08);c.beginPath();c.moveTo(6,2);c.lineTo(13,9);c.lineTo(9,12);c.lineTo(3,6);c.closePath();c.fill();c.restore();
   c.fillStyle="#51352a";c.beginPath();c.moveTo(-4,12);c.lineTo(3,12);c.lineTo(3,22);c.lineTo(-5,22);c.closePath();c.fill();
   c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,21);c.lineTo(3,21);c.lineTo(5,25);c.lineTo(-5,25);c.closePath();c.fill();c.restore();
+ }
+ drawWalkingSprite(sprite,bob,back=false){
+  const c=this.ctx,p=this.player;const phase=Math.sin(this.time*12);const sway=p.moving?phase*.018:0;const sx=p.moving?(1+Math.abs(phase)*.025):1;const sy=p.moving?(1-Math.abs(phase)*.018):1;c.save();c.translate(p.x,p.y+bob);c.rotate(sway);c.scale(sx,sy);c.drawImage(sprite,-24,-32,48,48);c.restore();
  }
  render(particles,equipped){
   const c=this.ctx;c.clearRect(0,0,this.W,this.H);
@@ -48,8 +52,8 @@ export class Renderer{
   objects.forEach(o=>o.draw());this.world.trees.forEach(t=>{if(t.state==="fallen"&&t.drop){c.font="18px Arial";c.textAlign="center";c.fillText("🪵",t.drop.x,t.drop.y-8);}});
   const bob=this.player.moving?Math.sin(this.time*12)*1.5:0;c.save();c.imageSmoothingEnabled=false;
   if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);
-  else if(this.player.moving&&this.player.movementAxis==="vertical"&&this.player.facing==="back"&&this.backSprite.complete&&this.backSprite.naturalWidth)c.drawImage(this.backSprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);
-  else if(this.sprite.complete&&this.sprite.naturalWidth)c.drawImage(this.sprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);
+  else if(this.player.moving&&this.player.movementAxis==="vertical"&&this.player.facing==="back"&&this.backSprite.complete&&this.backSprite.naturalWidth)this.drawWalkingSprite(this.backSprite,bob,true);
+  else if(this.sprite.complete&&this.sprite.naturalWidth)this.drawWalkingSprite(this.sprite,bob,false);
   else{c.fillStyle="#314b3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}
   this.drawHeld(equipped,bob);const carried=this.world.chickens.find(ch=>ch.carried);if(carried)this.drawCarriedChicken(carried);c.restore();c.restore();
   particles.forEach(p=>{const sx=p.x-camX,sy=p.y-camY-(1-p.t)*35;c.globalAlpha=Math.min(1,p.t*3);c.fillStyle="#e5c66f";c.font="bold 14px Arial";c.textAlign="center";c.fillText(p.text,sx,sy);c.globalAlpha=1;});this.time+=.016;
