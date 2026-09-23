@@ -1,5 +1,6 @@
 import {Config} from "../core/Config.js";
 import {ToolSystem} from "./ToolSystem.js";
+import {Stone} from "../entities/Stone.js";
 
 export class ResourceInteraction{
   static interact({player,world,inventory,equipped,particles}){
@@ -54,7 +55,27 @@ export class ResourceInteraction{
       player.attackCd=Config.COMBAT.attackCooldown;
       stone.hit();
       particles.push({x:stone.x,y:stone.y-28*stone.s,t:.5,text:"⛏️ -1"});
-      if(stone.hp===0)particles.push({x:stone.x,y:stone.y-38*stone.s,t:1,text:"🪨 PEDRA QUEBRADA"});
+      if(stone.hp===0){
+        stone.collected=true;
+        stone.hp=-1;
+
+        const offsets=[
+          [38,0],[-38,0],[12,36],[-12,-36],[0,44],
+          [48,16],[-48,-16],[24,-42],[-24,42],[0,-48]
+        ];
+        let spawned=0;
+        for(const [ox,oy] of offsets){
+          if(spawned>=5)break;
+          const x=stone.x+ox,y=stone.y+oy;
+          if(x<28||x>world.width-28||y<28||y>world.height-28)continue;
+          if(world.objectBlocks(x,y,14))continue;
+          const loose=new Stone(x,y,.75,stone.type);
+          loose.loose=true;
+          world.stones.push(loose);
+          spawned++;
+        }
+        particles.push({x:stone.x,y:stone.y-45*stone.s,t:1,text:"+5 PEDRAS PEQUENAS"});
+      }
       return {type:"stoneHit"};
     }
 
