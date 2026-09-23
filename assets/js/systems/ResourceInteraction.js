@@ -13,7 +13,21 @@ export class ResourceInteraction{
       player.attackCd=Config.COMBAT.attackCooldown;
       tree.hit();
       particles.push({x:tree.x,y:tree.y-35*tree.s,t:.5,text:"🪓 -1"});
-      if(tree.hp===0)particles.push({x:tree.x,y:tree.y-45*tree.s,t:1,text:"🌳 ÁRVORE DERRUBADA"});
+      if(tree.hp===0){
+        tree.drop=null;
+        const offsets=[[42,0],[-42,0],[14,38],[-14,-38],[0,48],[52,18],[-52,-18],[26,-44],[-26,44],[0,-52]];
+        let spawned=0;
+        for(const [ox,oy] of offsets){
+          if(spawned>=5)break;
+          const x=tree.x+ox,y=tree.y+oy;
+          if(x<30||x>world.width-30||y<30||y>world.height-30)continue;
+          if(world.objectBlocks(x,y,12))continue;
+          if(world.looseWood.some(w=>!w.collected&&Math.hypot(w.x-x,w.y-y)<22))continue;
+          world.looseWood.push({x,y,collected:false,variant:(tree.t+spawned)%3});
+          spawned++;
+        }
+        particles.push({x:tree.x,y:tree.y-45*tree.s,t:1,text:"+5 MADEIRAS PEQUENAS"});
+      }
       return {type:"treeHit"};
     }
 
