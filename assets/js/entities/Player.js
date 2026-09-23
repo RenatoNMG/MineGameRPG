@@ -7,7 +7,7 @@ export class Player{
     this.thirst=Math.max(0,this.thirst-dt*Config.SURVIVAL.thirstDrain);
     if(this.hunger<=0||this.thirst<=0)this.hp=Math.max(0,this.hp-dt*Config.SURVIVAL.starvationDamage);
   }
-  move(dx,dy,dt,canMove){if(!dx&&!dy){this.moving=false;return;}this.moving=true;const n=Math.hypot(dx,dy);if(dy!==0){this.facing="front";this.movementAxis="vertical";}else if(dx!==0){this.facing="side";this.movementAxis="horizontal";this.lastDir=dx>0?1:-1;}canMove(dx/n*this.speed*dt,dy/n*this.speed*dt);}
+  move(dx,dy,dt,canMove){if(!dx&&!dy){this.moving=false;return;}this.moving=true;const n=Math.hypot(dx,dy);if(dy!==0){this.facing=dy<0?"back":"front";this.movementAxis="vertical";}else if(dx!==0){this.facing="side";this.movementAxis="horizontal";this.lastDir=dx>0?1:-1;}canMove(dx/n*this.speed*dt,dy/n*this.speed*dt);}
   gainXp(amount){this.xp+=amount;let leveled=false;while(this.xp>=this.next){this.xp-=this.next;this.level++;this.next=Math.floor(this.next*1.35);this.max+=15;this.hp=this.max;this.speed+=6;leveled=true;}return leveled;}
   takeDamage(amount){this.hp-=amount;}
   respawn(){this.hp=this.max*.5;this.hunger=70;this.thirst=70;this.gold=Math.max(0,this.gold-15);this.xp=0;}
