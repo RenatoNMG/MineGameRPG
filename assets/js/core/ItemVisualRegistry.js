@@ -25,6 +25,8 @@ Renderer.prototype.drawRottenMeat=function(item){
 
 Renderer.prototype.drawFence=function(item){const c=this.ctx;c.save();c.translate(item.x,item.y);c.fillStyle="rgba(10,12,10,.25)";c.beginPath();c.ellipse(0,9,18,4,0,0,Math.PI*2);c.fill();c.strokeStyle="#5b3824";c.lineWidth=4;c.beginPath();c.moveTo(-13,7);c.lineTo(-13,-8);c.moveTo(0,7);c.lineTo(0,-10);c.moveTo(13,7);c.lineTo(13,-8);c.stroke();c.lineWidth=3;c.strokeStyle="#8a5b35";c.beginPath();c.moveTo(-16,-4);c.lineTo(16,-4);c.moveTo(-16,3);c.lineTo(16,3);c.stroke();c.restore();};
 
+Renderer.prototype.drawFencePreview=function(item,valid=true){const c=this.ctx;c.save();c.translate(item.x,item.y);c.globalAlpha=.48;c.fillStyle=valid?"#73c66b":"#d95b5b";c.beginPath();c.ellipse(0,9,20,5,0,0,Math.PI*2);c.fill();c.strokeStyle=valid?"#9be28f":"#ff8b8b";c.lineWidth=4;c.beginPath();c.moveTo(-13,7);c.lineTo(-13,-8);c.moveTo(0,7);c.lineTo(0,-10);c.moveTo(13,7);c.lineTo(13,-8);c.stroke();c.lineWidth=3;c.beginPath();c.moveTo(-16,-4);c.lineTo(16,-4);c.moveTo(-16,3);c.lineTo(16,3);c.stroke();c.globalAlpha=.9;c.font="bold 9px Arial";c.textAlign="center";c.fillStyle=valid?"#bff2b8":"#ffd0d0";c.fillText(valid?"SOLTAR":"BLOQUEADO",0,22);c.restore();};
+
 Renderer.prototype.drawDroppedItem=function(item){
   const draw=runtimeVisuals[item?.visual];
   if(draw){draw(this,item);return;}
