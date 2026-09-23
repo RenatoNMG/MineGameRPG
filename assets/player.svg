@@ -5,7 +5,7 @@
   <path d="M21 31c0-12 5-19 11-19s11 7 11 19v17H21z" fill="#314b3a"/>
   <path d="M19 31c2-10 7-17 13-17s11 7 13 17l-4 5H23z" fill="#20352a"/>
   <path d="M25 25c1-6 4-9 7-9s6 3 7 9v8H25z" fill="#c58b62"/>
-  <path d="M24 25c1-7 5-10 8-10s7 3 8 10l-2 7H26z" fill="#4a3027"/>
+  <path d="M24 25c1-7 5-10 8-10s7 3 8 10l-2 4H26z" fill="#4a3027"/>
   <rect x="28" y="27" width="3" height="3" rx="1" fill="#182018"/>
   <rect x="34" y="27" width="3" height="3" rx="1" fill="#182018"/>
   <path d="M26 34h12l3 13H23z" fill="#3e6549"/>
