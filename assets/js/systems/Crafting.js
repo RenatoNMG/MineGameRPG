@@ -1,14 +1,17 @@
-import {RECIPES,getRecipe} from "../data/recipes/index.js?v=2.38";
+import {RECIPES,getRecipe} from "../data/recipes/index.js?v=2.39";
+import {FENCE_RECIPE} from "../data/recipes/fence.js?v=2.39";
 import {getItem} from "../data/items/index.js";
 
 export class Crafting{
   constructor(inventory){
     this.inventory=inventory;
-    this.recipes=RECIPES;
+    const recipes=[...RECIPES];
+    if(!recipes.some(recipe=>recipe.id==="fence"))recipes.push(FENCE_RECIPE);
+    this.recipes=recipes;
   }
 
   getRecipe(id){
-    return getRecipe(id);
+    return getRecipe(id)||this.recipes.find(recipe=>recipe.id===id)||null;
   }
 
   canCraft(recipe){
