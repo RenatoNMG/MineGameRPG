@@ -8,7 +8,7 @@ export class AnimalSystem{
     const w=this.world;if(chicken.carried)return;
     chicken.timer-=dt;
     if(chicken.matingEggTimer!==undefined&&chicken.matingEggTimer!==null)chicken.matingEggTimer-=dt;
-    if(chicken.matingEggCooldown!==undefined&&chicken.matingEggCooldown>0)chicken.matingEggCooldown-=dt;
+    if(chicken.matingEggLocked){const nearRooster=w.roosters.some(r=>!r.carried&&Math.hypot(chicken.x-r.x,chicken.y-r.y)<50);if(!nearRooster)chicken.matingEggLocked=false;}
     this.moveChicken(chicken,dt);
     chicken.x=Math.max(30,Math.min(w.width-30,chicken.x));chicken.y=Math.max(30,Math.min(w.height-30,chicken.y));
     if(chicken.matingEggTimer!==undefined&&chicken.matingEggTimer<=0){
@@ -87,7 +87,7 @@ export class AnimalSystem{
     rooster.timer-=dt;rooster.mateTimer-=dt;
     let target=null,best=Infinity;
     for(const chicken of w.chickens){if(chicken.carried)continue;const d=Math.hypot(chicken.x-rooster.x,chicken.y-rooster.y);if(d<120&&d<best){best=d;target=chicken;}}
-    if(target){const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;if(rooster.mateTimer<=0&&best<=22&&(!target.matingEggCooldown||target.matingEggCooldown<=0)){rooster.mateTimer=7+Math.random()*5;rooster.matingTimer=1;rooster.matingCooldown=5;rooster.matingTarget=target;target.matingEggTimer=1;target.matingEggCooldown=6;rooster.timer=.25;return;}if(best<=22)return;if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1.8,target))rooster.dir=dx<0?-1:1;}else this.move(rooster,dt,15,1.8);
+    if(target){const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;if(rooster.mateTimer<=0&&best<=22&&!target.matingEggLocked){rooster.mateTimer=7+Math.random()*5;rooster.matingTimer=1;rooster.matingCooldown=5;rooster.matingTarget=target;target.matingEggTimer=1;target.matingEggLocked=true;rooster.timer=.25;return;}if(best<=22)return;if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1.8,target))rooster.dir=dx<0?-1:1;}else this.move(rooster,dt,15,1.8);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
   updateChick(chick,dt){const w=this.world;chick.timer-=dt;this.move(chick,dt,7,1.8);chick.x=Math.max(25,Math.min(w.width-25,chick.x));chick.y=Math.max(25,Math.min(w.height-25,chick.y));}
