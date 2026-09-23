@@ -1,6 +1,6 @@
-import {InteractionSystem} from "./InteractionSystem.js";
-import {DropSystem} from "./DropSystem.js";
-import {ChickenCarrySystem} from "./ChickenCarrySystem.js";
+import {InteractionSystem} from "./InteractionSystem.js?v=216";
+import {DropSystem} from "./DropSystem.js?v=216";
+import {ChickenCarrySystem} from "./ChickenCarrySystem.js?v=216";
 
 export class GameLoop{
   constructor(game){this.game=game;this.last=performance.now();}
