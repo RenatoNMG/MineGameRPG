@@ -25,37 +25,46 @@ export class Renderer{
  drawHeld(...a){return this.itemRenderer.drawHeld(...a);}
  drawDroppedItem(...a){return this.itemRenderer.drawDroppedItem(...a);}
  drawEnemy(...a){return this.enemyRenderer.drawEnemy(...a);}
-  drawPlayerSide(bob){
-    const c=this.ctx,p=this.player,dir=p.lastDir||1;
-    c.save();
-    c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));
-    c.scale(dir*0.62,0.62);
-    c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,24,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
-    c.fillStyle="#51352a";c.beginPath();c.moveTo(-5,10);c.lineTo(3,10);c.lineTo(4,20);c.lineTo(-5,20);c.closePath();c.fill();
-    c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,19);c.lineTo(3,19);c.lineTo(5,28);c.lineTo(-5,28);c.closePath();c.fill();
-    c.fillStyle="#c58b62";c.beginPath();c.arc(1,-9,9,0,Math.PI*2);c.fill();
-    c.fillStyle="#4a3027";c.beginPath();c.moveTo(-8,-13);c.quadraticCurveTo(-4,-23,3,-22);c.quadraticCurveTo(10,-20,10,-11);c.lineTo(5,-14);c.lineTo(1,-10);c.lineTo(-3,-14);c.closePath();c.fill();
-    c.fillStyle="#182018";c.beginPath();c.arc(7,-8,1.5,0,Math.PI*2);c.fill();
-    c.fillStyle="#314b3a";c.beginPath();c.moveTo(-7,0);c.lineTo(7,-1);c.lineTo(8,13);c.lineTo(-6,14);c.closePath();c.fill();
-    c.fillStyle="#20352a";c.beginPath();c.moveTo(-7,0);c.quadraticCurveTo(-3,-4,3,-3);c.lineTo(8,3);c.lineTo(5,7);c.lineTo(-6,5);c.closePath();c.fill();
-    c.fillStyle="#b49452";c.fillRect(-4,2,8,4);
-    c.fillStyle="#c58b62";c.beginPath();c.moveTo(6,2);c.lineTo(13,9);c.lineTo(9,12);c.lineTo(3,6);c.closePath();c.fill();
-    c.fillStyle="#51352a";c.beginPath();c.moveTo(-4,12);c.lineTo(3,12);c.lineTo(3,22);c.lineTo(-5,22);c.closePath();c.fill();
-    c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,21);c.lineTo(3,21);c.lineTo(5,25);c.lineTo(-5,25);c.closePath();c.fill();
-    c.restore();
-  }
-
+ drawPlayerFront(bob){
+  const c=this.ctx,p=this.player;
+  c.save();c.translate(Math.floor(p.x),Math.floor(p.y+bob-32));c.scale(.75,.75);
+  c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,43,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
+  c.fillStyle="#314b3a";c.beginPath();c.moveTo(-11,-1);c.quadraticCurveTo(-11,-15,0,-20);c.quadraticCurveTo(11,-15,11,-1);c.lineTo(11,15);c.lineTo(-11,15);c.closePath();c.fill();
+  c.fillStyle="#20352a";c.beginPath();c.moveTo(-13,-1);c.quadraticCurveTo(-10,-14,0,-18);c.quadraticCurveTo(10,-14,13,-1);c.lineTo(9,4);c.lineTo(-9,4);c.closePath();c.fill();
+  c.fillStyle="#c58b62";c.beginPath();c.moveTo(-7,-7);c.quadraticCurveTo(-7,-15,0,-17);c.quadraticCurveTo(7,-15,7,-7);c.lineTo(7,1);c.lineTo(-7,1);c.closePath();c.fill();
+  c.fillStyle="#4a3027";c.beginPath();c.moveTo(-8,-11);c.quadraticCurveTo(-7,-20,0,-21);c.quadraticCurveTo(7,-20,8,-11);c.lineTo(4,-13);c.lineTo(0,-11);c.lineTo(-4,-13);c.closePath();c.fill();
+  c.fillStyle="#182018";c.fillRect(-4,-6,3,3);c.fillRect(1,-6,3,3);
+  c.fillStyle="#3e6549";c.beginPath();c.moveTo(-6,2);c.lineTo(6,2);c.lineTo(9,17);c.lineTo(-9,17);c.closePath();c.fill();
+  c.fillStyle="#b49452";c.fillRect(-5,3,10,4);
+  c.fillStyle="#c58b62";c.beginPath();c.moveTo(-7,3);c.lineTo(-13,13);c.lineTo(-8,16);c.lineTo(-2,8);c.closePath();c.fill();c.beginPath();c.moveTo(7,3);c.lineTo(13,13);c.lineTo(8,16);c.lineTo(2,8);c.closePath();c.fill();
+  c.fillStyle="#51352a";c.fillRect(-7,16,7,10);c.fillRect(0,16,7,10);
+  c.fillStyle="#262d27";c.fillRect(-10,25,10,4);c.fillRect(0,25,10,4);
+  c.restore();
+ }
+ drawPlayerSide(bob){
+  const c=this.ctx,p=this.player,dir=p.lastDir||1;c.save();c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));c.scale(dir*.62,.62);
+  c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,24,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
+  c.fillStyle="#51352a";c.beginPath();c.moveTo(-5,10);c.lineTo(3,10);c.lineTo(4,20);c.lineTo(-5,20);c.closePath();c.fill();
+  c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,19);c.lineTo(3,19);c.lineTo(5,28);c.lineTo(-5,28);c.closePath();c.fill();
+  c.fillStyle="#c58b62";c.beginPath();c.arc(1,-9,9,0,Math.PI*2);c.fill();
+  c.fillStyle="#4a3027";c.beginPath();c.moveTo(-8,-13);c.quadraticCurveTo(-4,-23,3,-22);c.quadraticCurveTo(10,-20,10,-11);c.lineTo(5,-14);c.lineTo(1,-10);c.lineTo(-3,-14);c.closePath();c.fill();
+  c.fillStyle="#182018";c.beginPath();c.arc(7,-8,1.5,0,Math.PI*2);c.fill();
+  c.fillStyle="#314b3a";c.beginPath();c.moveTo(-7,0);c.lineTo(7,-1);c.lineTo(8,13);c.lineTo(-6,14);c.closePath();c.fill();
+  c.fillStyle="#20352a";c.beginPath();c.moveTo(-7,0);c.quadraticCurveTo(-3,-4,3,-3);c.lineTo(8,3);c.lineTo(5,7);c.lineTo(-6,5);c.closePath();c.fill();
+  c.fillStyle="#b49452";c.fillRect(-4,2,8,4);
+  c.fillStyle="#c58b62";c.beginPath();c.moveTo(6,2);c.lineTo(13,9);c.lineTo(9,12);c.lineTo(3,6);c.closePath();c.fill();
+  c.fillStyle="#51352a";c.beginPath();c.moveTo(-4,12);c.lineTo(3,12);c.lineTo(3,22);c.lineTo(-5,22);c.closePath();c.fill();
+  c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,21);c.lineTo(3,21);c.lineTo(5,25);c.lineTo(-5,25);c.closePath();c.fill();c.restore();
+ }
  render(particles,equipped){
   const c=this.ctx;c.clearRect(0,0,this.W,this.H);
   const camX=Math.max(0,Math.min(this.world.width-this.W,this.player.x-this.W/2)),camY=Math.max(0,Math.min(this.world.height-this.H,this.player.y-this.H/2));
   c.save();c.translate(-camX,-camY);c.fillStyle=this.grass;c.fillRect(0,0,this.world.width,this.world.height);
   const objects=[...this.world.trees.map(t=>({y:t.y,obj:t,draw:()=>this.drawTree(t)})),...this.world.stones.filter(s=>!s.collected).map(s=>({y:s.y,obj:s,draw:()=>this.drawStone(s)})),...this.world.looseWood.filter(w=>!w.collected).map(w=>({y:w.y,obj:w,draw:()=>this.drawWood(w)})),...this.world.waterPuddles.map(p=>({y:p.y,obj:p,draw:()=>this.drawWaterPuddle(p)})),...this.world.eggs.filter(e=>!e.collected).map(e=>({y:e.y,obj:e,draw:()=>this.drawEgg(e)})),...this.world.droppedItems.map(i=>({y:i.y,obj:i,draw:()=>this.drawDroppedItem(i)})),...this.world.chicks.map(ch=>({y:ch.y,obj:ch,draw:()=>this.drawChick(ch)})),...this.world.chickens.filter(ch=>!ch.carried).map(ch=>({y:ch.y,obj:ch,draw:()=>this.drawChicken(ch)})),...this.world.enemies.map(e=>({y:e.y,obj:e,draw:()=>this.drawEnemy(e)}))].sort((a,b)=>a.y-b.y);
-  objects.forEach(o=>o.draw());
-  this.world.trees.forEach(t=>{if(t.state==="fallen"&&t.drop){c.font="18px Arial";c.textAlign="center";c.fillText("🪵",t.drop.x,t.drop.y-8);}});
+  objects.forEach(o=>o.draw());this.world.trees.forEach(t=>{if(t.state==="fallen"&&t.drop){c.font="18px Arial";c.textAlign="center";c.fillText("🪵",t.drop.x,t.drop.y-8);}});
   const bob=this.player.moving?Math.sin(this.time*12)*1.5:0;c.save();c.imageSmoothingEnabled=false;
-  if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);else if(this.sprite.complete&&this.sprite.naturalWidth)c.drawImage(this.sprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);else{c.fillStyle="#314a3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}
+  if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);else this.drawPlayerFront(bob);
   this.drawHeld(equipped,bob);const carried=this.world.chickens.find(ch=>ch.carried);if(carried)this.drawCarriedChicken(carried);c.restore();c.restore();
-  particles.forEach(p=>{const sx=p.x-camX,sy=p.y-camY-(1-p.t)*35;c.globalAlpha=Math.min(1,p.t*3);c.fillStyle="#e5c66f";c.font="bold 14px Arial";c.textAlign="center";c.fillText(p.text,sx,sy);c.globalAlpha=1;});
-  this.time+=.016;
+  particles.forEach(p=>{const sx=p.x-camX,sy=p.y-camY-(1-p.t)*35;c.globalAlpha=Math.min(1,p.t*3);c.fillStyle="#e5c66f";c.font="bold 14px Arial";c.textAlign="center";c.fillText(p.text,sx,sy);c.globalAlpha=1;});this.time+=.016;
  }
 }
