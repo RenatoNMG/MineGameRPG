@@ -1,1 +1,1 @@
-export const CHICKEN_MEAT={id:"chickenMeat",name:"Carne de Galinha",icon:"🍗",category:"food",maxStack:99,visual:"meat",effects:{hunger:35}};
+export const CHICKEN_MEAT={id:"chickenMeat",name:"Carne de Galinha",icon:"🍗",category:"food",behavior:"food",maxStack:99,visual:"meat",effects:{hunger:35}};
