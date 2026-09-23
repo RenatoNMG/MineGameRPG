@@ -18,6 +18,9 @@ export class AnimalSystem{
     if(roosterThreat&&roosterThreat.matingTimer>0){
       return;
     }
+    if(roosterThreat&&roosterThreat.matingTimer<=0&&roosterDistance<28){
+      return;
+    }
     if(roosterThreat&&roosterDistance<110){
       const dx=chicken.x-roosterThreat.x,dy=chicken.y-roosterThreat.y,len=Math.hypot(dx,dy)||1;
       chicken.dir=dx<0?-1:1;
