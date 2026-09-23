@@ -1,10 +1,10 @@
-import {Config} from "./Config.js";
-import {WorldGenerator} from "../systems/WorldGenerator.js";
-import {CollisionSystem} from "../systems/CollisionSystem.js";
-import {WorldQuery} from "../systems/WorldQuery.js";
-import {SpawnSystem} from "../systems/SpawnSystem.js";
-import {AnimalSystem} from "../systems/AnimalSystem.js";
-import {TransformationSystem} from "../systems/TransformationSystem.js";
+import {Config} from "./Config.js?v=216";
+import {WorldGenerator} from "../systems/WorldGenerator.js?v=216";
+import {CollisionSystem} from "../systems/CollisionSystem.js?v=216";
+import {WorldQuery} from "../systems/WorldQuery.js?v=216";
+import {SpawnSystem} from "../systems/SpawnSystem.js?v=216";
+import {AnimalSystem} from "../systems/AnimalSystem.js?v=216";
+import {TransformationSystem} from "../systems/TransformationSystem.js?v=216";
 
 export class World{
   constructor(player){
