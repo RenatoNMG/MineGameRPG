@@ -6,10 +6,14 @@ export class AnimalSystem{
   update(dt){const w=this.world;for(const chicken of w.chickens)this.updateChicken(chicken,dt);for(const rooster of w.roosters)this.updateRooster(rooster,dt);for(const chick of w.chicks)this.updateChick(chick,dt);}
   updateChicken(chicken,dt){
     const w=this.world;if(chicken.carried)return;
-    chicken.timer-=dt;chicken.eggTimer-=dt;
+    chicken.timer-=dt;
+    if(chicken.matingEggTimer!==undefined&&chicken.matingEggTimer!==null)chicken.matingEggTimer-=dt;
     this.moveChicken(chicken,dt);
     chicken.x=Math.max(30,Math.min(w.width-30,chicken.x));chicken.y=Math.max(30,Math.min(w.height-30,chicken.y));
-    if(chicken.eggTimer<=0&&w.eggs.length<this.maxEggs){const ex=chicken.x-chicken.dir*14,ey=chicken.y+8;if(!w.objectBlocks(ex,ey,6,chicken)&&!w.eggs.some(e=>Math.hypot(e.x-ex,e.y-ey)<18))w.eggs.push({x:ex,y:ey});chicken.eggTimer=15+Math.random()*20;}else if(chicken.eggTimer<=0)chicken.eggTimer=3+Math.random()*5;
+    if(chicken.matingEggTimer!==undefined&&chicken.matingEggTimer<=0){
+      if(w.eggs.length<this.maxEggs){const ex=chicken.x-chicken.dir*14,ey=chicken.y+8;if(!w.objectBlocks(ex,ey,6,chicken)&&!w.eggs.some(e=>Math.hypot(e.x-ex,e.y-ey)<18))w.eggs.push({x:ex,y:ey});}
+      chicken.matingEggTimer=null;
+    }
   }
   moveChicken(chicken,dt){
     const w=this.world,d=Math.hypot(chicken.x-w.player.x,chicken.y-w.player.y);
@@ -82,7 +86,7 @@ export class AnimalSystem{
     rooster.timer-=dt;rooster.mateTimer-=dt;
     let target=null,best=Infinity;
     for(const chicken of w.chickens){if(chicken.carried)continue;const d=Math.hypot(chicken.x-rooster.x,chicken.y-rooster.y);if(d<120&&d<best){best=d;target=chicken;}}
-    if(target){const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;if(rooster.mateTimer<=0&&best<=22){rooster.mateTimer=7+Math.random()*5;rooster.matingTimer=1;rooster.matingCooldown=5;rooster.matingTarget=target;rooster.timer=.25;return;}if(best<=22)return;if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1.8,target))rooster.dir=dx<0?-1:1;}else this.move(rooster,dt,15,1.8);
+    if(target){const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;if(rooster.mateTimer<=0&&best<=22){rooster.mateTimer=7+Math.random()*5;rooster.matingTimer=1;rooster.matingCooldown=5;rooster.matingTarget=target;target.matingEggTimer=1;rooster.timer=.25;return;}if(best<=22)return;if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1.8,target))rooster.dir=dx<0?-1:1;}else this.move(rooster,dt,15,1.8);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
   updateChick(chick,dt){const w=this.world;chick.timer-=dt;this.move(chick,dt,7,1.8);chick.x=Math.max(25,Math.min(w.width-25,chick.x));chick.y=Math.max(25,Math.min(w.height-25,chick.y));}
