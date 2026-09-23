@@ -12,7 +12,7 @@ export class InventoryUI{
           const mini=canvas.getContext("2d"),original=game.renderer.ctx;
           game.renderer.ctx=mini;game.renderer.drawDroppedItem({x:16,y:15,visual:"rottenMeat"});game.renderer.ctx=original;
           icon.appendChild(canvas);
-        }else icon.textContent=item.icon;
+        }else if(typeof item.icon==="string"&&item.icon.trim().startsWith("<svg")){icon.innerHTML=item.icon;}else icon.textContent=item.icon;
         const qty=document.createElement("small");qty.textContent=item.qty;
         b.append(icon,qty);b.onclick=()=>this.equip(item,i);
       }
