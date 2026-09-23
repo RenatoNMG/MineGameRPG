@@ -54,7 +54,7 @@ export class ResourceInteraction{
       player.attackCd=Config.COMBAT.attackCooldown;
       stone.hit();
       particles.push({x:stone.x,y:stone.y-28*stone.s,t:.5,text:"⛏️ -1"});
-      if(stone.hp===0)particles.push({x:stone.x,y:stone.y-38*stone.s,t:1,text:"🪨 PEDRA QUEBRADA"});
+      if(stone.hp===0){world.droppedItems.push({id:"stone",name:"Pedra",icon:"🪨",category:"resource",maxStack:99,visual:"stone",qty:5,x:stone.x,y:stone.y,type:stone.type});stone.hp=-1;particles.push({x:stone.x,y:stone.y-38*stone.s,t:1,text:"🪨 PEDRA QUEBRADA"});}
       return {type:"stoneHit"};
     }
 
