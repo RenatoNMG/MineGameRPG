@@ -1,8 +1,19 @@
-import {ItemSystem} from "./ItemSystem.js";
-import {Renderer} from "../core/Renderer.js";
+import {HUDUI} from "./HUDUI.js";
+import {QuickbarUI} from "./QuickbarUI.js";
+import {InventoryUI} from "./InventoryUI.js";
+import {CraftUI} from "./CraftUI.js";
+import {PauseUI} from "./PauseUI.js";
 
 export class GameUI{
-  constructor(game){this.game=game;this.bind();}
+  constructor(game){
+    this.game=game;
+    this.bind();
+    this.hud=new HUDUI(game,this.q.bind(this));
+    this.quickbar=new QuickbarUI(game,this.q.bind(this));
+    this.inventory=new InventoryUI(game,this.q.bind(this),this.quickbar);
+    this.craft=new CraftUI(game,this.q.bind(this),this.inventory);
+    this.pause=new PauseUI(game,this.q.bind(this));
+  }
   q(id){return document.querySelector(id);}
   bind(){
     this.q("#inventoryBtn").onclick=()=>this.toggleInventory();
@@ -15,13 +26,26 @@ export class GameUI{
     document.addEventListener("game:inventory",()=>this.toggleInventory());
     document.addEventListener("game:pause",()=>this.togglePause());
   }
-  togglePause(){if(this.game.inventoryOpen)return;this.game.paused=!this.game.paused;this.q("#paused").classList.toggle("hidden",!this.game.paused);}
-  toggleInventory(){this.game.inventoryOpen=!this.game.inventoryOpen;this.q("#inventory").classList.toggle("hidden",!this.game.inventoryOpen);this.game.paused=this.game.inventoryOpen;if(this.game.inventoryOpen){this.switchTab("inventory");this.renderInventory();}}
-  switchTab(tab){const inv=tab==="inventory";this.q("#inventoryGrid").classList.toggle("hidden",!inv);this.q("#itemInfo").classList.toggle("hidden",!inv);this.q("#craftPanel").classList.toggle("hidden",inv);this.q("#inventoryTab").classList.toggle("active",inv);this.q("#craftTab").classList.toggle("active",!inv);this.q("#inventoryTab").setAttribute("aria-selected",inv);this.q("#craftTab").setAttribute("aria-selected",!inv);if(!inv)this.renderCraft();}
-  renderInventory(){const game=this.game,grid=this.q("#inventoryGrid");grid.innerHTML="";for(let i=0;i<game.inventory.slots;i++){const item=game.inventory.items[i],b=document.createElement("button");b.className="slot"+(item?" filled":"");if(item){const icon=document.createElement("span");icon.className="item-icon";if(item.visual==="rottenMeat"){const canvas=document.createElement("canvas");canvas.width=32;canvas.height=32;canvas.className="inventory-item-canvas";const mini=canvas.getContext("2d");const original=game.renderer.ctx;game.renderer.ctx=mini;game.renderer.drawDroppedItem({x:16,y:15,visual:"rottenMeat"});game.renderer.ctx=original;icon.appendChild(canvas);}else{icon.textContent=item.icon;}const qty=document.createElement("small");qty.textContent=item.qty;b.append(icon,qty);b.onclick=()=>this.equip(item,i);}grid.appendChild(b);}this.q("#inventoryCount").textContent=game.inventory.items.reduce((a,x)=>a+x.qty,0)+" / 20";this.renderQuickbar();}
-  useItem(item){const game=this.game;if(item.category==="consumable"&&item.heal&&game.player.hp>=game.player.max){this.q("#itemInfo").textContent="Sua vida já está cheia.";return;}if(ItemSystem.use(item,game.player,game.inventory)){this.q("#itemInfo").textContent="Usado: "+item.name+".";if(game.equipped?.id===item.id&&game.inventory.qty(item.id)<=0)game.equipped=null;this.renderInventory();}}
-  equip(item,index=null){const game=this.game;game.equipped=item;if(index!==null)game.quickbar[index]=item.id;else{const at=game.quickbar.indexOf(item.id);if(at<0){const empty=game.quickbar.indexOf(null);if(empty>=0)game.quickbar[empty]=item.id;}}this.renderQuickbar();this.q("#itemInfo").textContent="Equipado: "+item.name+".";}
-  renderQuickbar(){const game=this.game,box=this.q("#quickbar");if(!box)return;box.innerHTML="";game.quickbar.forEach((id,i)=>{const item=id&&game.inventory.get(id),b=document.createElement("button");b.type="button";b.className="quick-slot"+(item?" filled":" empty")+(game.equipped&&item&&game.equipped.id===item.id?" active":"");b.innerHTML=item?'<span class="quick-key">'+(i+1)+'</span><span class="quick-icon">'+item.icon+'</span><span class="quick-qty">'+item.qty+"</span>":'<span class="quick-key">'+(i+1)+'</span><span class="quick-empty">＋</span>';b.onclick=()=>item&&this.equip(item,i);box.appendChild(b);});}
-  renderCraft(){const game=this.game,box=this.q("#recipes");box.innerHTML="";game.crafting.recipes.forEach(recipe=>{const row=document.createElement("div");row.className="recipe";row.innerHTML='<span class="recipe-icon">'+recipe.icon+'</span><div class="recipe-main"><div class="recipe-name">'+recipe.name+'</div><div class="recipe-cost">'+recipe.cost.map(([id,q])=>q+"× "+(game.inventory.get(id)?.name||id)).join(" · ")+" · Você: "+recipe.cost.map(([id])=>game.inventory.qty(id)).join("/")+'</div></div>';const b=document.createElement("button");b.type="button";b.textContent="Criar";b.disabled=!game.crafting.canCraft(recipe);b.onclick=()=>{if(game.crafting.craft(recipe)){this.q("#itemInfo").textContent="Criado: "+game.inventory.get(recipe.output[0])?.name+".";game.events.emit("crafted",{recipeId:recipe.id,output:recipe.output});this.renderInventory();this.renderCraft();}};row.appendChild(b);box.appendChild(row);});}
-  updateHUD(){const game=this.qgame||this.game,q=id=>document.querySelector(id);q("#hp").style.width=Math.max(0,game.player.hp/game.player.max*100)+"%";q("#hunger").style.width=Math.max(0,game.player.hunger)+"%";q("#thirst").style.width=Math.max(0,game.player.thirst)+"%";q("#xp").style.width=game.player.xp/game.player.next*100+"%";q("#level").textContent="Lv."+game.player.level;q("#gold").textContent=game.player.gold;q("#kills").textContent=game.player.kills;q("#enemyCount").textContent=game.world.enemies.length;q("#timer").textContent=new Date(game.time*1000).toISOString().slice(14,19);q("#zone").textContent=game.player.level>=5?"MINA ABANDONADA":game.player.level>=3?"RUÍNAS DE ELDOR":"FLORESTA SOMBRIA";}
+  togglePause(){this.pause.toggle();}
+  toggleInventory(){
+    this.game.inventoryOpen=!this.game.inventoryOpen;
+    this.q("#inventory").classList.toggle("hidden",!this.game.inventoryOpen);
+    this.game.paused=this.game.inventoryOpen;
+    if(this.game.inventoryOpen){this.switchTab("inventory");this.renderInventory();}
+  }
+  switchTab(tab){
+    const inv=tab==="inventory";
+    this.q("#inventoryGrid").classList.toggle("hidden",!inv);
+    this.q("#itemInfo").classList.toggle("hidden",!inv);
+    this.q("#craftPanel").classList.toggle("hidden",inv);
+    this.q("#inventoryTab").classList.toggle("active",inv);
+    this.q("#craftTab").classList.toggle("active",!inv);
+    this.q("#inventoryTab").setAttribute("aria-selected",inv);
+    this.q("#craftTab").setAttribute("aria-selected",!inv);
+    if(!inv)this.renderCraft();
+  }
+  renderInventory(){this.inventory.render();}
+  renderQuickbar(){this.quickbar.render();}
+  renderCraft(){this.craft.render();}
+  updateHUD(){this.hud.update();}
 }
