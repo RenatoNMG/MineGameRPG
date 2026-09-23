@@ -1,6 +1,7 @@
 export class Chicken{
-  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.speed=24;this.timer=.5+Math.random()*2;this.eggTimer=20+Math.random()*40;this.age=0;this.lifespan=180;}
+  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.carried=false;this.speed=24;this.timer=.5+Math.random()*2;this.eggTimer=20+Math.random()*40;this.age=0;this.lifespan=180;}
   update(dt,world){
+    if(this.carried)return false;
     this.age+=dt;
     this.timer-=dt;
     this.eggTimer-=dt;
