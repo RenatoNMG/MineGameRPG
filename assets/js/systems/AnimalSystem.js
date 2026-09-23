@@ -36,10 +36,15 @@ export class AnimalSystem{
     else chicken.dir*=-1,chicken.timer=.2+Math.random()*.5;
   }
   updateRooster(rooster,dt){
-    const w=this.world;rooster.timer-=dt;rooster.mateTimer-=dt;
+    const w=this.world;
+    if(rooster.matingTimer>0){
+      rooster.matingTimer-=dt;
+      return;
+    }
+    rooster.timer-=dt;rooster.mateTimer-=dt;
     let target=null,best=Infinity;
     for(const chicken of w.chickens){if(chicken.carried)continue;const d=Math.hypot(chicken.x-rooster.x,chicken.y-rooster.y);if(d<120&&d<best){best=d;target=chicken;}}
-    if(target){const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;if(rooster.mateTimer<=0&&best<22){rooster.mateTimer=7+Math.random()*5;rooster.timer=.25;}else{const nx=rooster.x+(dx/len)*rooster.speed*1.8*dt,ny=rooster.y+(dy/len)*rooster.speed*1.8*dt;if(!w.objectBlocks(nx,ny,15,null,null))rooster.x=nx,rooster.y=ny;else rooster.dir*=-1;}}else this.move(rooster,dt,15,1.8);
+    if(target){const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;rooster.dir=dx<0?-1:1;if(rooster.mateTimer<=0&&best<22){rooster.mateTimer=7+Math.random()*5;rooster.matingTimer=1.2;rooster.timer=.25;}else{const nx=rooster.x+(dx/len)*rooster.speed*1.8*dt,ny=rooster.y+(dy/len)*rooster.speed*1.8*dt;if(!w.objectBlocks(nx,ny,15,null,null))rooster.x=nx,rooster.y=ny;else rooster.dir*=-1;}}else this.move(rooster,dt,15,1.8);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
   updateChick(chick,dt){const w=this.world;chick.timer-=dt;this.move(chick,dt,7,1.8);chick.x=Math.max(25,Math.min(w.width-25,chick.x));chick.y=Math.max(25,Math.min(w.height-25,chick.y));}
