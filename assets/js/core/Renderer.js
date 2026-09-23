@@ -53,7 +53,7 @@ export class Renderer{
   objects.forEach(o=>o.draw());
   this.world.trees.forEach(t=>{if(t.state==="fallen"&&t.drop){c.font="18px Arial";c.textAlign="center";c.fillText("🪵",t.drop.x,t.drop.y-8);}});
   const bob=this.player.moving?Math.sin(this.time*12)*1.5:0;c.save();c.imageSmoothingEnabled=false;
-  if(this.player.moving&&this.player.facing==="side")this.drawPlayerSide(bob);else if(this.sprite.complete&&this.sprite.naturalWidth)c.drawImage(this.sprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);else{c.fillStyle="#314a3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}
+  if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);else if(this.sprite.complete&&this.sprite.naturalWidth)c.drawImage(this.sprite,Math.floor(this.player.x-24),Math.floor(this.player.y-32+bob),48,48);else{c.fillStyle="#314a3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}
   this.drawHeld(equipped,bob);const carried=this.world.chickens.find(ch=>ch.carried);if(carried)this.drawCarriedChicken(carried);c.restore();c.restore();
   particles.forEach(p=>{const sx=p.x-camX,sy=p.y-camY-(1-p.t)*35;c.globalAlpha=Math.min(1,p.t*3);c.fillStyle="#e5c66f";c.font="bold 14px Arial";c.textAlign="center";c.fillText(p.text,sx,sy);c.globalAlpha=1;});
   this.time+=.016;
