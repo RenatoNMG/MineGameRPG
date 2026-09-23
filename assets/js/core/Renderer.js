@@ -28,8 +28,8 @@ export class Renderer{
   drawPlayerSide(bob){
     const c=this.ctx,p=this.player,dir=p.lastDir||1;
     c.save();
-    c.translate(Math.floor(p.x),Math.floor(p.y+bob-6));
-    c.scale(dir*0.72,0.72);
+    c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));
+    c.scale(dir*0.62,0.62);
     c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,24,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
     c.fillStyle="#51352a";c.beginPath();c.moveTo(-5,10);c.lineTo(3,10);c.lineTo(4,20);c.lineTo(-5,20);c.closePath();c.fill();
     c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,19);c.lineTo(3,19);c.lineTo(5,28);c.lineTo(-5,28);c.closePath();c.fill();
