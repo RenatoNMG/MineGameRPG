@@ -26,7 +26,7 @@ export class Chicken{
     }
     this.x=Math.max(30,Math.min(world.width-30,this.x));
     this.y=Math.max(30,Math.min(world.height-30,this.y));
-    if(this.eggTimer<=0&&world.eggs.length<5){
+    if(this.eggTimer<=0&&world.eggs.length<20){
       const ex=this.x-this.dir*14,ey=this.y+8;if(!world.objectBlocks(ex,ey,6,this)&&!world.eggs.some(e=>Math.hypot(e.x-ex,e.y-ey)<18))world.eggs.push({x:ex,y:ey});
       this.eggTimer=15+Math.random()*20;
     }else if(this.eggTimer<=0){
