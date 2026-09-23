@@ -15,7 +15,22 @@ export class AnimalSystem{
     chicken.x=Math.max(30,Math.min(w.width-30,chicken.x));chicken.y=Math.max(30,Math.min(w.height-30,chicken.y));
     if(chicken.eggTimer<=0&&w.eggs.length<this.maxEggs){const ex=chicken.x-chicken.dir*14,ey=chicken.y+8;if(!w.objectBlocks(ex,ey,6,chicken)&&!w.eggs.some(e=>Math.hypot(e.x-ex,e.y-ey)<18))w.eggs.push({x:ex,y:ey});chicken.eggTimer=15+Math.random()*20;}else if(chicken.eggTimer<=0)chicken.eggTimer=3+Math.random()*5;
   }
-  updateRooster(rooster,dt){const w=this.world;rooster.timer-=dt;this.move(rooster,dt,15,1.8);rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));}
+  updateRooster(rooster,dt){
+    const w=this.world;rooster.timer-=dt;rooster.mateTimer-=dt;
+    let target=null,best=Infinity;
+    for(const chicken of w.chickens){if(chicken.carried)continue;const d=Math.hypot(chicken.x-rooster.x,chicken.y-rooster.y);if(d<120&&d<best){best=d;target=chicken;}}
+    if(target){
+      const dx=target.x-rooster.x,dy=target.y-rooster.y,len=Math.hypot(dx,dy)||1;
+      rooster.dir=dx<0?-1:1;
+      if(rooster.mateTimer<=0&&best<22){
+        target.timer=.35;rooster.mateTimer=7+Math.random()*5;
+      }else{
+        const nx=rooster.x+(dx/len)*rooster.speed*1.8*dt,ny=rooster.y+(dy/len)*rooster.speed*1.8*dt;
+        if(!w.objectBlocks(nx,ny,15,null,null)){rooster.x=nx;rooster.y=ny;}
+      }
+    }else this.move(rooster,dt,15,1.8);
+    rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
+  }
   updateChick(chick,dt){const w=this.world;chick.timer-=dt;this.move(chick,dt,7,1.8);chick.x=Math.max(25,Math.min(w.width-25,chick.x));chick.y=Math.max(25,Math.min(w.height-25,chick.y));}
   move(animal,dt,r,mult){const w=this.world,d=Math.hypot(animal.x-w.player.x,animal.y-w.player.y);if(d<75){const dx=animal.x-w.player.x,dy=animal.y-w.player.y,len=Math.hypot(dx,dy)||1;animal.dir=dx<0?-1:1;const nx=animal.x+(dx/len)*animal.speed*mult*dt,ny=animal.y+(dy/len)*animal.speed*mult*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}}else{if(animal.timer<=0){animal.dir=Math.random()<.5?-1:1;animal.timer=1+Math.random()*2.5;}const nx=animal.x+animal.dir*animal.speed*.35*dt,ny=animal.y+Math.sin((animal.x+animal.y)*.03)*animal.speed*.08*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}else{animal.dir*=-1;animal.timer=.2+Math.random()*.5;}}}
 }
