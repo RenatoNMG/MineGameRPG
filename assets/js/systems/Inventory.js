@@ -4,7 +4,7 @@ export class Inventory{
   constructor(slots=20){
     this.slots=slots;
     this.items=[];
-    const testItems=["wood","stone","egg","chickenMeat","rottenMeat","woodenAxe","pickaxe","axe","sword","torch","potion"];
+    const testItems=["wood","stone","egg","chickenMeat","rottenMeat","woodenAxe","pickaxe","axe","sword","torch","potion","fence"];
     for(const id of testItems)this.add(id,1);
   }
 
