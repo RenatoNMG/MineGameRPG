@@ -1,8 +1,8 @@
-import {HUDUI} from "./HUDUI.js";
-import {QuickbarUI} from "./QuickbarUI.js";
-import {InventoryUI} from "./InventoryUI.js";
-import {CraftUI} from "./CraftUI.js";
-import {PauseUI} from "./PauseUI.js";
+import {HUDUI} from "./HUDUI.js?v=216";
+import {QuickbarUI} from "./QuickbarUI.js?v=216";
+import {InventoryUI} from "./InventoryUI.js?v=216";
+import {CraftUI} from "./CraftUI.js?v=216";
+import {PauseUI} from "./PauseUI.js?v=216";
 
 export class GameUI{
   constructor(game){
