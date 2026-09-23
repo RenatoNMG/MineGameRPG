@@ -9,6 +9,7 @@ export class TransformationSystem{
     this.chickGrowthTime=90;
     this.chickenLifespan=180;
     this.meatRotTime=120;
+    this.rottenMeatLife=120;
   }
   update(dt){
     this.updateEggs(dt);
@@ -51,13 +52,16 @@ export class TransformationSystem{
   }
   updateMeat(dt){
     const w=this.world;
-    for(const item of w.droppedItems){
-      if(item.id!=="chickenMeat")continue;
+    for(let i=w.droppedItems.length-1;i>=0;i--){
+      const item=w.droppedItems[i];
+      if(item.id!=="chickenMeat"&&item.id!=="rottenMeat")continue;
       item.dropAge=(item.dropAge||0)+dt;
-      if(item.dropAge>=this.meatRotTime){
+      if(item.id==="chickenMeat"&&item.dropAge>=this.meatRotTime){
         const rotten=createItem("rottenMeat",item.qty||1);
         if(!rotten)continue;
         Object.assign(item,rotten,{x:item.x,y:item.y,dropAge:0});
+      }else if(item.id==="rottenMeat"&&item.dropAge>=this.rottenMeatLife){
+        w.droppedItems.splice(i,1);
       }
     }
   }
