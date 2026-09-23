@@ -4,58 +4,9 @@ import {ItemRenderer} from "./ItemRenderer.js";
 import {EnemyRenderer} from "./EnemyRenderer.js";
 
 export class Renderer{
- constructor(canvas,player,world){
-  this.canvas=canvas;this.ctx=canvas.getContext("2d");this.player=player;this.world=world;this.W=0;this.H=0;this.time=0;
-  this.sprite=new Image();this.sprite.src="./assets/player.svg";this.backSprite=new Image();this.backSprite.src="./assets/player_back.svg";
-  this.worldRenderer=new WorldRenderer(this);this.animalRenderer=new AnimalRenderer(this);this.itemRenderer=new ItemRenderer(this);this.enemyRenderer=new EnemyRenderer(this);
-  this.resize();addEventListener("resize",()=>this.resize());
-  const tile=document.createElement("canvas");tile.width=96;tile.height=96;const g=tile.getContext("2d");g.fillStyle="#304b2d";g.fillRect(0,0,96,96);
-  for(let i=0;i<170;i++){const x=(i*37)%96,y=(i*61)%96,h=2+(i%5),lean=((i*17)%7)-3;g.strokeStyle=i%5===0?"#45683a":i%3===0?"#385a32":"#294326";g.lineWidth=1;g.beginPath();g.moveTo(x,y);g.lineTo(x+lean,y-h);g.stroke();}
-  this.grass=this.ctx.createPattern(tile,"repeat");
- }
+ constructor(canvas,player,world){this.canvas=canvas;this.ctx=canvas.getContext("2d");this.player=player;this.world=world;this.W=0;this.H=0;this.time=0;this.sprite=new Image();this.sprite.src="./assets/player.svg";this.backSprite=new Image();this.backSprite.src="./assets/player_back.svg";this.worldRenderer=new WorldRenderer(this);this.animalRenderer=new AnimalRenderer(this);this.itemRenderer=new ItemRenderer(this);this.enemyRenderer=new EnemyRenderer(this);this.resize();addEventListener("resize",()=>this.resize());const tile=document.createElement("canvas");tile.width=96;tile.height=96;const g=tile.getContext("2d");g.fillStyle="#304b2d";g.fillRect(0,0,96,96);for(let i=0;i<170;i++){const x=(i*37)%96,y=(i*61)%96,h=2+(i%5),lean=((i*17)%7)-3;g.strokeStyle=i%5===0?"#45683a":i%3===0?"#385a32":"#294326";g.lineWidth=1;g.beginPath();g.moveTo(x,y);g.lineTo(x+lean,y-h);g.stroke();}this.grass=this.ctx.createPattern(tile,"repeat");}
  resize(){const rect=this.canvas.getBoundingClientRect();this.W=Math.max(1,Math.floor(rect.width));this.H=Math.max(1,Math.floor(rect.height));const dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2));this.canvas.width=Math.floor(this.W*dpr);this.canvas.height=Math.floor(this.H*dpr);this.ctx.setTransform(dpr,0,0,dpr,0,0);this.ctx.imageSmoothingEnabled=false;}
- drawTree(...a){return this.worldRenderer.drawTree(...a);}
- drawStone(...a){return this.worldRenderer.drawStone(...a);}
- drawWood(...a){return this.worldRenderer.drawWood(...a);}
- drawWaterPuddle(...a){return this.worldRenderer.drawWaterPuddle(...a);}
- drawEgg(...a){return this.worldRenderer.drawEgg(...a);}
- drawChicken(...a){return this.animalRenderer.drawChicken(...a);}
- drawChick(...a){return this.animalRenderer.drawChick(...a);}
- drawCarriedChicken(...a){return this.animalRenderer.drawCarriedChicken(...a);}
- drawHeld(...a){return this.itemRenderer.drawHeld(...a);}
- drawDroppedItem(...a){return this.itemRenderer.drawDroppedItem(...a);}
- drawEnemy(...a){return this.enemyRenderer.drawEnemy(...a);}
- drawPlayerSide(bob){
-  const c=this.ctx,p=this.player,dir=p.lastDir||1;const walk=this.player.moving?Math.sin(this.time*12):0;const leg=walk*2.2;const arm=-walk*1.8;
-  c.save();c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));c.scale(dir*.62,.62);
-  c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,24,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;
-  c.fillStyle="#51352a";c.save();c.translate(-1,15);c.rotate(leg*.035);c.fillRect(-4,-5,8,10);c.restore();c.save();c.translate(2,15);c.rotate(-leg*.035);c.fillRect(-4,-5,8,10);c.restore();
-  c.fillStyle="#262d27";c.save();c.translate(-1,23);c.rotate(leg*.04);c.fillRect(-4,-3,8,8);c.restore();c.save();c.translate(2,23);c.rotate(-leg*.04);c.fillRect(-4,-3,8,8);c.restore();
-  c.fillStyle="#c58b62";c.beginPath();c.arc(1,-9,9,0,Math.PI*2);c.fill();
-  c.fillStyle="#4a3027";c.beginPath();c.moveTo(-8,-13);c.quadraticCurveTo(-4,-23,3,-22);c.quadraticCurveTo(10,-20,10,-11);c.lineTo(5,-14);c.lineTo(1,-10);c.lineTo(-3,-14);c.closePath();c.fill();
-  c.fillStyle="#182018";c.beginPath();c.arc(7,-8,1.5,0,Math.PI*2);c.fill();
-  c.fillStyle="#314b3a";c.beginPath();c.moveTo(-7,0);c.lineTo(7,-1);c.lineTo(8,13);c.lineTo(-6,14);c.closePath();c.fill();
-  c.fillStyle="#20352a";c.beginPath();c.moveTo(-7,0);c.quadraticCurveTo(-3,-4,3,-3);c.lineTo(8,3);c.lineTo(5,7);c.lineTo(-6,5);c.closePath();c.fill();
-  c.fillStyle="#b49452";c.fillRect(-4,2,8,4);
-  c.fillStyle="#c58b62";c.save();c.translate(0,6);c.rotate(arm*.08);c.beginPath();c.moveTo(6,2);c.lineTo(13,9);c.lineTo(9,12);c.lineTo(3,6);c.closePath();c.fill();c.restore();
-  c.fillStyle="#51352a";c.beginPath();c.moveTo(-4,12);c.lineTo(3,12);c.lineTo(3,22);c.lineTo(-5,22);c.closePath();c.fill();
-  c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,21);c.lineTo(3,21);c.lineTo(5,25);c.lineTo(-5,25);c.closePath();c.fill();c.restore();
- }
- drawWalkingSprite(sprite,bob,back=false){
-  const c=this.ctx,p=this.player;const phase=Math.sin(this.time*12);const sway=p.moving?phase*.018:0;const sx=p.moving?(1+Math.abs(phase)*.025):1;const sy=p.moving?(1-Math.abs(phase)*.018):1;c.save();c.translate(p.x,p.y+bob);c.rotate(sway);c.scale(sx,sy);c.drawImage(sprite,-24,-32,48,48);c.restore();
- }
- render(particles,equipped){
-  const c=this.ctx;c.clearRect(0,0,this.W,this.H);
-  const camX=Math.max(0,Math.min(this.world.width-this.W,this.player.x-this.W/2)),camY=Math.max(0,Math.min(this.world.height-this.H,this.player.y-this.H/2));
-  c.save();c.translate(-camX,-camY);c.fillStyle=this.grass;c.fillRect(0,0,this.world.width,this.world.height);
-  const objects=[...this.world.trees.map(t=>({y:t.y,obj:t,draw:()=>this.drawTree(t)})),...this.world.stones.filter(s=>!s.collected||s.hp===0).map(s=>({y:s.y,obj:s,draw:()=>this.drawStone(s)})),...this.world.looseWood.filter(w=>!w.collected).map(w=>({y:w.y,obj:w,draw:()=>this.drawWood(w)})),...this.world.waterPuddles.map(p=>({y:p.y,obj:p,draw:()=>this.drawWaterPuddle(p)})),...this.world.eggs.filter(e=>!e.collected).map(e=>({y:e.y,obj:e,draw:()=>this.drawEgg(e)})),...this.world.droppedItems.map(i=>({y:i.y,obj:i,draw:()=>this.drawDroppedItem(i)})),...this.world.chicks.map(ch=>({y:ch.y,obj:ch,draw:()=>this.drawChick(ch)})),...this.world.chickens.filter(ch=>!ch.carried).map(ch=>({y:ch.y,obj:ch,draw:()=>this.drawChicken(ch)})),...this.world.enemies.map(e=>({y:e.y,obj:e,draw:()=>this.drawEnemy(e)}))].sort((a,b)=>a.y-b.y);
-  objects.forEach(o=>o.draw());this.world.trees.forEach(t=>{if(t.state==="fallen"&&t.drop){c.font="18px Arial";c.textAlign="center";c.fillText("🪵",t.drop.x,t.drop.y-8);}});
-  const bob=this.player.moving?Math.sin(this.time*12)*1.5:0;c.save();c.imageSmoothingEnabled=false;
-  if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);
-  else if(this.player.moving&&this.player.movementAxis==="vertical"&&this.player.facing==="back"&&this.backSprite.complete&&this.backSprite.naturalWidth)this.drawWalkingSprite(this.backSprite,bob,true);
-  else if(this.sprite.complete&&this.sprite.naturalWidth)this.drawWalkingSprite(this.sprite,bob,false);
-  else{c.fillStyle="#314b3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}
-  this.drawHeld(equipped,bob);const carried=this.world.chickens.find(ch=>ch.carried);if(carried)this.drawCarriedChicken(carried);c.restore();c.restore();
-  particles.forEach(p=>{const sx=p.x-camX,sy=p.y-camY-(1-p.t)*35;c.globalAlpha=Math.min(1,p.t*3);c.fillStyle="#e5c66f";c.font="bold 14px Arial";c.textAlign="center";c.fillText(p.text,sx,sy);c.globalAlpha=1;});this.time+=.016;
- }
-}
+ drawTree(...a){return this.worldRenderer.drawTree(...a);}drawStone(...a){return this.worldRenderer.drawStone(...a);}drawWood(...a){return this.worldRenderer.drawWood(...a);}drawWaterPuddle(...a){return this.worldRenderer.drawWaterPuddle(...a);}drawEgg(...a){return this.worldRenderer.drawEgg(...a);}drawChicken(...a){return this.animalRenderer.drawChicken(...a);}drawRooster(...a){return this.animalRenderer.drawRooster(...a);}drawChick(...a){return this.animalRenderer.drawChick(...a);}drawCarriedChicken(...a){return this.animalRenderer.drawCarriedChicken(...a);}drawHeld(...a){return this.itemRenderer.drawHeld(...a);}drawDroppedItem(...a){return this.itemRenderer.drawDroppedItem(...a);}drawEnemy(...a){return this.enemyRenderer.drawEnemy(...a);}
+ drawPlayerSide(bob){const c=this.ctx,p=this.player,dir=p.lastDir||1;const walk=this.player.moving?Math.sin(this.time*12):0,leg=walk*2.2,arm=-walk*1.8;c.save();c.translate(Math.floor(p.x),Math.floor(p.y+bob-7));c.scale(dir*.62,.62);c.fillStyle="#10160f";c.globalAlpha=.7;c.beginPath();c.ellipse(0,24,13,4,0,0,Math.PI*2);c.fill();c.globalAlpha=1;c.fillStyle="#51352a";c.save();c.translate(-1,15);c.rotate(leg*.035);c.fillRect(-4,-5,8,10);c.restore();c.save();c.translate(2,15);c.rotate(-leg*.035);c.fillRect(-4,-5,8,10);c.restore();c.fillStyle="#262d27";c.save();c.translate(-1,23);c.rotate(leg*.04);c.fillRect(-4,-3,8,8);c.restore();c.save();c.translate(2,23);c.rotate(-leg*.04);c.fillRect(-4,-3,8,8);c.restore();c.fillStyle="#c58b62";c.beginPath();c.arc(1,-9,9,0,Math.PI*2);c.fill();c.fillStyle="#4a3027";c.beginPath();c.moveTo(-8,-13);c.quadraticCurveTo(-4,-23,3,-22);c.quadraticCurveTo(10,-20,10,-11);c.lineTo(5,-14);c.lineTo(1,-10);c.lineTo(-3,-14);c.closePath();c.fill();c.fillStyle="#182018";c.beginPath();c.arc(7,-8,1.5,0,Math.PI*2);c.fill();c.fillStyle="#314b3a";c.beginPath();c.moveTo(-7,0);c.lineTo(7,-1);c.lineTo(8,13);c.lineTo(-6,14);c.closePath();c.fill();c.fillStyle="#20352a";c.beginPath();c.moveTo(-7,0);c.quadraticCurveTo(-3,-4,3,-3);c.lineTo(8,3);c.lineTo(5,7);c.lineTo(-6,5);c.closePath();c.fill();c.fillStyle="#b49452";c.fillRect(-4,2,8,4);c.fillStyle="#c58b62";c.save();c.translate(0,6);c.rotate(arm*.08);c.beginPath();c.moveTo(6,2);c.lineTo(13,9);c.lineTo(9,12);c.lineTo(3,6);c.closePath();c.fill();c.restore();c.fillStyle="#51352a";c.beginPath();c.moveTo(-4,12);c.lineTo(3,12);c.lineTo(3,22);c.lineTo(-5,22);c.closePath();c.fill();c.fillStyle="#262d27";c.beginPath();c.moveTo(-5,21);c.lineTo(3,21);c.lineTo(5,25);c.lineTo(-5,25);c.closePath();c.fill();c.restore();}
+ drawWalkingSprite(sprite,bob){const c=this.ctx,p=this.player,phase=Math.sin(this.time*12),sway=p.moving?phase*.018:0,sx=p.moving?1+Math.abs(phase)*.025:1,sy=p.moving?1-Math.abs(phase)*.018:1;c.save();c.translate(p.x,p.y+bob);c.rotate(sway);c.scale(sx,sy);c.drawImage(sprite,-24,-32,48,48);c.restore();}
+ render(particles,equipped){const c=this.ctx;c.clearRect(0,0,this.W,this.H);const camX=Math.max(0,Math.min(this.world.width-this.W,this.player.x-this.W/2)),camY=Math.max(0,Math.min(this.world.height-this.H,this.player.y-this.H/2));c.save();c.translate(-camX,-camY);c.fillStyle=this.grass;c.fillRect(0,0,this.world.width,this.world.height);const objects=[...this.world.trees.map(t=>({y:t.y,obj:t,draw:()=>this.drawTree(t)})),...this.world.stones.filter(s=>!s.collected||s.hp===0).map(s=>({y:s.y,obj:s,draw:()=>this.drawStone(s)})),...this.world.looseWood.filter(w=>!w.collected).map(w=>({y:w.y,obj:w,draw:()=>this.drawWood(w)})),...this.world.waterPuddles.map(p=>({y:p.y,obj:p,draw:()=>this.drawWaterPuddle(p)})),...this.world.eggs.filter(e=>!e.collected).map(e=>({y:e.y,obj:e,draw:()=>this.drawEgg(e)})),...this.world.droppedItems.map(i=>({y:i.y,obj:i,draw:()=>this.drawDroppedItem(i)})),...this.world.chicks.map(ch=>({y:ch.y,obj:ch,draw:()=>this.drawChick(ch)})),...this.world.chickens.filter(ch=>!ch.carried).map(ch=>({y:ch.y,obj:ch,draw:()=>this.drawChicken(ch)})),...this.world.roosters.map(ro=>({y:ro.y,obj:ro,draw:()=>this.drawRooster(ro)})),...this.world.enemies.map(e=>({y:e.y,obj:e,draw:()=>this.drawEnemy(e)}))].sort((a,b)=>a.y-b.y);objects.forEach(o=>o.draw());const bob=this.player.moving?Math.sin(this.time*12)*1.5:0;c.save();c.imageSmoothingEnabled=false;if(this.player.moving&&this.player.movementAxis==="horizontal")this.drawPlayerSide(bob);else if(this.player.moving&&this.player.movementAxis==="vertical"&&this.player.facing==="back"&&this.backSprite.complete&&this.backSprite.naturalWidth)this.drawWalkingSprite(this.backSprite,bob);else if(this.sprite.complete&&this.sprite.naturalWidth)this.drawWalkingSprite(this.sprite,bob);else{c.fillStyle="#314b3a";c.beginPath();c.arc(this.player.x,this.player.y,this.player.r,0,7);c.fill();}this.drawHeld(equipped,bob);const carried=this.world.chickens.find(ch=>ch.carried);if(carried)this.drawCarriedChicken(carried);c.restore();c.restore();particles.forEach(p=>{const sx=p.x-camX,sy=p.y-camY-(1-p.t)*35;c.globalAlpha=Math.min(1,p.t*3);c.fillStyle="#e5c66f";c.font="bold 14px Arial";c.textAlign="center";c.fillText(p.text,sx,sy);c.globalAlpha=1;});this.time+=.016;}}
