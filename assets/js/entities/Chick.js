@@ -1,6 +1,7 @@
 export class Chick{
-  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.speed=32;this.timer=.5+Math.random()*2;}
+  constructor(x,y,dir=1){this.x=x;this.y=y;this.dir=dir;this.speed=32;this.timer=.5+Math.random()*2;this.growthTime=90;this.age=0;}
   update(dt,world){
+    this.age+=dt;
     this.timer-=dt;
     const d=Math.hypot(this.x-world.player.x,this.y-world.player.y);
     if(d<75){
