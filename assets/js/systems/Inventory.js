@@ -3,7 +3,9 @@ import {createItem,getItem} from "../data/items/index.js";
 export class Inventory{
   constructor(slots=20){
     this.slots=slots;
-    this.items=[createItem("wood",3),createItem("stone",2)];
+    this.items=[];
+    const testItems=["wood","stone","egg","chickenMeat","rottenMeat","woodenAxe","pickaxe","axe","sword","torch","potion"];
+    for(const id of testItems)this.add(id,1);
   }
 
   qty(id){
