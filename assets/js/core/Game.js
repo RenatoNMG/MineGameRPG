@@ -2,7 +2,7 @@ import {Config} from "./Config.js";
 import {Player} from "../entities/Player.js";
 import {World} from "./World.js";
 import {Inventory} from "../systems/Inventory.js";
-import {Crafting} from "../systems/Crafting.js";
+import {Crafting} from "../systems/Crafting.js?v=2.38";
 import {Input} from "../systems/Input.js";
 import {Renderer} from "./Renderer.js";
 import {EventSystem} from "../systems/EventSystem.js";
