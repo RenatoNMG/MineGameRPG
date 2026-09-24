@@ -1,7 +1,13 @@
 import {WOODEN_AXE_RECIPE} from "./woodenAxe.js";
 import {PICKAXE_RECIPE} from "./pickaxe.js";
-import {FENCE_RECIPE} from "./fence.js?v=2.38";
+import {FENCE_RECIPE} from "./fence.js";
 
+/*
+ * ÍNDICE ÚNICO DE RECEITAS.
+ *
+ * Para adicionar uma receita: crie um arquivo em data/recipes/, importe aqui
+ * e coloque no array RECIPES. Não adicione lógica específica em Crafting.js.
+ */
 export const RECIPES=Object.freeze([
   WOODEN_AXE_RECIPE,
   PICKAXE_RECIPE,
