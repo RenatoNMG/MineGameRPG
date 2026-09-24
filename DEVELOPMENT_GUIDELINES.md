@@ -21,12 +21,23 @@
 14. Evitar arquivos sobrecarregados: quando um arquivo começar a concentrar várias responsabilidades independentes, separar em módulos pequenos e claros sem quebrar as dependências existentes.
 15. Preferir comunicação explícita entre módulos (imports, parâmetros e métodos) em vez de acessar ou modificar internamente a responsabilidade de outro sistema.
 
+## Regra especial para evolução por IA
+
+16. Antes de criar qualquer item, mecânica ou receita, ler `ARCHITECTURE.md` e o guia específico da camada alterada.
+17. Não criar um novo padrão de item se já existir um padrão documentado.
+18. Não resolver uma funcionalidade adicionando `if(item.id===...)` em vários sistemas. Criar/usar o sistema responsável.
+19. Se uma função não pertence ao arquivo atual, não colocá-la ali apenas para reduzir o número de arquivos.
+20. Comentários de arquitetura devem explicar **onde** uma futura IA deve adicionar a funcionalidade, não apenas explicar o que uma linha faz.
+21. Sempre procurar duplicações de regra antes de adicionar uma nova implementação.
+
 ## Inventário e empilhamento
 
-16. Respeitar sempre o `maxStack` definido no catálogo de itens. Itens não empilháveis (`maxStack:1`) devem ocupar apenas uma unidade por slot.
-17. Quantidades de teste devem respeitar as regras reais do item. Para testes, usar no máximo 5 unidades nos itens empilháveis e 1 unidade nos não empilháveis.
-18. Nunca aumentar `maxStack` no inventário apenas para fazer um teste. O catálogo continua sendo a fonte da regra real.
+22. Respeitar sempre o `maxStack` definido no catálogo de itens. Itens não empilháveis (`maxStack:1`) devem ocupar apenas uma unidade por slot.
+23. Quantidades de teste devem respeitar as regras reais do item. Para testes, usar no máximo 5 unidades nos itens empilháveis e 1 unidade nos não empilháveis.
+24. Nunca aumentar `maxStack` no inventário apenas para fazer um teste. O catálogo continua sendo a fonte da regra real.
 
 ## Regra principal
 
 Antes de cada nova atualização: entender o estado atual, preservar o que funciona, mudar o mínimo necessário, manter cada arquivo com responsabilidade clara, revisar dependências e cache, atualizar a versão e verificar a cadeia completa da funcionalidade.
+
+A arquitetura documentada é uma regra do jogo: uma atualização que funciona mas mistura responsabilidades e cria duplicação não deve ser considerada concluída.
