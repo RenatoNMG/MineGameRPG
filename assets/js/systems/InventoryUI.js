@@ -14,7 +14,7 @@ export class InventoryUI{
           icon.appendChild(canvas);
         }else if(typeof item.icon==="string"&&item.icon.trim().startsWith("<svg"))icon.innerHTML=item.icon;
         else icon.textContent=item.icon;
-        const qty=document.createElement("small");qty.textContent=item.qty;
+        const qty=document.createElement("small");qty.textContent="×"+item.qty;
         b.append(icon,qty);b.onclick=()=>this.equip(item,i);
       }
       grid.appendChild(b);
