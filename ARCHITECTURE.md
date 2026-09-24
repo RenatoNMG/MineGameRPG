@@ -1,90 +1,80 @@
-# MineGame RPG — Arquitetura para evolução segura
+# MineGame RPG — Arquitetura simples para evolução
 
-O objetivo desta arquitetura é permitir que novas IAs continuem o projeto sem
-precisar reescrever sistemas antigos para cada nova mecânica.
+A regra principal é: cada coisa tem um lugar único. Uma nova mecânica deve ser adicionada no lugar responsável por ela, sem criar exceções espalhadas.
 
-## Camadas
+## 1. Dados
+`data/items/` e `data/recipes/` contêm somente dados.
 
-```text
-data/       -> dados declarativos (itens, receitas)
-entities/   -> estado/comportamento das entidades do mundo
-systems/    -> regras de gameplay e orquestração
-core/       -> renderização e infraestrutura do jogo
-UI          -> apresentação e interação da interface
-```
+### Item Canvas
+Um item visualmente desenhado usa:
+- `visual:"nome"`
+- `renderMode:"canvas"`
+- não possui `icon`
 
-## Regra de dependência
+O desenho fica somente em `core/ItemRenderer.js`.
 
-Uma funcionalidade deve seguir, quando aplicável:
+## 2. Gameplay
+`systems/` contém regras:
+- Inventory: quantidade e slots.
+- Crafting: receitas.
+- ItemBehaviorSystem: efeitos de uso.
+- InteractionSystem: decide qual interação acontece.
+- DropSystem: soltar/coletar.
+- sistemas específicos: água, recursos, animais etc.
 
-```text
-DADO -> SISTEMA -> INTERAÇÃO -> UI/RENDER
-```
+Uma regra específica de um item não deve ser espalhada por vários sistemas.
 
-O fluxo contrário deve ser evitado. Por exemplo, um item não deve conhecer o
-DOM e o inventário não deve desenhar o item.
+## 3. Visual
+`core/Renderer.js` é a fronteira do Canvas.
 
-## Onde colocar cada coisa
+`core/ItemRenderer.js` é a fonte única dos desenhos dos itens.
 
-### Novo item
-`assets/js/data/items/<item>.js`
+O fluxo visual é:
 
-Depois registrar em `data/items/catalog.js`.
+data do item → ItemRenderer → mundo / inventário / quickbar / mão
 
-### Nova receita
-`assets/js/data/recipes/<receita>.js`
+Inventário e quickbar não desenham Canvas e nunca acessam `renderer.ctx` para montar um item. Eles chamam apenas `renderer.createItemIcon(item,tamanho)`.
 
-Depois registrar em `data/recipes/index.js`.
+Isso garante que o mesmo item use o mesmo desenho em todos os lugares.
 
-### Nova regra de uso de item
-`assets/js/systems/ItemBehaviorSystem.js`
+## 4. Como adicionar um item novo
 
-Não adicionar regras específicas no `GameLoop`, `ItemInteraction` ou
-`Inventory`.
+### Item simples com emoji
+Crie `data/items/apple.js`, coloque os dados e registre no `catalog.js`.
 
-### Nova regra de inventário
-`assets/js/systems/Inventory.js`
+### Item com Canvas
+1. Crie `data/items/apple.js`.
+2. Defina `visual:"apple"` e `renderMode:"canvas"`.
+3. Não coloque emoji no item.
+4. Adicione `apple` ao `ItemRenderer`.
+5. Não altere InventoryUI ou QuickbarUI para desenhar a maçã.
+6. Teste mundo, inventário, quickbar e mão.
 
-Deve ser uma regra genérica, não uma regra específica de um item.
+## 5. Como adicionar uma mecânica
 
-### Novo visual
-`assets/js/core/ItemRenderer.js` ou outro renderer especializado quando a
-complexidade justificar.
+Pergunte primeiro: qual sistema é dono dessa regra?
 
-Não colocar Canvas em `data/` ou `systems/`.
+Exemplo:
+- comer → ItemBehaviorSystem;
+- receita → data/recipes + Crafting;
+- soltar → DropSystem;
+- água → WaterInteraction;
+- colisão → CollisionSystem;
+- animal → entidade + AnimalSystem;
+- desenho → Renderer/ItemRenderer.
 
-### Nova interação do jogador
-Usar/estender os sistemas de interação apropriados. O `InteractionSystem`
-é o ponto de composição; os detalhes devem continuar separados.
+Se nenhuma categoria existente servir, crie um novo sistema. Não coloque a regra em Game.js só porque ele já conhece todos os módulos.
 
-### Nova entidade
-Criar/alterar uma classe em `entities/` e colocar sua lógica de atualização
-no sistema correspondente.
+## 6. Regra para futuras IAs
 
-## Regras contra regressões
+Não criar:
+- if(item.id===...) espalhado;
+- desenho duplicado no inventário;
+- desenho duplicado na quickbar;
+- emoji como fallback de item Canvas;
+- acesso direto de UI ao contexto Canvas;
+- uma segunda fonte de verdade para item.
 
-1. Não duplicar cadastro de item.
-2. Não duplicar regra de uso de item.
-3. Não duplicar receita em `Crafting.js` se ela já existe em `data/recipes`.
-4. Não criar `if(item.id===...)` em vários arquivos para a mesma mecânica.
-5. Não acessar diretamente o estado interno de outro sistema quando existir
-   um método público para a operação.
-6. Antes de alterar uma mecânica, rastrear todas as referências do ID/classe.
-7. Fazer alterações pequenas e verificáveis.
-8. Atualizar a versão em toda alteração entregue.
+Antes de modificar uma mecânica, localizar o módulo responsável e ler seus comentários.
 
-## Protocolo obrigatório para futuras IAs
-
-Antes de alterar o código:
-
-1. Ler `DEVELOPMENT_GUIDELINES.md`.
-2. Ler este arquivo.
-3. Ler os arquivos diretamente envolvidos na funcionalidade.
-4. Identificar a fonte única da verdade.
-5. Alterar somente a camada responsável.
-6. Procurar referências antigas/imports antes de finalizar.
-7. Atualizar versão e cache conforme as regras do projeto.
-8. Revisar a cadeia completa da funcionalidade.
-
-**Não vale criar uma solução rápida em um arquivo errado apenas porque ela é
-mais curta. A arquitetura é parte da funcionalidade e deve ser preservada.**
+Objetivo: adicionar uma coisa nova alterando poucos arquivos previsíveis, sem precisar entender ou reescrever o jogo inteiro.
