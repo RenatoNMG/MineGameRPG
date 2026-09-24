@@ -25,12 +25,25 @@ export class Game{
     this.inventory=new Inventory(Config.INVENTORY.slots);
     this.crafting=new Crafting(this.inventory);
     this.input=new Input();
-    this.renderer=new Renderer(this.canvas,this.player,this.world,this.fenceFeature);
     this.particles=[];
     this.events=new EventSystem();
-    /* Cada mecânica específica deve viver em sua própria caixa. */
-    this.fenceFeature=new FenceFeature({input:this.input,player:this.player,world:this.world,particles:this.particles,getEquipped:()=>this.equipped});
     this.paused=false;
+    this.time=0;
+    this.quickbar=[null,null,null,null,null,null];
+    this.equipped=null;
+    this.inventoryOpen=false;
+
+    /* Cada mecânica específica deve viver em sua própria caixa.
+     * A caixa precisa existir antes do Renderer, pois o Renderer consulta
+     * sua API pública para desenhar a orientação da cerca. */
+    this.fenceFeature=new FenceFeature({
+      input:this.input,
+      player:this.player,
+      world:this.world,
+      particles:this.particles,
+      getEquipped:()=>this.equipped
+    });
+    this.renderer=new Renderer(this.canvas,this.player,this.world,this.fenceFeature);
     this.time=0;
     this.quickbar=[null,null,null,null,null,null];
     this.equipped=null;
