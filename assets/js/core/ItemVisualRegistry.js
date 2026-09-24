@@ -7,7 +7,6 @@ const visuals=Object.freeze({
   stone:(renderer,item)=>renderer.drawStone({x:item.x,y:item.y,type:item.type??1,radius:14,loose:true,collected:false}),
   egg:(renderer,item)=>renderer.drawEgg({x:item.x,y:item.y}),
   rottenMeat:(renderer,item)=>renderer.drawRottenMeat(item),
-  fence:(renderer,item)=>renderer.drawFence(item),
 });
 
 export function registerItemVisual(id,draw){
