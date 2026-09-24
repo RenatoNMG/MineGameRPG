@@ -1,6 +1,6 @@
 import {Config} from "../core/Config.js";
 export class Player{
-  constructor(x,y){this.x=x;this.y=y;this.r=Config.PLAYER.radius;this.hp=100;this.max=100;this.hunger=100;this.thirst=100;this.xp=0;this.next=100;this.level=1;this.gold=35;this.kills=0;this.speed=Config.PLAYER.speed;this.attackCd=0;this.moving=false;this.lastDir=1;this.facing="front";this.movementAxis="vertical";}
+  constructor(x,y){this.x=x;this.y=y;this.r=Config.PLAYER.radius;this.hp=100;this.max=100;this.hunger=100;this.thirst=100;this.xp=0;this.next=100;this.level=1;this.gold=35;this.kills=0;this.speed=Config.PLAYER.speed;this.attackCd=0;this.moving=false;this.lastDir=1;this.facing="front";this.movementAxis="vertical";/* Estado de colocação da cerca: um único item, duas orientações. */this.fenceOrientation="horizontal";}
   updateCooldown(dt){this.attackCd=Math.max(0,this.attackCd-dt);}
   updateNeeds(dt){
     this.hunger=Math.max(0,this.hunger-dt*Config.SURVIVAL.hungerDrain);
