@@ -44,10 +44,6 @@ export class Game{
       getEquipped:()=>this.equipped
     });
     this.renderer=new Renderer(this.canvas,this.player,this.world,this.fenceFeature);
-    this.time=0;
-    this.quickbar=[null,null,null,null,null,null];
-    this.equipped=null;
-    this.inventoryOpen=false;
     this.ui=new GameUI(this);
     this.loop=new GameLoop(this);
     this.ui.renderInventory();
