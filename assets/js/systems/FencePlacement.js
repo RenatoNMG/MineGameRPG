@@ -3,17 +3,20 @@ export class FencePlacement{
     const baseX=player.x+player.lastDir*28;
     const baseY=player.y+8;
     let best=null;
-    let bestDist=42;
+    let bestDist=58;
 
     for(const item of world.droppedItems){
       if(item.id!=="fence")continue;
-      const dx=baseX-item.x;
-      const dy=baseY-item.y;
+
+      const dx=player.x-item.x;
+      const dy=player.y-item.y;
       const d=Math.hypot(dx,dy);
-      if(d<bestDist){
-        bestDist=d;
-        best={x:item.x+(dx>=0?32:-32),y:item.y};
-      }
+
+      if(d>=bestDist)continue;
+
+      const side=Math.abs(dx)>4?(dx>0?1:-1):(player.lastDir||1);
+      bestDist=d;
+      best={x:item.x+side*32,y:item.y};
     }
 
     return best||{x:baseX,y:baseY};
