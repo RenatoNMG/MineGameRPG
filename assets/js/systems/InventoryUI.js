@@ -7,10 +7,16 @@ export class InventoryUI{
       b.className="slot"+(item?" filled":"");
       if(item){
         const icon=document.createElement("span");icon.className="item-icon";
-        if(item.visual==="rottenMeat"){
+        /*
+         * REGRA VISUAL: se o item possui renderMode:"canvas", o inventário
+         * deve usar o MESMO desenho Canvas do mundo. Nunca trocar por emoji.
+         * Para criar outro item Canvas, basta marcar renderMode:"canvas" e
+         * implementar seu visual no ItemRenderer.drawDroppedItem().
+         */
+        if(item.renderMode==="canvas"){
           const canvas=document.createElement("canvas");canvas.width=32;canvas.height=32;canvas.className="inventory-item-canvas";
           const mini=canvas.getContext("2d"),original=game.renderer.ctx;
-          game.renderer.ctx=mini;game.renderer.drawDroppedItem({x:16,y:15,visual:"rottenMeat"});game.renderer.ctx=original;
+          game.renderer.ctx=mini;game.renderer.drawDroppedItem({x:16,y:15,...item});game.renderer.ctx=original;
           icon.appendChild(canvas);
         }else if(typeof item.icon==="string"&&item.icon.trim().startsWith("<svg"))icon.innerHTML=item.icon;
         else icon.textContent=item.icon;
