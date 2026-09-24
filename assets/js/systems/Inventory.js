@@ -4,8 +4,34 @@ export class Inventory{
   constructor(slots=20){
     this.slots=slots;
     this.items=[];
-    const testItems=["wood","stone","egg","chickenMeat","rottenMeat","woodenAxe","pickaxe","axe","sword","torch","potion","fence"];
-    for(const id of testItems)this.add(id,5);
+
+    /*
+     * BOAS PRÁTICAS — INVENTÁRIO DE TESTE
+     * 1. O teste altera somente o estado inicial; não alteramos maxStack
+     *    dos itens reais para forçar quantidades de teste.
+     * 2. Itens não empilháveis no jogo continuam com maxStack=1. Aqui usamos
+     *    createItem diretamente para permitir 5 unidades apenas durante testes.
+     * 3. Toda atualização deve preservar as regras reais de gameplay e evitar
+     *    gambiarras que contaminem os dados dos itens.
+     * 4. Ao adicionar uma mecânica, validar a cadeia: dados -> sistema -> UI
+     *    -> renderização -> interação.
+     */
+    this.seedTestInventory();
+  }
+
+  seedTestInventory(){
+    const TEST_QTY=5;
+    const testItems=[
+      "wood","stone","egg","chickenMeat","rottenMeat",
+      "woodenAxe","pickaxe","axe","sword","torch","potion","fence"
+    ];
+
+    for(const id of testItems){
+      const definition=getItem(id);
+      if(!definition||this.items.length>=this.slots)continue;
+      const item=createItem(id,TEST_QTY);
+      if(item)this.items.push(item);
+    }
   }
 
   qty(id){
