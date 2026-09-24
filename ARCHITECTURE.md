@@ -106,3 +106,54 @@ Se um item possui desenho especial no mundo ou na mão e esse mesmo desenho prec
 7. Atualizar versão e cache.
 8. Fazer commit pequeno e descritivo.
 9. Não afirmar teste visual sem executar o navegador.
+
+
+## 10. Arquitetura em caixas para IA
+
+O projeto também possui uma camada `features/`. Ela representa **caixas de
+funcionalidade** independentes.
+
+Uma caixa deve concentrar:
+- estado temporário específico da mecânica;
+- entrada específica;
+- regras específicas;
+- cálculo de preview/posicionamento quando necessário;
+- uma API pequena para o restante do jogo.
+
+### Contrato de uma caixa
+
+`Input -> Feature -> API pública -> Renderer/Systems`
+
+O `GameLoop` é apenas um orquestrador: chama `feature.update()`, mas não
+deve conhecer os detalhes da mecânica.
+
+O `Game.js` monta as caixas, mas não implementa suas regras.
+
+### Primeira caixa: cerca
+
+`assets/js/features/fence/FenceFeature.js`
+
+A caixa da cerca é dona de:
+- orientação horizontal/vertical;
+- rotação;
+- preview;
+- estado usado ao soltar a cerca.
+
+O Player não guarda mais a orientação da cerca. Isso evita transformar uma
+entidade genérica em depósito de regras de construção.
+
+### Regra para futuras IAs
+
+Ao receber uma nova tarefa:
+
+1. procure primeiro uma caixa existente em `features/`;
+2. leia apenas essa caixa e suas dependências diretas;
+3. se a funcionalidade for nova e independente, crie uma nova caixa;
+4. exponha poucos métodos públicos;
+5. não coloque a regra dentro de GameLoop, Game.js ou Player;
+6. não faça uma caixa depender do arquivo inteiro do jogo;
+7. atualize o mapa de arquitetura e a versão.
+
+A meta é que uma IA consiga trabalhar por **contexto local**: entender uma
+caixa pequena é suficiente para alterar uma funcionalidade sem carregar todo o
+projeto na memória.
