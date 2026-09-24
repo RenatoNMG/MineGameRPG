@@ -1,4 +1,5 @@
 import {Config} from "../core/Config.js";
+import {FencePlacement} from "./FencePlacement.js";
 
 export class DropSystem{
   static dropItem({player,world,inventory,equipped,particles}){
@@ -7,8 +8,9 @@ export class DropSystem{
     const held=inventory.get(equipped.id);
     if(!held||held.qty<1)return {ok:false,type:"empty"};
 
-    const x=player.x+player.lastDir*28;
-    const y=player.y+8;
+    const placement=equipped.id==="fence"?FencePlacement.getPosition({player,world}):{x:player.x+player.lastDir*28,y:player.y+8};
+    const x=placement.x;
+    const y=placement.y;
     if(world.objectBlocks(x,y,6)){
       particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
       return {ok:false,type:"blocked"};
