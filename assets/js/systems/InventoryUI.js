@@ -6,8 +6,8 @@ export class InventoryUI{
       const item=game.inventory.items[i],b=document.createElement("button");b.className="slot"+(item?" filled":"");
       if(item){
         const icon=document.createElement("span");icon.className="item-icon";
-        /* UI NÃO DESENHA ITEM. O ItemRenderer é a fonte única do visual. */
-        if(item.renderMode==="canvas")icon.appendChild(game.renderer.itemRenderer.createItemIcon(item,32,"inventory-item-canvas"));
+        /* UI NÃO DESENHA ITEM. Renderer é a única fronteira visual do Canvas. */
+        if(item.renderMode==="canvas")icon.appendChild(game.renderer.createItemIcon(item,32,"inventory-item-canvas"));
         else if(typeof item.icon==="string"&&item.icon.trim().startsWith("<svg"))icon.innerHTML=item.icon;
         else icon.textContent=item.icon||"";
         const qty=document.createElement("small");qty.textContent="×"+item.qty;b.append(icon,qty);b.onclick=()=>this.equip(item,i);
