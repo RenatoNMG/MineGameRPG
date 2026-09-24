@@ -1,17 +1,22 @@
-import {RECIPES,getRecipe} from "../data/recipes/index.js?v=2.39";
-import {FENCE_RECIPE} from "../data/recipes/fence.js?v=2.39";
+import {RECIPES,getRecipe} from "../data/recipes/index.js";
 import {getItem} from "../data/items/index.js";
 
+/*
+ * RESPONSABILIDADE: executar regras genéricas de crafting.
+ *
+ * REGRA PARA FUTURAS IAs:
+ * receitas pertencem a data/recipes. Não adicione aqui um `if` para uma
+ * receita específica. Se uma receita nova existir, ela deve ser cadastrada
+ * no índice de receitas e funcionar automaticamente por este sistema.
+ */
 export class Crafting{
   constructor(inventory){
     this.inventory=inventory;
-    const recipes=[...RECIPES];
-    if(!recipes.some(recipe=>recipe.id==="fence"))recipes.push(FENCE_RECIPE);
-    this.recipes=recipes;
+    this.recipes=[...RECIPES];
   }
 
   getRecipe(id){
-    return getRecipe(id)||this.recipes.find(recipe=>recipe.id===id)||null;
+    return getRecipe(id)||null;
   }
 
   canCraft(recipe){
