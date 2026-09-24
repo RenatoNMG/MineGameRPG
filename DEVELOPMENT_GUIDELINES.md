@@ -37,3 +37,16 @@ Cada funcionalidade deve ter um único lugar responsável. Antes de editar, loca
 5. Para item visual, verificar mundo + mão + inventário + quickbar + craft.
 6. Atualizar versão e cache.
 7. Fazer commit pequeno e descritivo.
+
+
+## Proteção contra regressões
+
+O caso da cerca mostrou que uma chamada de desenho ausente dentro do game loop pode fazer o jogo inteiro parar de renderizar. Portanto, nunca adicionar ou renomear drawX sem procurar suas chamadas e confirmar a implementação.
+
+Se uma alteração pequena puder ser feita em um arquivo pequeno, não reescrever um arquivo grande inteiro. Preservar APIs existentes e alterar o menor número possível de arquivos.
+
+Para createItemIcon: a troca temporária de contexto Canvas é protegida por try/finally e deve continuar síncrona. Nunca colocar await ou callbacks assíncronos nessa região.
+
+Para itens com visual especial, não criar uma segunda implementação em UI. O visual deve ser centralizado no ItemRenderer antes de ser reutilizado.
+
+Checklist adicional: procurar referências do ID/visual, conferir mundo + mão + inventário + quickbar + craft, confirmar métodos de desenho existentes, confirmar game loop ativo e somente então atualizar versão/commit.
