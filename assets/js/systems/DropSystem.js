@@ -8,7 +8,8 @@ export class DropSystem{
     const held=inventory.get(equipped.id);
     if(!held||held.qty<1)return {ok:false,type:"empty"};
 
-    const placement=equipped.id==="fence"?FencePlacement.getPosition({player,world}):{x:player.x+player.lastDir*28,y:player.y+8};
+    const orientation=equipped.id==="fence"?(player.fenceOrientation||"horizontal"):null;
+    const placement=equipped.id==="fence"?FencePlacement.getPosition({player,world,orientation}):{x:player.x+player.lastDir*28,y:player.y+8};
     const x=placement.x;
     const y=placement.y;
     if(world.objectBlocks(x,y,6)){
@@ -18,7 +19,7 @@ export class DropSystem{
 
     if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
 
-    world.droppedItems.push({...held,qty:1,x,y});
+    world.droppedItems.push({...held,qty:1,x,y,...(equipped.id==="fence"?{orientation}: {})});
     player.attackCd=Config.COMBAT.attackCooldown;
     particles.push({x,y:y-18,t:.8,text:"ITEM SOLTO"});
 
