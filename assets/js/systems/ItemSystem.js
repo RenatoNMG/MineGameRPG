@@ -17,11 +17,12 @@ export class ItemSystem{
   static validate(id){
     const item=getItem(id);
     if(!item)return {valid:false,error:"ITEM_NAO_CADASTRADO"};
-    const required=["id","name","icon","category","maxStack","visual"];
+    const required=["id","name","category","maxStack","visual"];
     const missing=required.filter(key=>item[key]===undefined||item[key]===null);
     if(missing.length)return {valid:false,error:"ITEM_INCOMPLETO:"+missing.join(",")};
     if(item.id!==id)return {valid:false,error:"ID_DIVERGENTE"};
     if(!Number.isInteger(item.maxStack)||item.maxStack<1)return {valid:false,error:"MAX_STACK_INVALIDO"};
+    if(item.renderMode==="canvas"&&item.icon!==undefined)return {valid:false,error:"CANVAS_NAO_PODE_TER_ICON"};
     return {valid:true,item};
   }
 
