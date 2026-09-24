@@ -2,8 +2,8 @@ export class QuickbarUI{
   constructor(game,query){this.game=game;this.q=query;}
   renderIcon(item){
     const icon=document.createElement("span");icon.className="quick-icon";
-    /* UI NÃO DESENHA ITEM. ItemRenderer é a fonte única do visual. */
-    if(item?.renderMode==="canvas")icon.appendChild(this.game.renderer.itemRenderer.createItemIcon(item,48,"quick-icon-canvas"));
+    /* UI NÃO DESENHA ITEM. Renderer é a única fronteira visual do Canvas. */
+    if(item?.renderMode==="canvas")icon.appendChild(this.game.renderer.createItemIcon(item,48,"quick-icon-canvas"));
     else if(item?.icon)icon.textContent=item.icon;
     return icon;
   }
