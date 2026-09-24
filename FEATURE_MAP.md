@@ -5,7 +5,8 @@ Use este arquivo antes de abrir dezenas de arquivos.
 ## Entrada por tarefa
 
 - **movimento, fome, sede, vida do jogador** -> `features/player/PlayerFeature.js` + Player
-- **cerca, rotação, preview, colocação, encaixe 90°** -> `features/fence/FenceFeature.js`
+- **cerca, rotação, preview, colocação, encaixe 90°** -> `features/fence/FenceFeature.js` + `features/fence/FenceGeometry.js` + `systems/FencePlacement.js`
+- **cerca física do mundo** -> `World.fences` + `features/fence/FenceGeometry.js` + `systems/CollisionSystem.js`
 - **botão de ação, usar, atacar, carregar galinha/galo** -> `features/interaction/InteractionFeature.js`
 - **soltar item, coleta automática de madeira/pedra** -> `features/drops/DropFeature.js`
 - **árvore/pedra e ferramentas** -> `systems/ResourceInteraction.js` + ToolSystem
