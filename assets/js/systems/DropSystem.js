@@ -1,17 +1,16 @@
 import {Config} from "../core/Config.js";
-import {FencePlacement} from "./FencePlacement.js";
 
 export class DropSystem{
-  static dropItem({player,world,inventory,equipped,particles}){
+  static dropItem({player,world,inventory,equipped,particles,placement=null}){
     if(!equipped)return {ok:false,type:"noItem"};
 
     const held=inventory.get(equipped.id);
     if(!held||held.qty<1)return {ok:false,type:"empty"};
 
-    const orientation=equipped.id==="fence"?(player.fenceOrientation||"horizontal"):null;
-    const placement=equipped.id==="fence"?FencePlacement.getPosition({player,world,orientation}):{x:player.x+player.lastDir*28,y:player.y+8};
-    const x=placement.x;
-    const y=placement.y;
+    const dropPosition=placement||{x:player.x+player.lastDir*28,y:player.y+8};
+    const orientation=equipped.id==="fence"?(dropPosition.orientation||"horizontal"):null;
+    const x=dropPosition.x;
+    const y=dropPosition.y;
     if(world.objectBlocks(x,y,6)){
       particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
       return {ok:false,type:"blocked"};
