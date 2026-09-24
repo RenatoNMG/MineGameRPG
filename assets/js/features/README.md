@@ -1,52 +1,47 @@
 # Caixas de funcionalidade — arquitetura para IA
 
-Este projeto usa uma arquitetura modular orientada a **caixas**.
+A pasta `features/` é a camada de **mecânicas isoladas** do MineGame RPG.
 
-Uma caixa é uma funcionalidade pequena, com estado próprio, regras próprias,
-entrada própria, dependências explícitas e uma interface pequena.
+## Contrato obrigatório de uma caixa
 
-## Regra
+Cada caixa deve explicar no topo do arquivo:
+1. responsabilidade;
+2. o que não pertence nela;
+3. API pública;
+4. dependências diretas;
+5. fluxo.
 
-Quando uma nova mecânica não pertence claramente a um sistema existente, crie:
+Fluxo preferido:
 
-`assets/js/features/<nome-da-feature>/`
+`Input -> Feature -> System/Entity -> Renderer/UI`
 
-A caixa deve esconder seus detalhes internos.
+### Regras
 
-### Fluxo
+- GameLoop apenas orquestra caixas.
+- Game.js apenas monta caixas.
+- Player e World não devem receber regras específicas de novas mecânicas.
+- Uma feature não deve importar Game.js.
+- Evitar dependência circular entre features.
+- Sistemas existentes podem ser usados como motores internos durante a
+  migração. Não é necessário reescrever o jogo inteiro para criar uma caixa.
+- Uma caixa nova deve ser pequena e reversível.
 
-`Input -> Feature -> estado/API -> Renderer/Gameplay`
+## Caixas atuais
 
-O GameLoop apenas chama o ponto de atualização da caixa. Ele não deve conter
-regras específicas da funcionalidade.
+- `fence/` — cerca, rotação, preview e estado de colocação.
+- `player/` — movimento, fome, sede e cooldown do jogador.
+- `interaction/` — ação, interação e carregar animais.
+- `drops/` — soltar itens e coleta automática de drops.
 
-## Como uma IA deve trabalhar
+## Como uma IA deve atualizar
 
-1. Ler `ARCHITECTURE.md`.
-2. Localizar a caixa relacionada.
-3. Ler somente a caixa e suas dependências diretas.
-4. Alterar a menor quantidade possível de arquivos.
-5. Procurar todas as referências da API pública alterada.
-6. Atualizar versão, cache e documentação.
-7. Fazer um commit pequeno e descritivo.
+1. Leia `AI_ARCHITECTURE.md`.
+2. Leia `FEATURE_MAP.md`.
+3. Abra a caixa relacionada.
+4. Leia somente dependências diretas.
+5. Faça a menor alteração possível.
+6. Atualize versão/cache/documentação.
+7. Faça commit pequeno.
 
-## Dependências
-
-Evite dependências circulares. Uma caixa pode usar infraestrutura comum, mas
-não deve conhecer o jogo inteiro.
-
-**Evitar:**
-
-`Feature -> GameLoop -> Feature`
-
-**Preferir:**
-
-`Input -> Feature -> Renderer`
-
-## Primeira caixa
-
-`features/fence/FenceFeature.js` concentra a lógica específica da cerca:
-orientação, rotação e preview.
-
-O objetivo é que futuras IAs consigam modificar a cerca sem precisar carregar
-todo o projeto na memória.
+Não transforme a pasta `features/` em um framework genérico. Ela existe para
+reduzir o contexto necessário para uma IA entender uma funcionalidade.

@@ -9,13 +9,16 @@ import {EventSystem} from "../systems/EventSystem.js";
 import {GameUI} from "../systems/GameUI.js";
 import {GameLoop} from "../systems/GameLoop.js";
 import {FenceFeature} from "../features/fence/FenceFeature.js";
+import {PlayerFeature} from "../features/player/PlayerFeature.js";
+import {InteractionFeature} from "../features/interaction/InteractionFeature.js";
+import {DropFeature} from "../features/drops/DropFeature.js";
 
 /*
  * ORQUESTRADOR PRINCIPAL.
  *
- * REGRA PARA FUTURAS IAs: Game.js deve apenas montar os módulos e manter
- * referências entre eles. Não adicionar aqui regras de itens, receitas,
- * desenho, colisão, IA de animais ou manipulação direta do DOM.
+ * Game.js somente monta as caixas e injeta dependências.
+ * REGRA PARA FUTURAS IAs: não colocar aqui regras de gameplay, itens,
+ * animais, colisão, renderização ou DOM.
  */
 export class Game{
   constructor(){
@@ -33,16 +36,29 @@ export class Game{
     this.equipped=null;
     this.inventoryOpen=false;
 
-    /* Cada mecânica específica deve viver em sua própria caixa.
-     * A caixa precisa existir antes do Renderer, pois o Renderer consulta
-     * sua API pública para desenhar a orientação da cerca. */
+    /* Infraestrutura + caixas de funcionalidade. */
+    this.playerFeature=new PlayerFeature({player:this.player,input:this.input,world:this.world});
     this.fenceFeature=new FenceFeature({
-      input:this.input,
-      player:this.player,
-      world:this.world,
-      particles:this.particles,
-      getEquipped:()=>this.equipped
+      input:this.input,player:this.player,world:this.world,
+      particles:this.particles,getEquipped:()=>this.equipped
     });
+    this.interactionFeature=new InteractionFeature({
+      player:this.player,world:this.world,inventory:this.inventory,input:this.input,
+      particles:this.particles,getEquipped:()=>this.equipped,
+      setEquipped:item=>{this.equipped=item;},
+      onInventoryChanged:()=>this.ui?.renderInventory(),
+      events:this.events
+    });
+    this.dropFeature=new DropFeature({
+      player:this.player,world:this.world,inventory:this.inventory,input:this.input,
+      particles:this.particles,getEquipped:()=>this.equipped,
+      setEquipped:item=>{this.equipped=item;},
+      getPlacement:item=>this.fenceFeature.getDropPlacement(item),
+      onInventoryChanged:()=>this.ui?.renderInventory(),
+      events:this.events
+    });
+
+    /* FenceFeature precisa existir antes do Renderer. */
     this.renderer=new Renderer(this.canvas,this.player,this.world,this.fenceFeature);
     this.ui=new GameUI(this);
     this.loop=new GameLoop(this);

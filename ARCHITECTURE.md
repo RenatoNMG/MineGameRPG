@@ -11,10 +11,10 @@ Um item visualmente desenhado usa:
 - `renderMode:"canvas"`
 - não possui `icon`
 
-O desenho fica somente em `core/ItemRenderer.js`.
+O desenho deve ter uma única fonte. Hoje os itens Canvas são centralizados no ItemRenderer; visuais de recursos do mundo são compartilhados pelos renderizadores do mundo e pelo ItemRenderer. Uma futura migração deve preservar a mesma fonte visual sem duplicação.
 
 ## 2. Gameplay
-`systems/` contém regras:
+`systems/` contém motores reutilizáveis:
 - Inventory: quantidade e slots.
 - Crafting: receitas.
 - ItemBehaviorSystem: efeitos de uso.
@@ -22,138 +22,85 @@ O desenho fica somente em `core/ItemRenderer.js`.
 - DropSystem: soltar/coletar.
 - sistemas específicos: água, recursos, animais etc.
 
-Uma regra específica de um item não deve ser espalhada por vários sistemas.
+As caixas em `features/` são a camada que coordena essas regras quando uma
+funcionalidade possui estado/entrada própria.
 
 ## 3. Visual
 `core/Renderer.js` é a fronteira do Canvas.
-
-`core/ItemRenderer.js` é a fonte única dos desenhos dos itens.
-
-O fluxo visual é:
-
-data do item → ItemRenderer → mundo / inventário / quickbar / mão
-
-Inventário e quickbar não desenham Canvas e nunca acessam `renderer.ctx` para montar um item. Eles chamam apenas `renderer.createItemIcon(item,tamanho)`.
-
-Isso garante que o mesmo item use o mesmo desenho em todos os lugares.
+`core/ItemRenderer.js` é a fonte principal dos desenhos dos itens.
+Inventário e quickbar não acessam `renderer.ctx`.
 
 ## 4. Como adicionar um item novo
-
-### Item simples com emoji
-Crie `data/items/apple.js`, coloque os dados e registre no `catalog.js`.
-
-### Item com Canvas
-1. Crie `data/items/apple.js`.
-2. Defina `visual:"apple"` e `renderMode:"canvas"`.
-3. Não coloque emoji no item.
-4. Adicione `apple` ao `ItemRenderer`.
-5. Não altere InventoryUI ou QuickbarUI para desenhar a maçã.
-6. Teste mundo, inventário, quickbar e mão.
+1. Crie `data/items/<item>.js`.
+2. Registre no `catalog.js`.
+3. Se for Canvas, use `renderMode:"canvas"` + `visual` e não use `icon`.
+4. Coloque o visual na fonte de renderização correspondente.
+5. Não altere InventoryUI/QuickbarUI para criar desenho duplicado.
+6. Se houver comportamento novo, use ItemBehaviorSystem ou uma nova Feature.
 
 ## 5. Como adicionar uma mecânica
+Pergunte primeiro qual caixa é dona da regra.
+- jogador -> `features/player`
+- cerca/construção -> `features/fence`
+- ação/interação -> `features/interaction`
+- drops -> `features/drops`
+- animais -> `systems/AnimalSystem` (criar caixa quando crescer)
+- transformação -> `systems/TransformationSystem`
+- recursos -> `systems/ResourceInteraction`
+- água -> `systems/WaterInteraction`
+- item -> `ItemBehaviorSystem`
+- craft -> `Crafting`
+- render -> `core/*Renderer`
 
-Pergunte primeiro: qual sistema é dono dessa regra?
-
-Exemplo:
-- comer → ItemBehaviorSystem;
-- receita → data/recipes + Crafting;
-- soltar → DropSystem;
-- água → WaterInteraction;
-- colisão → CollisionSystem;
-- animal → entidade + AnimalSystem;
-- desenho → Renderer/ItemRenderer.
-
-Se nenhuma categoria existente servir, crie um novo sistema. Não coloque a regra em Game.js só porque ele já conhece todos os módulos.
+Se uma área começar a exigir vários arquivos/estado próprio, crie uma caixa
+antes de aumentar GameLoop, Game.js, Player ou World.
 
 ## 6. Regra para futuras IAs
-
 Não criar:
 - if(item.id===...) espalhado;
-- desenho duplicado no inventário;
-- desenho duplicado na quickbar;
+- desenho duplicado;
 - emoji como fallback de item Canvas;
 - acesso direto de UI ao contexto Canvas;
-- uma segunda fonte de verdade para item.
+- segunda fonte de verdade para item;
+- regra específica dentro do GameLoop.
 
-Antes de modificar uma mecânica, localizar o módulo responsável e ler seus comentários.
+Antes de modificar, ler `AI_ARCHITECTURE.md` e `FEATURE_MAP.md`.
 
-Objetivo: adicionar uma coisa nova alterando poucos arquivos previsíveis, sem precisar entender ou reescrever o jogo inteiro.
+## 7. Proteções contra regressões de renderização
+Uma chamada de desenho só pode existir depois que o método correspondente estiver implementado. Um erro nesse contrato pode interromper o render inteiro.
 
+Antes de uma mudança visual:
+1. procurar referências do item/visual;
+2. confirmar métodos de desenho;
+3. conferir mundo, mão, inventário, quickbar e craft;
+4. confirmar que o game loop continua atualizando e renderizando.
 
-## 9. Proteções contra regressões de renderização
+## 8. Zona sensível: createItemIcon
+A troca temporária de contexto Canvas deve ser síncrona e protegida por `finally`.
+Nunca adicionar await/callback assíncrono nesse trecho.
 
-### Caso da cerca
-Uma chamada de desenho só pode existir depois que o método correspondente estiver implementado no ItemRenderer. Um erro nesse contrato pode interromper o render inteiro, porque o desenho acontece dentro do game loop.
-
-Antes de concluir uma mudança visual: procurar todas as referências do item/visual, confirmar que cada método chamado existe e preservar o fluxo Renderer → game loop.
-
-### Zona sensível: createItemIcon
-O método cria um Canvas pequeno para a interface e reutiliza temporariamente o contexto do Renderer. A troca deve ser síncrona e o contexto original deve sempre ser restaurado em finally. Nunca adicionar await ou operação assíncrona nesse trecho.
-
-### Regra de alteração segura
-Se uma correção puder ser feita em um arquivo pequeno, não reescrever um arquivo grande inteiro. Alterações grandes aumentam o risco de apagar métodos, chamadas ou dependências que já funcionavam.
-
-### Item com visual especial
-Se um item possui desenho especial no mundo ou na mão e esse mesmo desenho precisa aparecer nas interfaces, não criar uma segunda versão em InventoryUI, QuickbarUI ou CraftUI. Primeiro centralizar o visual no ItemRenderer e então reutilizar a mesma fonte.
-
-### Checklist antes de concluir
-1. Ler ARCHITECTURE.md e DEVELOPMENT_GUIDELINES.md.
-2. Identificar o módulo dono da regra.
-3. Procurar todas as referências do ID/visual afetado.
-4. Conferir mundo, mão, inventário, quickbar e craft quando aplicável.
-5. Confirmar que todo método chamado pelo renderizador existe.
-6. Confirmar que o game loop continua atualizando e renderizando.
-7. Atualizar versão e cache.
-8. Fazer commit pequeno e descritivo.
-9. Não afirmar teste visual sem executar o navegador.
-
+## 9. Alteração segura
+Se uma correção cabe em arquivo pequeno, não reescreva arquivo grande.
+Preserve APIs existentes e faça commits pequenos.
 
 ## 10. Arquitetura em caixas para IA
+`features/` é a camada de contexto local. Uma caixa deve concentrar estado,
+entrada e regras de uma funcionalidade e oferecer uma API pequena.
 
-O projeto também possui uma camada `features/`. Ela representa **caixas de
-funcionalidade** independentes.
+Fluxo:
+`Input -> Feature -> System/Entity -> Renderer/UI`
 
-Uma caixa deve concentrar:
-- estado temporário específico da mecânica;
-- entrada específica;
-- regras específicas;
-- cálculo de preview/posicionamento quando necessário;
-- uma API pequena para o restante do jogo.
+GameLoop apenas orquestra. Game.js apenas compõe.
 
-### Contrato de uma caixa
+### Caixas atuais
+- `player`
+- `fence`
+- `interaction`
+- `drops`
 
-`Input -> Feature -> API pública -> Renderer/Systems`
+O mapa completo está em `FEATURE_MAP.md` e o manual para IA em
+`AI_ARCHITECTURE.md`.
 
-O `GameLoop` é apenas um orquestrador: chama `feature.update()`, mas não
-deve conhecer os detalhes da mecânica.
-
-O `Game.js` monta as caixas, mas não implementa suas regras.
-
-### Primeira caixa: cerca
-
-`assets/js/features/fence/FenceFeature.js`
-
-A caixa da cerca é dona de:
-- orientação horizontal/vertical;
-- rotação;
-- preview;
-- estado usado ao soltar a cerca.
-
-O Player não guarda mais a orientação da cerca. Isso evita transformar uma
-entidade genérica em depósito de regras de construção.
-
-### Regra para futuras IAs
-
-Ao receber uma nova tarefa:
-
-1. procure primeiro uma caixa existente em `features/`;
-2. leia apenas essa caixa e suas dependências diretas;
-3. se a funcionalidade for nova e independente, crie uma nova caixa;
-4. exponha poucos métodos públicos;
-5. não coloque a regra dentro de GameLoop, Game.js ou Player;
-6. não faça uma caixa depender do arquivo inteiro do jogo;
-7. atualize o mapa de arquitetura e a versão.
-
-A meta é que uma IA consiga trabalhar por **contexto local**: entender uma
-caixa pequena é suficiente para alterar uma funcionalidade sem carregar todo o
-projeto na memória.
+### Regra de expansão
+Não criar um framework genérico. Criar uma caixa somente quando ela reduzir
+o contexto necessário para entender/modificar uma funcionalidade.
