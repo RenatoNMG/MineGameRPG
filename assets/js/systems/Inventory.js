@@ -6,15 +6,10 @@ export class Inventory{
     this.items=[];
 
     /*
-     * BOAS PRÁTICAS — INVENTÁRIO DE TESTE
-     * 1. O teste altera somente o estado inicial; não alteramos maxStack
-     *    dos itens reais para forçar quantidades de teste.
-     * 2. Itens não empilháveis no jogo continuam com maxStack=1. Aqui usamos
-     *    createItem diretamente para permitir 5 unidades apenas durante testes.
-     * 3. Toda atualização deve preservar as regras reais de gameplay e evitar
-     *    gambiarras que contaminem os dados dos itens.
-     * 4. Ao adicionar uma mecânica, validar a cadeia: dados -> sistema -> UI
-     *    -> renderização -> interação.
+     * BOAS PRÁTICAS — TESTES
+     * O inventário de teste deve criar uma cópia independente da definição
+     * do item. Nunca altere ITEMS/catalog.js apenas para facilitar testes.
+     * Assim, maxStack=1 continua sendo a regra real do machado, espada etc.
      */
     this.seedTestInventory();
   }
@@ -27,10 +22,22 @@ export class Inventory{
     ];
 
     for(const id of testItems){
+      if(this.items.length>=this.slots)break;
+
       const definition=getItem(id);
-      if(!definition||this.items.length>=this.slots)continue;
+      if(!definition)continue;
+
+      /*
+       * Quantidade de teste é explícita e independente de maxStack real.
+       * Isso garante exatamente 5 unidades mesmo para itens não empilháveis
+       * no gameplay normal.
+       */
       const item=createItem(id,TEST_QTY);
-      if(item)this.items.push(item);
+      if(!item)continue;
+
+      item.maxStack=Math.max(definition.maxStack,TEST_QTY);
+      item.qty=TEST_QTY;
+      this.items.push(item);
     }
   }
 
@@ -41,11 +48,13 @@ export class Inventory{
   add(id,qty=1){
     const definition=getItem(id);
     if(!definition||qty<=0)return false;
-    let item=this.items.find(x=>x.id===id);
+    const item=this.items.find(x=>x.id===id);
+
     if(item){
       item.qty=Math.min(item.maxStack,item.qty+qty);
       return true;
     }
+
     if(this.items.length>=this.slots)return false;
     this.items.push(createItem(id,Math.min(qty,definition.maxStack)));
     return true;
