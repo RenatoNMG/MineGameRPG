@@ -7,9 +7,8 @@ export class Inventory{
 
     /*
      * BOAS PRÁTICAS — TESTES
-     * O inventário de teste deve criar uma cópia independente da definição
-     * do item. Nunca altere ITEMS/catalog.js apenas para facilitar testes.
-     * Assim, maxStack=1 continua sendo a regra real do machado, espada etc.
+     * O inventário de teste deve respeitar o maxStack real definido no
+     * catálogo. Itens não empilháveis continuam sendo apenas 1 unidade.
      */
     this.seedTestInventory();
   }
@@ -28,15 +27,13 @@ export class Inventory{
       if(!definition)continue;
 
       /*
-       * Quantidade de teste é explícita e independente de maxStack real.
-       * Isso garante exatamente 5 unidades mesmo para itens não empilháveis
-       * no gameplay normal.
+       * O teste usa até 5 unidades, mas nunca ultrapassa a regra real
+       * do item. Assim maxStack:1 permanece exatamente como no gameplay.
        */
-      const item=createItem(id,TEST_QTY);
+      const qty=Math.min(TEST_QTY,definition.maxStack);
+      const item=createItem(id,qty);
       if(!item)continue;
 
-      item.maxStack=Math.max(definition.maxStack,TEST_QTY);
-      item.qty=TEST_QTY;
       this.items.push(item);
     }
   }
