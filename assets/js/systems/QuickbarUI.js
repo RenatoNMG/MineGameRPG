@@ -2,12 +2,18 @@ export class QuickbarUI{
   constructor(game,query){this.game=game;this.q=query;}
   renderIcon(item){
     const icon=document.createElement("span");icon.className="quick-icon";
-    if(item?.visual==="egg"||item?.visual==="rottenMeat"){
+    /*
+     * REGRA VISUAL: itens com renderMode:"canvas" usam exatamente o mesmo
+     * desenho Canvas do mundo e do inventário. Não usar emoji como substituto.
+     * Assim a futura IA deve adicionar o visual em ItemRenderer e apenas
+     * marcar o item como Canvas, sem criar um desenho paralelo aqui.
+     */
+    if(item?.renderMode==="canvas"){
       const canvas=document.createElement("canvas");
       canvas.width=48;canvas.height=48;canvas.className="quick-icon-canvas";
       const mini=canvas.getContext("2d"),original=this.game.renderer.ctx;
       this.game.renderer.ctx=mini;
-      this.game.renderer.drawDroppedItem({x:24,y:24,visual:item.visual});
+      this.game.renderer.drawDroppedItem({x:24,y:24,...item});
       this.game.renderer.ctx=original;
       icon.appendChild(canvas);
     }else{
