@@ -1,5 +1,18 @@
 import {getItem} from "../data/items/index.js";
+import {getItemBehavior,useItem} from "./ItemBehaviorSystem.js";
 
+/*
+ * RESPONSABILIDADE: porta de entrada das regras de item.
+ *
+ * Este sistema NÃO desenha itens, NÃO monta UI e NÃO contém uma lista de
+ * itens. O catálogo em data/items é a fonte dos dados; ItemBehaviorSystem é
+ * a fonte dos comportamentos.
+ *
+ * REGRA PARA FUTURAS IAs:
+ * se um novo item puder ser descrito apenas por dados, crie um arquivo em
+ * data/items/ e registre-o no catalog.js. Não adicione if/else neste arquivo.
+ * Só altere este sistema quando a regra geral de validação/uso mudar.
+ */
 export class ItemSystem{
   static validate(id){
     const item=getItem(id);
@@ -16,15 +29,17 @@ export class ItemSystem{
     if(!item)return false;
     const check=this.validate(item.id);
     if(!check.valid)return false;
-    return item.category==="food"||item.category==="consumable";
+    return !!getItemBehavior(item);
   }
 
-  static use(item,player,inventory){
-    if(!this.canUse(item))return false;
-    if(!inventory.remove(item.id,1))return false;
-    if(item.effects?.hunger!==undefined)player.hunger=Math.min(100,player.hunger+item.effects.hunger);
-    if(item.effects?.thirst!==undefined)player.thirst=Math.min(100,player.thirst+item.effects.thirst);
-    if(item.heal!==undefined)player.hp=Math.min(player.max,player.hp+item.heal);
-    return true;
+  static use(item,player,inventory,world=null){
+    if(!this.canUse(item)||inventory.qty(item.id)<=0)return false;
+
+    // O comportamento só é confirmado como consumível depois que seu efeito
+    // foi executado com sucesso. Assim um item não some se uma ação falhar.
+    const used=useItem({item,player,inventory,world});
+    if(!used)return false;
+
+    return inventory.remove(item.id,1);
   }
 }
