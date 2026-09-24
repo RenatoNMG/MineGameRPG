@@ -8,6 +8,7 @@ import {Renderer} from "./Renderer.js";
 import {EventSystem} from "../systems/EventSystem.js";
 import {GameUI} from "../systems/GameUI.js";
 import {GameLoop} from "../systems/GameLoop.js";
+import {FenceFeature} from "../features/fence/FenceFeature.js";
 
 /*
  * ORQUESTRADOR PRINCIPAL.
@@ -24,9 +25,11 @@ export class Game{
     this.inventory=new Inventory(Config.INVENTORY.slots);
     this.crafting=new Crafting(this.inventory);
     this.input=new Input();
-    this.renderer=new Renderer(this.canvas,this.player,this.world);
+    this.renderer=new Renderer(this.canvas,this.player,this.world,this.fenceFeature);
     this.particles=[];
     this.events=new EventSystem();
+    /* Cada mecânica específica deve viver em sua própria caixa. */
+    this.fenceFeature=new FenceFeature({input:this.input,player:this.player,world:this.world,particles:this.particles,getEquipped:()=>this.equipped});
     this.paused=false;
     this.time=0;
     this.quickbar=[null,null,null,null,null,null];
