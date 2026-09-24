@@ -39,7 +39,7 @@ export class ItemRenderer{
   }
   drawFencePreview(item,valid=true){const c=this.renderer.ctx;c.save();c.translate(item.x,item.y);c.rotate(item.orientation==="vertical"?Math.PI/2:0);c.globalAlpha=.5;c.fillStyle=valid?"#73c66b":"#d95b5b";c.beginPath();c.ellipse(0,9,20,5,0,0,Math.PI*2);c.fill();c.strokeStyle=valid?"#b8f0ae":"#ffaaaa";c.lineWidth=4;c.beginPath();c.moveTo(-13,7);c.lineTo(-13,-8);c.moveTo(0,7);c.lineTo(0,-10);c.moveTo(13,7);c.lineTo(13,-8);c.stroke();c.lineWidth=3;c.beginPath();c.moveTo(-16,-4);c.lineTo(16,-4);c.moveTo(-16,3);c.lineTo(16,3);c.stroke();c.globalAlpha=.95;c.font="bold 9px Arial";c.textAlign="center";c.fillStyle=valid?"#d8ffd2":"#ffd8d8";c.fillText(valid?"SOLTAR":"BLOQUEADO",0,22);c.restore();}
   drawDroppedItem(item){
-    if(item.visual==="fence"){this.drawFence({x:item.x,y:item.y});return;}
+    if(item.visual==="fence"){this.drawFence({x:item.x,y:item.y,orientation:item.orientation});return;}
     if(item.visual==="wood"){this.renderer.drawWood({x:item.x,y:item.y,variant:item.variant??1,collected:false});return;}
     if(item.visual==="stone"){this.renderer.drawStone({x:item.x,y:item.y,type:item.type??1,radius:14,loose:true,collected:false});return;}
     if(item.visual==="egg"){this.renderer.drawEgg({x:item.x,y:item.y});return;}
