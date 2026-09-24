@@ -1,3 +1,17 @@
+/*
+ * CATÁLOGO ÚNICO DOS ITENS
+ *
+ * REGRA OBRIGATÓRIA PARA FUTURAS IAs:
+ * 1. Cada item novo recebe seu próprio arquivo em data/items/.
+ * 2. O arquivo do item contém somente DADOS: id, nome, categoria, stack,
+ *    visual e efeitos/propriedades declarativas.
+ * 3. Depois, importe o item aqui e adicione-o ao objeto ITEMS.
+ * 4. NÃO coloque regras de gameplay, DOM ou Canvas dentro do arquivo do item.
+ * 5. Comportamentos especiais devem usar `behavior` e ficar no
+ *    ItemBehaviorSystem. Visuais especiais ficam no ItemRenderer.
+ * 6. IDs são contratos: não renomeie um ID existente sem revisar todas as
+ *    referências (inventário, drops, receitas, mundo, UI e saves).
+ */
 import {WOOD} from "./wood.js";
 import {STONE} from "./stone.js";
 import {EGG} from "./egg.js";
