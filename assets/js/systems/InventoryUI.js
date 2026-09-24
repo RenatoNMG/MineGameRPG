@@ -12,13 +12,22 @@ export class InventoryUI{
           const mini=canvas.getContext("2d"),original=game.renderer.ctx;
           game.renderer.ctx=mini;game.renderer.drawDroppedItem({x:16,y:15,visual:"rottenMeat"});game.renderer.ctx=original;
           icon.appendChild(canvas);
-        }else if(typeof item.icon==="string"&&item.icon.trim().startsWith("<svg")){icon.innerHTML=item.icon;}else icon.textContent=item.icon;
+        }else if(typeof item.icon==="string"&&item.icon.trim().startsWith("<svg"))icon.innerHTML=item.icon;
+        else icon.textContent=item.icon;
         const qty=document.createElement("small");qty.textContent=item.qty;
         b.append(icon,qty);b.onclick=()=>this.equip(item,i);
       }
       grid.appendChild(b);
     }
-    this.q("#inventoryCount").textContent=game.inventory.items.reduce((a,x)=>a+x.qty,0)+" / 20";
+
+    /*
+     * BOAS PRÁTICAS — UI
+     * Exibir espaços usados e quantidade total separadamente evita confundir
+     * quantidade empilhada com quantidade de slots ocupados.
+     */
+    const totalItems=game.inventory.items.reduce((a,x)=>a+x.qty,0);
+    const usedSlots=game.inventory.items.length;
+    this.q("#inventoryCount").textContent=usedSlots+" / "+game.inventory.slots+" espaços • "+totalItems+" itens";
     this.quickbar.render();
   }
   equip(item,index=null){this.quickbar.equip(item,index);}
