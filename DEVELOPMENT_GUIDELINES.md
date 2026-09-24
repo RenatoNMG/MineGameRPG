@@ -50,3 +50,21 @@ Para createItemIcon: a troca temporária de contexto Canvas é protegida por try
 Para itens com visual especial, não criar uma segunda implementação em UI. O visual deve ser centralizado no ItemRenderer antes de ser reutilizado.
 
 Checklist adicional: procurar referências do ID/visual, conferir mundo + mão + inventário + quickbar + craft, confirmar métodos de desenho existentes, confirmar game loop ativo e somente então atualizar versão/commit.
+
+
+## Arquitetura em caixas
+
+Funcionalidades independentes devem ser isoladas em `assets/js/features/<feature>/`.
+
+Uma caixa deve possuir estado e regras próprios e oferecer uma API pequena.
+GameLoop não recebe regras específicas da funcionalidade; ele apenas chama a
+caixa durante o ciclo de atualização.
+
+Antes de criar código novo, procurar uma caixa existente. Se não existir uma
+caixa adequada, criar uma em vez de aumentar GameLoop, Game.js ou Player.
+
+A primeira caixa é `features/fence/FenceFeature.js`.
+
+O objetivo é reduzir o contexto necessário para futuras IAs: uma mudança em
+uma funcionalidade deve exigir leitura de uma caixa pequena + suas
+dependências diretas, e não do projeto inteiro.
