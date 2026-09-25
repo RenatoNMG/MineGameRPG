@@ -3,14 +3,19 @@
  * Objetos físicos já colocados vivem em world.fences.
  *
  * REGRA DE SEGURANÇA:
- * a posição inicial da cerca precisa nascer fora do raio físico do jogador.
- * Se o centro da cerca ficar perto demais, o segmento pode envolver o jogador
- * mesmo quando o centro parece estar livre.
+ * uma posição só pode ser escolhida se o segmento físico completo da cerca
+ * estiver fora do jogador. Não basta verificar apenas o centro.
  */
+import {FenceGeometry} from "../features/fence/FenceGeometry.js";
+
 export class FencePlacement{
+  static isSafeForPlayer(position,player){
+    return !FenceGeometry.blocksPlayer(position,player);
+  }
+
   static getPosition({player,world,orientation="horizontal"}){
     const vertical=orientation==="vertical";
-    /* 40px deixa o segmento fora do corpo do jogador ao colocar a primeira cerca. */
+    /* Distância inicial suficiente para o segmento não envolver o jogador. */
     const safeOffset=40;
     const baseX=player.x+player.lastDir*safeOffset;
     const baseY=player.y+8;
@@ -22,14 +27,17 @@ export class FencePlacement{
       const itemVertical=item.orientation==="vertical";
 
       if(vertical===itemVertical){
+        let candidate;
         if(vertical){
           const side=Math.abs(dy)>4?(dy>0?1:-1):(player.lastDir||1);
-          bestDist=d;
-          best={x:item.x,y:item.y+side*32,orientation:"vertical"};
+          candidate={x:item.x,y:item.y+side*32,orientation:"vertical"};
         }else{
           const side=Math.abs(dx)>4?(dx>0?1:-1):(player.lastDir||1);
+          candidate={x:item.x+side*32,y:item.y,orientation:"horizontal"};
+        }
+        if(this.isSafeForPlayer(candidate,player)){
           bestDist=d;
-          best={x:item.x+side*32,y:item.y,orientation:"horizontal"};
+          best=candidate;
         }
         continue;
       }
@@ -42,19 +50,18 @@ export class FencePlacement{
       let corner=null,cornerDist=Infinity;
       for(const candidate of corners){
         const cd=Math.hypot(player.x-candidate.x,player.y-candidate.y);
-        if(cd<cornerDist){cornerDist=cd;corner=candidate;}
+        if(cd<cornerDist&&this.isSafeForPlayer({...candidate,orientation:vertical?"vertical":"horizontal"},player)){
+          cornerDist=cd;corner=candidate;
+        }
       }
 
-      if(cornerDist<bestDist){
+      if(corner&&cornerDist<bestDist){
         bestDist=cornerDist;
         best={x:corner.x,y:corner.y,orientation:vertical?"vertical":"horizontal"};
       }
     }
 
-    return best||{
-      x:baseX,
-      y:baseY,
-      orientation:vertical?"vertical":"horizontal"
-    };
+    const initial={x:baseX,y:baseY,orientation:vertical?"vertical":"horizontal"};
+    return best&&this.isSafeForPlayer(best,player)?best:initial;
   }
 }
