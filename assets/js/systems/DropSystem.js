@@ -1,4 +1,5 @@
 import {Config} from "../core/Config.js";
+import {FenceGeometry} from "../features/fence/FenceGeometry.js";
 
 export class DropSystem{
   static dropItem({player,world,inventory,equipped,particles,placement=null}){
@@ -9,6 +10,19 @@ export class DropSystem{
     const isFence=equipped.id==="fence";
     const orientation=isFence?(dropPosition.orientation||"horizontal"):null;
     const x=dropPosition.x,y=dropPosition.y;
+
+    /*
+     * A cerca é um segmento físico, então a validação usa a geometria completa.
+     * Verificar somente o centro permitiria criar uma cerca sobre o jogador.
+     */
+    if(isFence){
+      const fence={x,y,orientation};
+      if(FenceGeometry.blocksPlayer(fence,player)){
+        particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
+        return {ok:false,type:"blocked"};
+      }
+    }
+
     if(world.objectBlocks(x,y,6)){
       particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
       return {ok:false,type:"blocked"};
