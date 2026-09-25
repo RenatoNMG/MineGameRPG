@@ -87,7 +87,8 @@ export class AnimalSystem{
         target.matingEggTimer=1;target.matingEggPending=true;target.matingEggLocked=true;rooster.timer=.25;return;
       }
       if(best<=22)return;
-      if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1.8,target))rooster.dir=dx<0?-1:1;
+      /* O galo precisa superar a velocidade de fuga da galinha (24 * 2.2). */
+      if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,2.6,target))rooster.dir=dx<0?-1:1;
     }else this.move(rooster,dt,15,1.8);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
