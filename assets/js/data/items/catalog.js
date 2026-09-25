@@ -1,19 +1,5 @@
-/*
- * CATÁLOGO DE ITENS.
- * Item Canvas: sem icon + renderMode:"canvas" + visual único.
- * O desenho existe somente em ItemRenderer. UIs nunca criam desenho próprio.
- */
-import {WOOD} from "./wood.js";import {STONE} from "./stone.js";import {EGG} from "./egg.js";import {CHICKEN_MEAT} from "./chickenMeat.js";import {ROTTEN_MEAT} from "./rottenMeat.js";import {WOODEN_AXE} from "./woodenAxe.js";import {PICKAXE} from "./pickaxe.js";import {AXE} from "./axe.js";import {SWORD} from "./sword.js";import {TORCH} from "./torch.js";import {POTION} from "./potion.js";import {FENCE} from "./fence.js";
-export const ITEMS=Object.freeze({wood:WOOD,stone:STONE,egg:EGG,chickenMeat:CHICKEN_MEAT,rottenMeat:ROTTEN_MEAT,woodenAxe:WOODEN_AXE,pickaxe:PICKAXE,axe:AXE,sword:SWORD,torch:TORCH,potion:POTION,fence:FENCE});
-export function getItem(id){return ITEMS[id]||null;}
-export function createItem(id,qty=1){const definition=getItem(id);return definition?{...definition,qty}:null;}
-export function validateItems(){
-  const errors=[];
-  for(const [id,item] of Object.entries(ITEMS)){
-    for(const key of ["id","name","category","maxStack","visual"])if(item[key]===undefined||item[key]===null)errors.push(id+": sem "+key);
-    if(item.id!==id)errors.push(id+": id divergente");
-    if(!Number.isInteger(item.maxStack)||item.maxStack<1)errors.push(id+": maxStack invalido");
-    if(item.renderMode==="canvas"&&item.icon!==undefined)errors.push(id+": Canvas nao pode possuir icon");
-  }
-  return errors;
-}
+/* CATÁLOGO DE ITENS — Item Canvas não possui emoji; ItemRenderer é a fonte visual única. */
+import {WOOD} from "./wood.js";import {STONE} from "./stone.js";import {EGG} from "./egg.js";import {CHICKEN_MEAT} from "./chickenMeat.js";import {ROTTEN_MEAT} from "./rottenMeat.js";import {WOODEN_AXE} from "./woodenAxe.js";import {PICKAXE} from "./pickaxe.js";import {AXE} from "./axe.js";import {SWORD} from "./sword.js";import {TORCH} from "./torch.js";import {POTION} from "./potion.js";import {FENCE} from "./fence.js";import {FENCE_GATE} from "./fenceGate.js";
+export const ITEMS=Object.freeze({wood:WOOD,stone:STONE,egg:EGG,chickenMeat:CHICKEN_MEAT,rottenMeat:ROTTEN_MEAT,woodenAxe:WOODEN_AXE,pickaxe:PICKAXE,axe:AXE,sword:SWORD,torch:TORCH,potion:POTION,fence:FENCE,fenceGate:FENCE_GATE});
+export function getItem(id){return ITEMS[id]||null;}export function createItem(id,qty=1){const definition=getItem(id);return definition?{...definition,qty}:null;}
+export function validateItems(){const errors=[];for(const [id,item] of Object.entries(ITEMS)){for(const key of ["id","name","category","maxStack","visual"])if(item[key]===undefined||item[key]===null)errors.push(id+": sem "+key);if(item.id!==id)errors.push(id+": id divergente");if(!Number.isInteger(item.maxStack)||item.maxStack<1)errors.push(id+": maxStack invalido");if(item.renderMode==="canvas"&&item.icon!==undefined)errors.push(id+": Canvas nao pode possuir icon");}return errors;}
