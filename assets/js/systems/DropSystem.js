@@ -2,22 +2,21 @@ import {Config} from "../core/Config.js";
 import {FenceGeometry} from "../features/fence/FenceGeometry.js";
 
 export class DropSystem{
+  static isConstruction(item){return !!item&&(item.id==="fence"||item.id==="fenceGate");}
+
   static dropItem({player,world,inventory,equipped,particles,placement=null}){
     if(!equipped)return {ok:false,type:"noItem"};
     const held=inventory.get(equipped.id);
     if(!held||held.qty<1)return {ok:false,type:"empty"};
     const dropPosition=placement||{x:player.x+player.lastDir*28,y:player.y+8};
-    const isFence=equipped.id==="fence";
-    const orientation=isFence?(dropPosition.orientation||"horizontal"):null;
+    const isConstruction=this.isConstruction(equipped);
+    const orientation=isConstruction?(dropPosition.orientation||"horizontal"):null;
     const x=dropPosition.x,y=dropPosition.y;
 
-    /*
-     * A cerca é um segmento físico, então a validação usa a geometria completa.
-     * Verificar somente o centro permitiria criar uma cerca sobre o jogador.
-     */
-    if(isFence){
-      const fence={x,y,orientation};
-      if(FenceGeometry.blocksPlayer(fence,player)){
+    /* Cerca e porta são construções físicas com a mesma geometria/tamanho. */
+    if(isConstruction){
+      const structure={x,y,orientation};
+      if(FenceGeometry.blocksPlayer(structure,player)){
         particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
         return {ok:false,type:"blocked"};
       }
@@ -28,13 +27,13 @@ export class DropSystem{
       return {ok:false,type:"blocked"};
     }
     if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
-    /* Cerca é objeto físico; droppedItems continua reservado para coletáveis. */
-    if(isFence)world.fences.push({...held,qty:1,x,y,orientation});
+    if(isConstruction)world.fences.push({...held,qty:1,x,y,orientation});
     else world.droppedItems.push({...held,qty:1,x,y});
     player.attackCd=Config.COMBAT.attackCooldown;
     particles.push({x,y:y-18,t:.8,text:"ITEM SOLTO"});
     return {ok:true,type:"dropped",itemId:held.id,empty:inventory.qty(held.id)<=0};
   }
+
   static collectItem({player,world,inventory,particles}){
     let found=null,dist=50;
     for(const item of world.droppedItems){
@@ -51,6 +50,7 @@ export class DropSystem{
     }
     return true;
   }
+
   static collectResourceDrops({player,world,inventory,particles}){
     for(const tree of world.trees){
       if(tree.state==="fallen"&&tree.drop&&Math.hypot(player.x-tree.drop.x,player.y-tree.drop.y)<30){

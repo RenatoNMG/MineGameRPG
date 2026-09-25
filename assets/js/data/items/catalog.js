@@ -3,8 +3,8 @@
  * Item Canvas: sem icon + renderMode:"canvas" + visual único.
  * O desenho existe somente em ItemRenderer. UIs nunca criam desenho próprio.
  */
-import {WOOD} from "./wood.js";import {STONE} from "./stone.js";import {EGG} from "./egg.js";import {CHICKEN_MEAT} from "./chickenMeat.js";import {ROTTEN_MEAT} from "./rottenMeat.js";import {WOODEN_AXE} from "./woodenAxe.js";import {PICKAXE} from "./pickaxe.js";import {AXE} from "./axe.js";import {SWORD} from "./sword.js";import {TORCH} from "./torch.js";import {POTION} from "./potion.js";import {FENCE} from "./fence.js";
-export const ITEMS=Object.freeze({wood:WOOD,stone:STONE,egg:EGG,chickenMeat:CHICKEN_MEAT,rottenMeat:ROTTEN_MEAT,woodenAxe:WOODEN_AXE,pickaxe:PICKAXE,axe:AXE,sword:SWORD,torch:TORCH,potion:POTION,fence:FENCE});
+import {WOOD} from "./wood.js";import {STONE} from "./stone.js";import {EGG} from "./egg.js";import {CHICKEN_MEAT} from "./chickenMeat.js";import {ROTTEN_MEAT} from "./rottenMeat.js";import {WOODEN_AXE} from "./woodenAxe.js";import {PICKAXE} from "./pickaxe.js";import {AXE} from "./axe.js";import {SWORD} from "./sword.js";import {TORCH} from "./torch.js";import {POTION} from "./potion.js";import {FENCE} from "./fence.js";import {FENCE_GATE} from "./fenceGate.js";
+export const ITEMS=Object.freeze({wood:WOOD,stone:STONE,egg:EGG,chickenMeat:CHICKEN_MEAT,rottenMeat:ROTTEN_MEAT,woodenAxe:WOODEN_AXE,pickaxe:PICKAXE,axe:AXE,sword:SWORD,torch:TORCH,potion:POTION,fence:FENCE,fenceGate:FENCE_GATE});
 export function getItem(id){return ITEMS[id]||null;}
 export function createItem(id,qty=1){const definition=getItem(id);return definition?{...definition,qty}:null;}
 export function validateItems(){

@@ -1,6 +1,7 @@
 import {WOODEN_AXE_RECIPE} from "./woodenAxe.js";
 import {PICKAXE_RECIPE} from "./pickaxe.js";
 import {FENCE_RECIPE} from "./fence.js";
+import {FENCE_GATE_RECIPE} from "./fenceGate.js";
 
 /*
  * ÍNDICE ÚNICO DE RECEITAS.
@@ -11,7 +12,8 @@ import {FENCE_RECIPE} from "./fence.js";
 export const RECIPES=Object.freeze([
   WOODEN_AXE_RECIPE,
   PICKAXE_RECIPE,
-  FENCE_RECIPE
+  FENCE_RECIPE,
+  FENCE_GATE_RECIPE
 ]);
 
 export function getRecipe(id){return RECIPES.find(recipe=>recipe.id===id)||null;}

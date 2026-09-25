@@ -1,20 +1,18 @@
 /*
- * CAIXA DE FUNCIONALIDADE: CERCA
+ * CAIXA DE FUNCIONALIDADE: CERCA E PORTA DE CERCA
  *
- * Esta classe é a dona de TODO o estado temporário específico da cerca:
+ * Esta classe é a dona do estado temporário específico das construções:
  * orientação, rotação e cálculo do preview.
  *
  * REGRA PARA FUTURAS IAs:
+ * - cerca e porta são itens diferentes, mas compartilham a mesma mecânica;
+ * - não criar uma segunda lógica de rotação para a porta;
  * - não coloque fenceOrientation no Player;
- * - não coloque regras de cerca no GameLoop;
- * - não faça o Renderer descobrir como a cerca funciona;
- * - não crie fenceVertical/fenceHorizontal como itens diferentes.
+ * - não coloque regras de construção no GameLoop;
+ * - não faça o Renderer descobrir como a construção funciona.
  *
  * O fluxo da caixa é:
  * Input -> FenceFeature -> estado/preview -> Renderer/DropSystem.
- *
- * Assim, para alterar a cerca, a IA pode começar por esta caixa sem precisar
- * reentender o jogo inteiro.
  */
 import {FencePlacement} from "../../systems/FencePlacement.js";
 
@@ -28,29 +26,24 @@ export class FenceFeature{
     this.orientation="horizontal";
   }
 
+  isFenceLike(item){return !!item&&(item.id==="fence"||item.id==="fenceGate");}
+
   update(){
     if(!this.input.consumeRotate())return;
     const equipped=this.getEquipped();
-    if(!equipped||equipped.id!=="fence")return;
+    if(!this.isFenceLike(equipped))return;
     this.rotate();
   }
 
   rotate(){
     this.orientation=this.orientation==="vertical"?"horizontal":"vertical";
-    this.particles.push({
-      x:this.player.x,
-      y:this.player.y-35,
-      t:.7,
-      text:"CERCA: "+(this.orientation==="vertical"?"VERTICAL":"HORIZONTAL")
-    });
+    this.particles.push({x:this.player.x,y:this.player.y-35,t:.7,text:"CONSTRUÇÃO: "+(this.orientation==="vertical"?"VERTICAL":"HORIZONTAL")});
   }
 
-  getOrientation(){
-    return this.orientation;
-  }
+  getOrientation(){return this.orientation;}
 
   getItemState(item){
-    if(!item||item.id!=="fence")return item;
+    if(!this.isFenceLike(item))return item;
     return {...item,orientation:this.orientation};
   }
 
@@ -64,7 +57,7 @@ export class FenceFeature{
   }
 
   getDropPlacement(item){
-    if(!item||item.id!=="fence")return null;
+    if(!this.isFenceLike(item))return null;
     return this.getPreview();
   }
 }
