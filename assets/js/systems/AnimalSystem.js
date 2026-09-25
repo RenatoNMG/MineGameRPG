@@ -19,8 +19,7 @@ export class AnimalSystem{
         const ex=chicken.x-chicken.dir*14,ey=chicken.y+8;
         if(!w.objectBlocks(ex,ey,6,chicken)&&!w.eggs.some(e=>Math.hypot(e.x-ex,e.y-ey)<18))w.eggs.push({x:ex,y:ey});
       }
-      chicken.matingEggTimer=null;
-      chicken.matingEggPending=false;
+      chicken.matingEggTimer=null;chicken.matingEggPending=false;
     }
   }
   moveChicken(chicken,dt){
@@ -54,16 +53,42 @@ export class AnimalSystem{
     else if(!this.world.objectBlocks(bx,by,13,chicken))chicken.x=bx,chicken.y=by;
     else chicken.dir*=-1,chicken.timer=.2+Math.random()*.5;
   }
+
+  /*
+   * CAIXA DE MOVIMENTO DOS ANIMAIS.
+   *
+   * Regra para futuras IAs:
+   * - comportamento decide PARA ONDE o animal quer ir;
+   * - este método decide COMO ele percorre o caminho;
+   * - não coloque lógica de acasalamento, ovos ou IA de perseguição aqui.
+   *
+   * Importante: o deslocamento é dividido em pequenos passos. Isso evita que
+   * o galo, ao perseguir em velocidade alta, atravesse obstáculos ou fique
+   * tremendo preso porque o cálculo verificou somente o ponto final.
+   */
   moveSmart(animal,dx,dy,dt,r,mult,ignoreChicken=null){
     const w=this.world,base=Math.hypot(dx,dy)||1;dx/=base;dy/=base;
     const angles=[0,-.45,.45,-.9,.9,-1.35,1.35,Math.PI];
+    const totalDistance=animal.speed*mult*dt;
+    const maxStep=4;
+    const steps=Math.max(1,Math.ceil(totalDistance/maxStep));
+    const stepDistance=totalDistance/steps;
+
     for(const angle of angles){
       const c=Math.cos(angle),s=Math.sin(angle),vx=dx*c-dy*s,vy=dx*s+dy*c;
-      const nx=animal.x+vx*animal.speed*mult*dt,ny=animal.y+vy*animal.speed*mult*dt;
-      if(!w.objectBlocks(nx,ny,r,ignoreChicken,null)){animal.x=nx;animal.y=ny;animal.dir=vx<0?-1:1;return true;}
+      let testX=animal.x,testY=animal.y,blocked=false;
+      for(let step=0;step<steps;step++){
+        const nx=testX+vx*stepDistance,ny=testY+vy*stepDistance;
+        if(w.objectBlocks(nx,ny,r,ignoreChicken,null)){blocked=true;break;}
+        testX=nx;testY=ny;
+      }
+      if(!blocked){
+        animal.x=testX;animal.y=testY;animal.dir=vx<0?-1:1;return true;
+      }
     }
     return false;
   }
+
   updateRooster(rooster,dt){
     if(rooster.carried)return;
     const w=this.world;
@@ -87,8 +112,12 @@ export class AnimalSystem{
         target.matingEggTimer=1;target.matingEggPending=true;target.matingEggLocked=true;rooster.timer=.25;return;
       }
       if(best<=22)return;
-      /* O galo precisa superar a velocidade de fuga da galinha (24 * 2.2). */
-      if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,2.6,target))rooster.dir=dx<0?-1:1;
+      /*
+       * O galo precisa ser um pouco mais rápido que a fuga da galinha,
+       * mas não usamos mais um multiplicador exagerado. A movimentação
+       * suave e subdividida fica responsável por alcançar sem travar.
+       */
+      if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,2.3,target))rooster.dir=dx<0?-1:1;
     }else this.move(rooster,dt,15,1.8);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
