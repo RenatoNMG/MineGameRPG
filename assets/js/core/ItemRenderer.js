@@ -1,35 +1,29 @@
+import {GateGeometry} from "../features/fence/GateGeometry.js";
+
 export class ItemRenderer{
   constructor(renderer){this.renderer=renderer;}
-  /*
-   * FONTE ÚNICA DOS VISUAIS DE ITENS.
-   * Mundo, inventário, quickbar e mão nunca desenham um item diretamente.
-   * Para item Canvas, a UI chama createItemIcon(); ela nunca troca renderer.ctx.
-   */
+  /* FONTE ÚNICA DOS VISUAIS DE ITENS: mundo, inventário, quickbar e mão usam Canvas. */
   createItemIcon(item,size=40,className=""){
     const canvas=document.createElement("canvas");canvas.width=size;canvas.height=size;canvas.className=className;
     const ctx=canvas.getContext("2d"),original=this.renderer.ctx;this.renderer.ctx=ctx;
-    try{this.drawDroppedItem({...item,x:size/2,y:size/2,icon:undefined});}finally{this.renderer.ctx=original;}
-    return canvas;
+    try{this.drawDroppedItem({...item,x:size/2,y:size/2,icon:undefined});}finally{this.renderer.ctx=original;}return canvas;
   }
-  /*
-   * REGRA: todo visual Canvas tem UMA fonte. Não copiar desenhos para UI.
-   * A porta reutiliza o mesmo tamanho físico da cerca, mas seu desenho é
-   * dividido em duas folhas. openProgress vem da GateFeature e vai de 0 a 1.
-   */
   drawFence(item){const c=this.renderer.ctx;if(item.visual==="fenceGate")return this.drawFenceGate(item);c.save();c.translate(item.x,item.y);c.rotate(item.orientation==="vertical"?Math.PI/2:0);c.fillStyle="rgba(10,12,10,.25)";c.beginPath();c.ellipse(0,9,18,4,0,0,Math.PI*2);c.fill();c.strokeStyle="#5b3824";c.lineWidth=4;c.beginPath();c.moveTo(-13,7);c.lineTo(-13,-8);c.moveTo(0,7);c.lineTo(0,-10);c.moveTo(13,7);c.lineTo(13,-8);c.stroke();c.lineWidth=3;c.strokeStyle="#8a5b35";c.beginPath();c.moveTo(-16,-4);c.lineTo(16,-4);c.moveTo(-16,3);c.lineTo(16,3);c.stroke();c.restore();}
+  /*
+   * Porta: duas folhas nascem fechadas apontando para o centro.
+   * GateGeometry é a fonte do sentido de abertura; não inverter aqui.
+   * Isso evita o bug em que as folhas eram cortadas e trocavam os lados.
+   */
   drawFenceGate(item){
     const c=this.renderer.ctx,progress=Math.max(0,Math.min(1,item.openProgress||0));
     c.save();c.translate(item.x,item.y);c.rotate(item.orientation==="vertical"?Math.PI/2:0);
     c.fillStyle="rgba(10,12,10,.25)";c.beginPath();c.ellipse(0,9,18,4,0,0,Math.PI*2);c.fill();
-    /* Duas folhas independentes: cada uma gira em torno da sua dobradiça. */
-    const drawLeaf=(hinge,dir)=>{
-      c.save();c.translate(hinge,0);c.rotate(dir*progress*Math.PI/2);
+    for(const leaf of GateGeometry.getLeaves(progress)){
+      c.save();c.translate(leaf.hinge,0);c.rotate(leaf.angle);
       c.strokeStyle="#5b3824";c.lineWidth=4;c.beginPath();c.moveTo(0,7);c.lineTo(0,-9);c.stroke();
-      c.lineWidth=3;c.strokeStyle="#9a683c";c.beginPath();c.moveTo(0,-5);c.lineTo(dir*13,-5);c.moveTo(0,2);c.lineTo(dir*13,2);c.stroke();
-      c.strokeStyle="#6e472c";c.lineWidth=2;c.beginPath();c.moveTo(dir*9,-5);c.lineTo(dir*9,2);c.stroke();
-      c.restore();
-    };
-    drawLeaf(-13,-1);drawLeaf(13,1);
+      c.lineWidth=3;c.strokeStyle="#9a683c";c.beginPath();c.moveTo(0,-5);c.lineTo(leaf.length,-5);c.moveTo(0,2);c.lineTo(leaf.length,2);c.stroke();
+      c.strokeStyle="#6e472c";c.lineWidth=2;c.beginPath();c.moveTo(9,-5);c.lineTo(9,2);c.stroke();c.restore();
+    }
     if(progress<.95){c.fillStyle="#d0a64e";c.beginPath();c.arc(0,0,2,0,Math.PI*2);c.fill();}
     c.restore();
   }
