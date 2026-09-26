@@ -1,14 +1,14 @@
 /*
- * CAIXA: GEOMETRIA VISUAL DA PORTA
+ * CAIXA: GEOMETRIA DA PORTA
  *
- * Responsabilidade exclusiva: definir as duas folhas, suas dobradiças e o
- * sentido de abertura. GateFeature controla apenas o progresso da animação;
- * ItemRenderer somente desenha o resultado desta geometria.
+ * Responsabilidade: definir a geometria visual das folhas e também o espaço
+ * físico que pertence ao vão da porta. A colisão continua separada do desenho.
  *
- * REGRA: as duas folhas compartilham o mesmo eixo vertical e são simétricas.
- * A folha direita usa comprimento negativo em vez de uma rotação de PI:
- * assim ela aponta para o centro sem inverter o eixo Y dos detalhes visuais.
- * Isso preserva exatamente o sentido da abertura sem criar um desnível visual.
+ * REGRA FÍSICA:
+ * - porta fechada bloqueia;
+ * - porta em abertura segue a regra de colisão existente;
+ * - quando a porta entra no estado aberto de colisão, o seu vão fica livre;
+ * - cercas vizinhas continuam físicas fora desse vão.
  */
 export class GateGeometry{
   static getLeaves(progress=0){
@@ -19,5 +19,42 @@ export class GateGeometry{
       {hinge:-halfSpan,length:leafLength,angle:p*Math.PI/2},
       {hinge:halfSpan,length:-leafLength,angle:-p*Math.PI/2}
     ];
+  }
+
+  /*
+   * Geometria física do vão. O valor acompanha o mesmo segmento físico de
+   * 32px usado pela construção, sem alterar tamanho, snap ou animação visual.
+   */
+  static getOpening(gate){
+    return {
+      x:gate.x,
+      y:gate.y,
+      orientation:gate.orientation==="vertical"?"vertical":"horizontal",
+      halfSpan:16
+    };
+  }
+
+  static collisionOpen(gate){
+    return gate?.visual==="fenceGate"&&(gate.openProgress??0)>=.85;
+  }
+
+  static pointInOpening(gate,x,y){
+    if(!this.collisionOpen(gate))return false;
+    const opening=this.getOpening(gate);
+    if(opening.orientation==="vertical")return Math.abs(y-opening.y)<=opening.halfSpan;
+    return Math.abs(x-opening.x)<=opening.halfSpan;
+  }
+
+  static isAdjacentFence(gate,fence){
+    if(!gate||!fence||gate===fence)return false;
+    if((gate.orientation==="vertical")!==(fence.orientation==="vertical"))return false;
+    const sameAxis=gate.orientation==="vertical"
+      ? Math.abs(fence.x-gate.x)<1
+      : Math.abs(fence.y-gate.y)<1;
+    if(!sameAxis)return false;
+    const distance=gate.orientation==="vertical"
+      ? Math.abs(fence.y-gate.y)
+      : Math.abs(fence.x-gate.x);
+    return Math.abs(distance-32)<1;
   }
 }
