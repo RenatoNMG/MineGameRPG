@@ -3,10 +3,7 @@ import {FenceGeometry} from "../features/fence/FenceGeometry.js";
 export class CollisionSystem{
   constructor(world){this.world=world;}
   fenceBlocks(x,y,r=0){
-    for(const fence of this.world.fences||[]){
-      if(FenceGeometry.blocksPoint(fence,x,y,r))return true;
-    }
-    return false;
+    return FenceGeometry.blocksWorld(this.world.fences||[],x,y,r);
   }
   waterBlocks(x,y,r=0){
     for(const water of this.world.waterPuddles){
