@@ -16,17 +16,21 @@ export class Inventory{
     const TEST_QTY=5;
     const testItems=[
       "wood","stone","egg","chickenMeat","rottenMeat",
-      "woodenAxe","pickaxe","axe","sword","torch","potion","fence","fenceGate"
+      "woodenAxe","pickaxe","axe","sword","torch","potion","fenceGate"
     ];
+    const TEST_FENCE_QTY=20;
     for(const id of testItems){
       if(this.items.length>=this.slots)break;
       const definition=getItem(id);
       if(!definition)continue;
-      /* O teste usa até 5 unidades, mas nunca ultrapassa a regra real do item. */
       const qty=Math.min(TEST_QTY,definition.maxStack);
       const item=createItem(id,qty);
       if(!item)continue;
       this.items.push(item);
+    }
+    if(this.items.length<this.slots){
+      const definition=getItem("fence");
+      if(definition)this.items.push(createItem("fence",Math.min(TEST_FENCE_QTY,definition.maxStack)));
     }
   }
 
