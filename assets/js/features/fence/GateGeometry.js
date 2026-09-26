@@ -5,8 +5,10 @@
  * sentido de abertura. GateFeature controla apenas o progresso da animação;
  * ItemRenderer somente desenha o resultado desta geometria.
  *
- * REGRA: as duas folhas são simétricas e devem fechar exatamente no centro.
- * O comprimento de cada folha é metade do vão total da porta.
+ * REGRA: as duas folhas compartilham o mesmo eixo vertical e são simétricas.
+ * A folha direita usa comprimento negativo em vez de uma rotação de PI:
+ * assim ela aponta para o centro sem inverter o eixo Y dos detalhes visuais.
+ * Isso preserva exatamente o sentido da abertura sem criar um desnível visual.
  */
 export class GateGeometry{
   static getLeaves(progress=0){
@@ -15,7 +17,7 @@ export class GateGeometry{
     const leafLength=halfSpan;
     return [
       {hinge:-halfSpan,length:leafLength,angle:p*Math.PI/2},
-      {hinge:halfSpan,length:leafLength,angle:Math.PI-p*Math.PI/2}
+      {hinge:halfSpan,length:-leafLength,angle:-p*Math.PI/2}
     ];
   }
 }
