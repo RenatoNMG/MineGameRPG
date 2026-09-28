@@ -37,9 +37,9 @@ export class ResourceInteraction{
       ?target.object
       :world.findLooseWood(undefined,player);
     if(wood){
+      if(!inventory?.add("wood",1))return {type:"inventoryFull"};
       wood.collected=true;
       player.attackCd=Config.COMBAT.attackCooldown;
-      inventory.add("wood",1);
       particles.push({x:wood.x,y:wood.y-18,t:.8,text:"+1 MADEIRA"});
       return {type:"woodCollected"};
     }
@@ -60,9 +60,9 @@ export class ResourceInteraction{
     const stone=world.findStone();
     if(stone){
       if(stone.loose){
+        if(!inventory?.add("stone",1))return {type:"inventoryFull"};
         player.attackCd=Config.COMBAT.attackCooldown;
         stone.collectLoose();
-        inventory.add("stone",1);
         particles.push({x:stone.x,y:stone.y-28,t:.8,text:"+1 PEDRA"});
         return {type:"stoneCollected"};
       }
@@ -76,7 +76,6 @@ export class ResourceInteraction{
       if(stone.hp===0){
         stone.collected=true;
         stone.hp=-1;
-
         const offsets=[
           [38,0],[-38,0],[12,36],[-12,-36],[0,44],
           [48,16],[-48,-16],[24,-42],[-24,42],[0,-48]
