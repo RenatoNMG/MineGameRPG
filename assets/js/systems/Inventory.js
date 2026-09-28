@@ -1,7 +1,7 @@
 import {createItem,getItem} from "../data/items/index.js";
 
 export class Inventory{
-  constructor(slots=20){
+  constructor(slots=20,seedTest=true){
     this.slots=slots;
     this.items=[];
     /*
@@ -9,7 +9,7 @@ export class Inventory{
      * O inventário de teste deve respeitar o maxStack real definido no
      * catálogo. Itens não empilháveis continuam sendo apenas 1 unidade.
      */
-    this.seedTestInventory();
+    if(seedTest)this.seedTestInventory();
   }
 
   seedTestInventory(){

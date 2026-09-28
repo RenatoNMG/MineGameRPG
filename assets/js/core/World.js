@@ -7,6 +7,7 @@ import {NPCNeedsSystem} from "../systems/NPCNeedsSystem.js";
 import {NPCDecisionSystem} from "../systems/NPCDecisionSystem.js";
 import {NPCTaskSystem} from "../systems/NPCTaskSystem.js";
 import {NPCActionSystem} from "../systems/NPCActionSystem.js";
+import {NPCInventorySystem} from "../systems/NPCInventorySystem.js";
 import {NPCSystem} from "../systems/NPCSystem.js";
 import {NPCBehaviorSystem} from "../systems/NPCBehaviorSystem.js";
 import {AnimalSystem} from "../systems/AnimalSystem.js";
@@ -22,6 +23,7 @@ export class World{
     this.query=new WorldQuery(this);
     this.animalSystem=new AnimalSystem(this);
     this.spawnSystem=new SpawnSystem(this);
+    this.npcInventorySystem=new NPCInventorySystem(this);
     this.npcNeedsSystem=new NPCNeedsSystem(this);
     this.npcActionSystem=new NPCActionSystem(this);
     this.npcTaskSystem=new NPCTaskSystem(this);
