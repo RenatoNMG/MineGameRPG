@@ -1,4 +1,5 @@
 import {Config} from "../core/Config.js";
+import {createItem} from "../data/items/index.js";
 import {FenceGeometry} from "../features/fence/FenceGeometry.js";
 
 export class DropSystem{
@@ -26,9 +27,21 @@ export class DropSystem{
       particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
       return {ok:false,type:"blocked"};
     }
-    if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
-    if(isConstruction)world.fences.push({...held,qty:1,x,y,orientation});
-    else world.droppedItems.push({...held,qty:1,x,y});
+    if(isConstruction){
+      /*
+       * Construção colocada é uma nova instância do item catalogado.
+       * Assim, nenhum estado temporário da instância equipada (por exemplo,
+       * openProgress/gateOpen de uma construção anterior) pode ser transportado
+       * para o mundo. A orientação pertence ao FenceFeature/Placement.
+       */
+      const placedItem=createItem(held.id,1);
+      if(!placedItem)return {ok:false,type:"createFailed"};
+      if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
+      world.fences.push({...placedItem,x,y,orientation});
+    }else{
+      if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
+      world.droppedItems.push({...held,qty:1,x,y});
+    }
     player.attackCd=Config.COMBAT.attackCooldown;
     particles.push({x,y:y-18,t:.8,text:"ITEM SOLTO"});
     return {ok:true,type:"dropped",itemId:held.id,empty:inventory.qty(held.id)<=0};
