@@ -54,13 +54,13 @@ export class AnimalSystem{
     else if(!this.world.objectBlocks(bx,by,13,chicken))chicken.x=bx,chicken.y=by;
     else chicken.dir*=-1,chicken.timer=.2+Math.random()*.5;
   }
-  moveSmart(animal,dx,dy,dt,r,mult,ignoreChicken=null){
+  moveSmart(animal,dx,dy,dt,r,mult,ignoreChicken=null,ignoreRooster=null){
     const w=this.world,base=Math.hypot(dx,dy)||1;dx/=base;dy/=base;
     const angles=[0,-.45,.45,-.9,.9,-1.35,1.35,Math.PI];
     for(const angle of angles){
       const c=Math.cos(angle),s=Math.sin(angle),vx=dx*c-dy*s,vy=dx*s+dy*c;
       const nx=animal.x+vx*animal.speed*mult*dt,ny=animal.y+vy*animal.speed*mult*dt;
-      if(!w.objectBlocks(nx,ny,r,ignoreChicken,null)){animal.x=nx;animal.y=ny;animal.dir=vx<0?-1:1;return true;}
+      if(!w.objectBlocks(nx,ny,r,ignoreChicken,null,ignoreRooster)){animal.x=nx;animal.y=ny;animal.dir=vx<0?-1:1;return true;}
     }
     return false;
   }
@@ -73,8 +73,8 @@ export class AnimalSystem{
       const mateTarget=rooster.matingTarget;
       if(mateTarget&&!mateTarget.carried){
         const dx=rooster.x-mateTarget.x,dy=rooster.y-mateTarget.y,len=Math.hypot(dx,dy)||1;
-        if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1,mateTarget))this.move(rooster,dt,15,1);
-      }else this.move(rooster,dt,15,1);
+        if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,1,mateTarget,rooster))this.move(rooster,dt,15,1,rooster);
+      }else this.move(rooster,dt,15,1,rooster);
       rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));return;
     }
     rooster.timer-=dt;rooster.mateTimer-=dt;
@@ -88,10 +88,10 @@ export class AnimalSystem{
       }
       if(best<=22)return;
       /* O galo precisa superar a velocidade de fuga da galinha (24 * 2.2). */
-      if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,2.6,target))rooster.dir=dx<0?-1:1;
-    }else this.move(rooster,dt,15,1.8);
+      if(!this.moveSmart(rooster,dx/len,dy/len,dt,15,2.6,target,rooster))rooster.dir=dx<0?-1:1;
+    }else this.move(rooster,dt,15,1.8,rooster);
     rooster.x=Math.max(30,Math.min(w.width-30,rooster.x));rooster.y=Math.max(30,Math.min(w.height-30,rooster.y));
   }
   updateChick(chick,dt){const w=this.world;chick.timer-=dt;this.move(chick,dt,7,1.8);chick.x=Math.max(25,Math.min(w.width-25,chick.x));chick.y=Math.max(25,Math.min(w.height-25,chick.y));}
-  move(animal,dt,r,mult){const w=this.world,d=Math.hypot(animal.x-w.player.x,animal.y-w.player.y);if(d<75){const dx=animal.x-w.player.x,dy=animal.y-w.player.y,len=Math.hypot(dx,dy)||1;animal.dir=dx<0?-1:1;const nx=animal.x+(dx/len)*animal.speed*mult*dt,ny=animal.y+(dy/len)*animal.speed*mult*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}}else{if(animal.timer<=0){animal.dir=Math.random()<.5?-1:1;animal.timer=1+Math.random()*2.5;}const nx=animal.x+animal.dir*animal.speed*.35*dt,ny=animal.y+Math.sin((animal.x+animal.y)*.03)*animal.speed*.08*dt;if(!w.objectBlocks(nx,ny,r,null,null)){animal.x=nx;animal.y=ny;}else animal.dir*=-1,animal.timer=.2+Math.random()*.5;}}
+  move(animal,dt,r,mult,ignoreRooster=null){const w=this.world,d=Math.hypot(animal.x-w.player.x,animal.y-w.player.y);if(d<75){const dx=animal.x-w.player.x,dy=animal.y-w.player.y,len=Math.hypot(dx,dy)||1;animal.dir=dx<0?-1:1;const nx=animal.x+(dx/len)*animal.speed*mult*dt,ny=animal.y+(dy/len)*animal.speed*mult*dt;if(!w.objectBlocks(nx,ny,r,null,null,ignoreRooster)){animal.x=nx;animal.y=ny;}}else{if(animal.timer<=0){animal.dir=Math.random()<.5?-1:1;animal.timer=1+Math.random()*2.5;}const nx=animal.x+animal.dir*animal.speed*.35*dt,ny=animal.y+Math.sin((animal.x+animal.y)*.03)*animal.speed*.08*dt;if(!w.objectBlocks(nx,ny,r,null,null,ignoreRooster)){animal.x=nx;animal.y=ny;}else animal.dir*=-1,animal.timer=.2+Math.random()*.5;}}
 }
