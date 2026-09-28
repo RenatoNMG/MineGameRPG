@@ -1,3 +1,4 @@
+import {Config} from "../core/Config.js";
 import {getItem} from "../data/items/index.js";
 import {useItem} from "./ItemBehaviorSystem.js";
 import {WaterInteraction} from "./WaterInteraction.js";
@@ -45,8 +46,8 @@ export class NPCActionSystem{
     return true;
   }
 
-  rest(npc){
-    const energy=this.world.npcNeedsSystem.restoreEnergy(npc,1/60);
+  rest(npc,dt){
+    const energy=this.world.npcNeedsSystem.restoreEnergy(npc,dt);
     return energy>=Config.NPC.needs.restTarget?"done":"continue";
   }
 
@@ -113,7 +114,7 @@ export class NPCActionSystem{
     }).ok;
   }
 
-  execute(npc,task){
+  execute(npc,task,dt){
     if(task.type==="eat")return this.eat(npc,task.target);
     if(task.type==="drink"){
       return !!WaterInteraction.interact({
@@ -124,7 +125,7 @@ export class NPCActionSystem{
       });
     }
     if(task.type==="rest"){
-      return this.rest(npc);
+      return this.rest(npc,dt);
     }
     if(task.type==="cutTree"){
       if(task.step==="action")return this.cutTree(npc,task.target);
