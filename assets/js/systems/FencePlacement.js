@@ -46,9 +46,11 @@ export class FencePlacement{
       if(vertical===itemVertical){
         let candidate;
         if(vertical){
+          const dy=player.y-item.y;
           const side=Math.abs(dy)>4?(dy>0?1:-1):direction.y||1;
           candidate={x:item.x,y:item.y+side*32,orientation:"vertical"};
         }else{
+          const dx=player.x-item.x;
           const side=Math.abs(dx)>4?(dx>0?1:-1):direction.x||1;
           candidate={x:item.x+side*32,y:item.y,orientation:"horizontal"};
         }
