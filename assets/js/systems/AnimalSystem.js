@@ -16,8 +16,25 @@ export class AnimalSystem{
     chicken.x=Math.max(30,Math.min(w.width-30,chicken.x));chicken.y=Math.max(30,Math.min(w.height-30,chicken.y));
     if(chicken.matingEggPending&&chicken.matingEggTimer!==null&&chicken.matingEggTimer<=0){
       if(w.eggs.length<this.maxEggs){
-        const ex=chicken.x-chicken.dir*14,ey=chicken.y+8;
-        if(!w.objectBlocks(ex,ey,6,chicken)&&!w.eggs.some(e=>Math.hypot(e.x-ex,e.y-ey)<18))w.eggs.push({x:ex,y:ey});
+        /*
+         * O primeiro ponto é mantido como a posição original da reprodução.
+         * Se o galo ainda estiver ocupando esse espaço, tentamos posições
+         * próximas da galinha para que a colisão do parceiro não cancele o ovo.
+         * Apenas uma posição válida pode gerar o único ovo desta reprodução.
+         */
+        const candidates=[
+          {x:chicken.x-chicken.dir*14,y:chicken.y+8},
+          {x:chicken.x+chicken.dir*20,y:chicken.y+8},
+          {x:chicken.x,y:chicken.y+24},
+          {x:chicken.x,y:chicken.y-24},
+          {x:chicken.x-chicken.dir*20,y:chicken.y-20},
+          {x:chicken.x+chicken.dir*20,y:chicken.y-20}
+        ];
+        const position=candidates.find(({x,y})=>
+          !w.objectBlocks(x,y,6,chicken)&&
+          !w.eggs.some(e=>Math.hypot(e.x-x,e.y-y)<18)
+        );
+        if(position)w.eggs.push({x:position.x,y:position.y});
       }
       chicken.matingEggTimer=null;
       chicken.matingEggPending=false;
