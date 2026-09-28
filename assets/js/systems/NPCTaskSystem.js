@@ -20,6 +20,7 @@ export class NPCTaskSystem{
     if(!task)return;
 
     if(!this.world.npcActionSystem.targetExists(task)){
+      this.world.npcMemorySystem.failTask(npc,task);
       this.finish(npc);
       return;
     }
@@ -27,7 +28,10 @@ export class NPCTaskSystem{
     if(task.step==="move"){
       const target=task.target.kind?task.target.object:task.target;
       const arrived=this.world.npcSystem.moveTo(npc,target.x,target.y,dt,this.arrivalRadius);
-      if(arrived)task.nextStep();
+      if(arrived){
+        this.world.npcMemorySystem.visitLocation(npc,target);
+        task.nextStep();
+      }
       return;
     }
 
@@ -35,11 +39,15 @@ export class NPCTaskSystem{
       const result=this.world.npcActionSystem.execute(npc,task);
       if(result==="continue")return;
       if(result)task.nextStep();
-      else this.finish(npc);
+      else{
+        this.world.npcMemorySystem.failTask(npc,task);
+        this.finish(npc);
+      }
       return;
     }
 
     if(task.step==="complete"){
+      this.world.npcMemorySystem.completeTask(npc,task);
       this.finish(npc,{completed:task.type==="build"});
     }
   }
