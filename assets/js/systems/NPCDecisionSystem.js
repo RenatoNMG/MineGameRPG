@@ -20,8 +20,16 @@ export class NPCDecisionSystem{
     const candidates=this.taskRegistry.getCandidates(npc);
     if(!candidates.length)return;
 
-    candidates.sort((a,b)=>b.priority-a.priority);
+    for(const candidate of candidates){
+      const target=candidate.target?.object||candidate.target;
+      if(candidate.definition.type==="cutTree"||candidate.definition.type==="eat"){
+        this.world.npcMemorySystem.rememberResource(npc,target,candidate.definition.type);
+      }
+    }
+
+    candidates.sort((a,b)=>this.world.npcMemorySystem.scoreCandidate(npc,b)-this.world.npcMemorySystem.scoreCandidate(npc,a));
     npc.task=this.taskRegistry.createFromCandidate(candidates[0]);
+    this.world.npcMemorySystem.setObjective(npc,npc.task);
     npc.state="task";
     npc.stateTimer=Infinity;
     npc.moveX=0;
