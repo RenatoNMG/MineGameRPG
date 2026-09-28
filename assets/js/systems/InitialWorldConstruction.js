@@ -61,26 +61,26 @@ export class InitialWorldConstruction{
     };
 
     /*
-     * Busca determinística em anéis ao redor do jogador. Primeiro tenta uma
-     * região fácil de encontrar; se estiver ocupada, amplia progressivamente
-     * até cobrir o mapa inteiro em uma malha de 32px.
+     * A construção inicial deve permanecer realmente próxima do centro do mapa.
+     * Procuramos primeiro o centro e depois anéis concêntricos de 32px, limitados
+     * a 320px de distância. Não existe fallback para o restante do mapa: se não
+     * houver uma posição segura nessa região, a construção não é criada.
      */
     const candidates=[];
     const mapCenterX=width/2,mapCenterY=height/2;
-    const centerCandidates=[[mapCenterX+192,mapCenterY],[mapCenterX-192,mapCenterY],[mapCenterX,mapCenterY+192],[mapCenterX,mapCenterY-192],[mapCenterX+224,mapCenterY+96],[mapCenterX-224,mapCenterY+96],[mapCenterX+224,mapCenterY-96],[mapCenterX-224,mapCenterY-96]];
-    candidates.push(...centerCandidates);
-    for(let radius=192;radius<=640;radius+=32){
+    for(let radius=0;radius<=320;radius+=32){
+      if(radius===0){
+        candidates.push([mapCenterX,mapCenterY]);
+        continue;
+      }
       for(let x=-radius;x<=radius;x+=32){
-        candidates.push([player.x+x,player.y-radius]);
-        candidates.push([player.x+x,player.y+radius]);
+        candidates.push([mapCenterX+x,mapCenterY-radius]);
+        candidates.push([mapCenterX+x,mapCenterY+radius]);
       }
       for(let y=-radius+32;y<radius;y+=32){
-        candidates.push([player.x-radius,player.y+y]);
-        candidates.push([player.x+radius,player.y+y]);
+        candidates.push([mapCenterX-radius,mapCenterY+y]);
+        candidates.push([mapCenterX+radius,mapCenterY+y]);
       }
-    }
-    for(let y=96;y<=height-96;y+=32){
-      for(let x=96;x<=width-96;x+=32)candidates.push([x,y]);
     }
 
     for(const [cx,cy] of candidates){
