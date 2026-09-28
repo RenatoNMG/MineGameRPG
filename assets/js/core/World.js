@@ -20,10 +20,12 @@ export class World{
     this.trees=[];this.stones=[];this.looseWood=[];this.npcs=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
     this.droppedItems=[];this.fences=[];this.constructionRequests=[];this.enemies=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
+
+    // Ordem de inicialização: primeiro todos os serviços do NPC, depois os NPCs.
+    // Isso evita criar entidades que dependem de serviços ainda não montados.
     this.collision=new CollisionSystem(this);
     this.query=new WorldQuery(this);
     this.animalSystem=new AnimalSystem(this);
-    this.spawnSystem=new SpawnSystem(this);
     this.npcInventorySystem=new NPCInventorySystem(this);
     this.npcMemorySystem=new NPCMemorySystem(this);
     this.npcNeedsSystem=new NPCNeedsSystem(this);
@@ -33,6 +35,18 @@ export class World{
     this.npcDecisionSystem=new NPCDecisionSystem(this);
     this.npcSystem=new NPCSystem(this);
     this.transformationSystem=new TransformationSystem(this);
+    this.spawnSystem=new SpawnSystem(this);
+    this.spawnSystem.spawnInitialNPCs();
+  }
+
+  addNPC(npc){
+    if(!npc)return null;
+    this.npcs.push(npc);
+    this.npcInventorySystem.initializeNPC(npc);
+    this.npcMemorySystem.initialize(npc);
+    this.npcNeedsSystem.initialize(npc);
+    this.npcBehaviorSystem.setState(npc,"idle");
+    return npc;
   }
 
   objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null,ignoreNPC=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick,ignoreRooster,ignoreNPC);}
@@ -44,6 +58,7 @@ export class World{
   findLooseWood(range=50){return this.query.findLooseWood(range);}
   findEgg(range=50){return this.query.findEgg(range);}
   findStone(range=50){return this.query.findStone(range);}
+
   requestConstruction({itemId,x,y,orientation="horizontal"}){
     const request={itemId,x,y,orientation,assignedTo:null};
     this.constructionRequests.push(request);
