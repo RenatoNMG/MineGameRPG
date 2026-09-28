@@ -8,6 +8,7 @@ import {NPCDecisionSystem} from "../systems/NPCDecisionSystem.js";
 import {NPCTaskSystem} from "../systems/NPCTaskSystem.js";
 import {NPCActionSystem} from "../systems/NPCActionSystem.js";
 import {NPCInventorySystem} from "../systems/NPCInventorySystem.js";
+import {NPCMemorySystem} from "../systems/NPCMemorySystem.js";
 import {NPCSystem} from "../systems/NPCSystem.js";
 import {NPCBehaviorSystem} from "../systems/NPCBehaviorSystem.js";
 import {AnimalSystem} from "../systems/AnimalSystem.js";
@@ -24,6 +25,7 @@ export class World{
     this.animalSystem=new AnimalSystem(this);
     this.spawnSystem=new SpawnSystem(this);
     this.npcInventorySystem=new NPCInventorySystem(this);
+    this.npcMemorySystem=new NPCMemorySystem(this);
     this.npcNeedsSystem=new NPCNeedsSystem(this);
     this.npcActionSystem=new NPCActionSystem(this);
     this.npcTaskSystem=new NPCTaskSystem(this);
@@ -63,6 +65,7 @@ export class World{
     this.trees.forEach(t=>t.update(dt));
     this.animalSystem.update(dt);
     this.npcNeedsSystem.update(dt);
+    this.npcMemorySystem.update(dt);
     this.npcDecisionSystem.update(dt);
     this.npcTaskSystem.update(dt);
     this.npcBehaviorSystem.update(dt);
