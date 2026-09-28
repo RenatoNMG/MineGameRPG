@@ -36,10 +36,11 @@ export class FencePlacement{
     const baseX=player.x+direction.x*safeOffset;
     const baseY=player.y+direction.y*safeOffset;
     let best=null,bestDist=58;
+    const occupied=(x,y)=> (world.fences||[]).some(item=>Math.hypot(item.x-x,item.y-y)<2);
 
     for(const item of world.fences||[]){
-      const dx=player.x-item.x,dy=player.y-item.y,d=Math.hypot(dx,dy);
-      if(d>=bestDist)continue;
+      const d=Math.hypot(player.x-item.x,player.y-item.y);
+      if(d>=72)continue;
 
       const itemVertical=item.orientation==="vertical";
       if(vertical===itemVertical){
@@ -51,7 +52,7 @@ export class FencePlacement{
           const side=Math.abs(dx)>4?(dx>0?1:-1):direction.x||1;
           candidate={x:item.x+side*32,y:item.y,orientation:"horizontal"};
         }
-        if(this.isInBuildDirection(player,candidate.x,candidate.y,direction)&&this.isSafeForPlayer(candidate,player)){
+        if(this.isInBuildDirection(player,candidate.x,candidate.y,direction)&&!occupied(candidate.x,candidate.y)&&this.isSafeForPlayer(candidate,player)){
           const snapDist=Math.hypot(player.x-candidate.x,player.y-candidate.y);
           if(snapDist<bestDist){
             bestDist=snapDist;
@@ -70,7 +71,7 @@ export class FencePlacement{
       for(const candidate of corners){
         const cd=Math.hypot(player.x-candidate.x,player.y-candidate.y);
         const positioned=this.isInBuildDirection(player,candidate.x,candidate.y,direction);
-        if(positioned&&cd<cornerDist&&this.isSafeForPlayer({...candidate,orientation:vertical?"vertical":"horizontal"},player)){
+        if(positioned&&cd<cornerDist&&!occupied(candidate.x,candidate.y)&&this.isSafeForPlayer({...candidate,orientation:vertical?"vertical":"horizontal"},player)){
           cornerDist=cd;
           corner=candidate;
         }
