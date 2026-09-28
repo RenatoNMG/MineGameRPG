@@ -4,19 +4,22 @@ import {Stone} from "../entities/Stone.js";
 import {Chicken} from "../entities/Chicken.js";
 import {Rooster} from "../entities/Rooster.js";
 import {InitialWorldConstruction} from "./InitialWorldConstruction.js";
+import {WorldSpawnReservation} from "./WorldSpawnReservation.js";
 
 export class WorldGenerator{
   static generate({player,width,height}){
     const trees=[],stones=[],looseWood=[],chickens=[],roosters=[],waterPuddles=[];
+    const spawnReservation=WorldSpawnReservation.forInitialConstruction({width,height});
     let seed=9127;
     const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
     const addStone=(x,y,s,type,loose=false)=>{const stone=new Stone(x,y,s,type);stone.loose=loose;stones.push(stone);};
     for(let i=0;i<Config.TREE.count;i++){
       let x=70+rand()*(width-140),y=70+rand()*(height-140),s=.8+rand()*.65;
-      if(Math.hypot(x-player.x,y-player.y)<190||trees.some(t=>Math.hypot(t.x-x,(t.y+7*t.s)-y)<15*t.s+15)){i--;continue;}
+      if(spawnReservation.blocks(x,y,24)||Math.hypot(x-player.x,y-player.y)<190||trees.some(t=>Math.hypot(t.x-x,(t.y+7*t.s)-y)<15*t.s+15)){i--;continue;}
       trees.push(new Tree(x,y,s,i%3,rand()<.5?-1:1));
     }
     const objectFree=(x,y,r)=>{
+      if(spawnReservation.blocks(x,y,r))return false;
       if(Math.hypot(x-player.x,y-player.y)<r+35)return false;
       if(trees.some(t=>Math.hypot(t.x-x,(t.y+7*t.s)-y)<r+15*t.s))return false;
       if(stones.some(s=>!s.collected&&Math.hypot(s.x-x,s.y-y)<r+s.radius+8))return false;
@@ -33,12 +36,12 @@ export class WorldGenerator{
     let rx=player.x+115,ry=player.y-70,tries=0;while(!objectFree(rx,ry,15)&&tries++<15){rx+=30;ry+=25;}if(objectFree(rx,ry,15))roosters.push(new Rooster(rx,ry,rand()<.5?-1:1));
     for(let i=0;i<5;i++){
       let x=80+rand()*(width-160),y=80+rand()*(height-160),rx=58+rand()*38,ry=34+rand()*24,angle=(rand()-.5)*.7,treeGap=Math.max(rx,ry)+42;
-      if(Math.hypot(x-player.x,y-player.y)<170||trees.some(t=>Math.hypot(t.x-x,t.y-y)<treeGap)||stones.some(s=>Math.hypot(s.x-x,s.y-y)<Math.max(rx,ry)+12)||looseWood.some(o=>!o.collected&&Math.hypot(o.x-x,o.y-y)<Math.max(rx,ry)+18)||chickens.some(ch=>Math.hypot(ch.x-x,ch.y-y)<Math.max(rx,ry)+20)||roosters.some(ro=>Math.hypot(ro.x-x,ro.y-y)<Math.max(rx,ry)+20)){i--;continue;}
+      if(spawnReservation.blocks(x,y,Math.max(rx,ry))||Math.hypot(x-player.x,y-player.y)<170||trees.some(t=>Math.hypot(t.x-x,t.y-y)<treeGap)||stones.some(s=>Math.hypot(s.x-x,s.y-y)<Math.max(rx,ry)+12)||looseWood.some(o=>!o.collected&&Math.hypot(o.x-x,o.y-y)<Math.max(rx,ry)+18)||chickens.some(ch=>Math.hypot(ch.x-x,ch.y-y)<Math.max(rx,ry)+20)||roosters.some(ro=>Math.hypot(ro.x-x,ro.y-y)<Math.max(rx,ry)+20)){i--;continue;}
       waterPuddles.push({x,y,rx,ry,angle});
     }
     for(let i=8;i<Config.STONE.count;i++){let x=50+rand()*(width-100),y=50+rand()*(height-100),s=.65+rand()*.7;if(!objectFree(x,y,18+18*s)){i--;continue;}addStone(x,y,s,i%3);}
 
-    const fences=InitialWorldConstruction.create({player,width,height,trees,stones,looseWood,chickens,roosters,waterPuddles});
+    const fences=InitialWorldConstruction.create({player,width,height,trees,stones,looseWood,chickens,roosters,waterPuddles,spawnReservation});
 
     return {trees,stones,looseWood,chickens,roosters,chicks:[],waterPuddles,fences};
   }

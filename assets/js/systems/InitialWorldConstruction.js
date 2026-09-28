@@ -7,7 +7,7 @@ export class InitialWorldConstruction{
    * colocação manual em DropSystem. Não existe renderização, colisão ou
    * comportamento de portão específico para o cercado inicial.
    */
-  static create({player,width,height,trees,stones,looseWood,chickens,roosters,waterPuddles}){
+  static create({player,width,height,trees,stones,looseWood,chickens,roosters,waterPuddles,spawnReservation}){
     const build=(cx,cy)=>DropSystem.createInitialConstruction({centerX:cx,centerY:cy});
 
     const blocked=(x,y,r=0)=>{
@@ -73,6 +73,7 @@ export class InitialWorldConstruction{
     }
 
     for(const [cx,cy] of candidates){
+      if(spawnReservation&&!spawnReservation.contains(cx,cy))continue;
       if(valid(cx,cy))return build(cx,cy);
     }
 
