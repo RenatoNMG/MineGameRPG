@@ -10,45 +10,20 @@ export class InitialWorldConstruction{
   static create({player,width,height,trees,stones,looseWood,chickens,roosters,waterPuddles,spawnReservation}){
     const build=(cx,cy)=>DropSystem.createInitialConstruction({centerX:cx,centerY:cy});
 
-    const blocked=(x,y,r=0)=>{
-      if(Math.hypot(x-player.x,y-player.y)<r+48)return true;
-      if(trees.some(t=>Math.hypot(t.x-x,(t.y+7*t.s)-y)<r+22*t.s))return true;
-      if(stones.some(s=>!s.collected&&Math.hypot(s.x-x,s.y-y)<r+s.radius+12))return true;
-      if(looseWood.some(o=>!o.collected&&Math.hypot(o.x-x,o.y-y)<r+22))return true;
-      if(chickens.some(ch=>Math.hypot(ch.x-x,ch.y-y)<r+24))return true;
-      if(roosters.some(ro=>Math.hypot(ro.x-x,ro.y-y)<r+24))return true;
-      if(waterPuddles.some(w=>{
-        const c=Math.cos(-(w.angle||0)),s=Math.sin(-(w.angle||0)),dx=x-w.x,dy=y-w.y;
-        const lx=dx*c-dy*s,ly=dx*s+dy*c,rx=Math.max(1,w.rx+r+6),ry=Math.max(1,w.ry+r+6);
-        return (lx*lx)/(rx*rx)+(ly*ly)/(ry*ry)<1;
-      }))return true;
-      return false;
-    };
+    const centerX=width/2;
+    const centerY=height/2;
 
-    const valid=(cx,cy)=>{
-      if(cx<137||cx>width-137||cy<111||cy>height-111)return false;
-      const pieces=build(cx,cy);
-      if(pieces.length!==20)return false;
+    /*
+     * A reserva foi criada exatamente para garantir este ponto.
+     * Não existe busca, anel, aleatoriedade ou fallback: a construção nasce
+     * no centro geométrico do mapa. Se a reserva não contiver o centro,
+     * a geração falha explicitamente em vez de mover a construção.
+     */
+    if(!spawnReservation||!spawnReservation.contains(centerX,centerY)){
+      return [];
+    }
 
-      /*
-       * Verifica cada peça e também pontos intermediários do segmento físico.
-       * Assim a validação considera o tamanho real da cerca, não somente o
-       * centro do cercado.
-       */
-      for(const piece of pieces){
-        const vertical=piece.orientation==="vertical";
-        const samples=vertical
-          ? [[piece.x,piece.y-16],[piece.x,piece.y],[piece.x,piece.y+16]]
-          : [[piece.x-16,piece.y],[piece.x,piece.y],[piece.x+16,piece.y]];
-        for(const [x,y] of samples){
-          if(blocked(x,y,8))return false;
-        }
-      }
-
-      if(pieces.some((a,i)=>pieces.some((b,j)=>i!==j&&Math.hypot(a.x-b.x,a.y-b.y)<2)))return false;
-      return true;
-    };
-
+    return build(centerX,centerY);
     /*
      * A construção inicial deve permanecer realmente próxima do centro do mapa.
      * Procuramos primeiro o centro e depois anéis concêntricos de 32px, limitados
