@@ -5,6 +5,11 @@
  * REGRA DE SEGURANÇA:
  * uma posição só pode ser escolhida se o segmento físico completo da cerca
  * estiver fora do jogador. Não basta verificar apenas o centro.
+ *
+ * REGRA DE POSICIONAMENTO:
+ * o preview deve respeitar a direção em que o jogador está olhando/movendo.
+ * O snap continua sendo escolhido apenas entre posições compatíveis com essa
+ * direção, evitando que uma cerca próxima atrás do jogador seja priorizada.
  */
 import {FenceGeometry} from "../features/fence/FenceGeometry.js";
 
@@ -13,29 +18,40 @@ export class FencePlacement{
     return !FenceGeometry.blocksPlayer(position,player);
   }
 
+  static getBuildDirection(player){
+    if(player.facing==="back")return {x:0,y:-1};
+    if(player.facing==="front")return {x:0,y:1};
+    return {x:player.lastDir||1,y:0};
+  }
+
+  static isInBuildDirection(player,x,y,direction){
+    const dx=x-player.x,dy=y-player.y;
+    return dx*direction.x+dy*direction.y>0;
+  }
+
   static getPosition({player,world,orientation="horizontal"}){
     const vertical=orientation==="vertical";
-    /* Distância inicial suficiente para o segmento não envolver o jogador. */
+    const direction=this.getBuildDirection(player);
     const safeOffset=40;
-    const baseX=player.x+player.lastDir*safeOffset;
-    const baseY=player.y+8;
+    const baseX=player.x+direction.x*safeOffset;
+    const baseY=player.y+direction.y*safeOffset;
     let best=null,bestDist=58;
 
     for(const item of world.fences||[]){
       const dx=player.x-item.x,dy=player.y-item.y,d=Math.hypot(dx,dy);
       if(d>=bestDist)continue;
-      const itemVertical=item.orientation==="vertical";
 
+      const itemVertical=item.orientation==="vertical";
       if(vertical===itemVertical){
         let candidate;
         if(vertical){
-          const side=Math.abs(dy)>4?(dy>0?1:-1):(player.lastDir||1);
+          const side=Math.abs(dy)>4?(dy>0?1:-1):direction.y||1;
           candidate={x:item.x,y:item.y+side*32,orientation:"vertical"};
         }else{
-          const side=Math.abs(dx)>4?(dx>0?1:-1):(player.lastDir||1);
+          const side=Math.abs(dx)>4?(dx>0?1:-1):direction.x||1;
           candidate={x:item.x+side*32,y:item.y,orientation:"horizontal"};
         }
-        if(this.isSafeForPlayer(candidate,player)){
+        if(this.isInBuildDirection(player,candidate.x,candidate.y,direction)&&this.isSafeForPlayer(candidate,player)){
           bestDist=d;
           best=candidate;
         }
@@ -50,8 +66,10 @@ export class FencePlacement{
       let corner=null,cornerDist=Infinity;
       for(const candidate of corners){
         const cd=Math.hypot(player.x-candidate.x,player.y-candidate.y);
-        if(cd<cornerDist&&this.isSafeForPlayer({...candidate,orientation:vertical?"vertical":"horizontal"},player)){
-          cornerDist=cd;corner=candidate;
+        const positioned=this.isInBuildDirection(player,candidate.x,candidate.y,direction);
+        if(positioned&&cd<cornerDist&&this.isSafeForPlayer({...candidate,orientation:vertical?"vertical":"horizontal"},player)){
+          cornerDist=cd;
+          corner=candidate;
         }
       }
 
