@@ -7,17 +7,21 @@
 import {InteractionSystem} from "../../systems/InteractionSystem.js";
 import {ChickenCarrySystem} from "../../systems/ChickenCarrySystem.js";
 import {RoosterCarrySystem} from "../../systems/RoosterCarrySystem.js";
+import {FenceRemovalFeature} from "../fence/FenceRemovalFeature.js";
 
 export class InteractionFeature{
   constructor({player,world,inventory,input,particles,getEquipped,setEquipped,onInventoryChanged,events,gateFeature}){
     this.player=player;this.world=world;this.inventory=inventory;this.input=input;
     this.particles=particles;this.getEquipped=getEquipped;this.setEquipped=setEquipped;
     this.onInventoryChanged=onInventoryChanged;this.events=events;this.gateFeature=gateFeature;
+    this.fenceRemovalFeature=new FenceRemovalFeature({player,world,particles});
   }
   update(){if(this.input.consumeAttack())this.attack();}
   attack(){
     const equipped=this.getEquipped();
     if(this.player.attackCd>0)return;
+    const removed=this.fenceRemovalFeature.remove(equipped);
+    if(removed){this.player.attackCd=.2;this.events.emit(removed.type,removed);return;}
     if(this.gateFeature?.interact()){this.player.attackCd=.2;return;}
     const rooster=RoosterCarrySystem.toggle({player:this.player,world:this.world,particles:this.particles});
     if(rooster){this.player.attackCd=.2;this.events.emit(rooster.type,rooster);return;}
