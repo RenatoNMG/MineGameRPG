@@ -1,2 +1,2 @@
-import {Game} from "./core/Game.js?v=2.86";
+import {Game} from "./core/Game.js?v=2.87";
 new Game();
