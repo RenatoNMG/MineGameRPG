@@ -21,6 +21,8 @@ export class GateFeature{
   update(dt){
     for(const gate of this.world.fences||[]){
       if(gate.visual!=="fenceGate")continue;
+      /* Toda nova instância física começa explicitamente fechada. */
+      if(gate.gateOpen===undefined)gate.gateOpen=false;
       if(gate.openProgress===undefined)gate.openProgress=0;
       const target=gate.gateOpen?1:0;
       const delta=this.speed*dt;
