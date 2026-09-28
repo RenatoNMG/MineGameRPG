@@ -3,6 +3,7 @@ import {Tree} from "../entities/Tree.js";
 import {Stone} from "../entities/Stone.js";
 import {Chicken} from "../entities/Chicken.js";
 import {Rooster} from "../entities/Rooster.js";
+import {createItem} from "../data/items/index.js";
 
 export class WorldGenerator{
   static generate({player,width,height}){
@@ -36,6 +37,66 @@ export class WorldGenerator{
       waterPuddles.push({x,y,rx,ry,angle});
     }
     for(let i=8;i<Config.STONE.count;i++){let x=50+rand()*(width-100),y=50+rand()*(height-100),s=.65+rand()*.7;if(!objectFree(x,y,18+18*s)){i--;continue;}addStone(x,y,s,i%3);}
-    return {trees,stones,looseWood,chickens,roosters,chicks:[],waterPuddles};
+
+    /*
+     * CONSTRUÇÃO INICIAL:
+     * O cercado usa exatamente as mesmas entidades catalogadas de fence/fenceGate
+     * usadas pelo sistema normal de construção. Ele é criado uma única vez aqui,
+     * durante a geração do mundo, sem passar por inventário, craft ou DropSystem.
+     *
+     * Geometria: retângulo 128x96, 13 cercas + 1 portão.
+     * Os centros estão espaçados em 32px, o mesmo comprimento físico de uma peça.
+     */
+    const createInitialPen=(cx,cy)=>{
+      const fence=createItem("fence",1);
+      const gate=createItem("fenceGate",1);
+      if(!fence||!gate)return [];
+      const pieces=[];
+      const add=(item,x,y,orientation)=>pieces.push({...item,x,y,orientation});
+      for(const dx of [-64,-32,0,32,64])add(fence,cx+dx,cy-48,"horizontal");
+      for(const dx of [-64,-32,32,64])add(fence,cx+dx,cy+48,"horizontal");
+      for(const dy of [-16,16]){
+        add(fence,cx-64,cy+dy,"vertical");
+        add(fence,cx+64,cy+dy,"vertical");
+      }
+      add(gate,cx,cy+48,"horizontal");
+      return pieces;
+    };
+
+    const initialPenFree=(cx,cy)=>{
+      const margin=12;
+      if(cx-64-margin<25||cx+64+margin>width-25||cy-48-margin<25||cy+48+margin>height-25)return false;
+      if(Math.hypot(cx-player.x,cy-player.y)<145)return false;
+      if(trees.some(t=>Math.hypot(t.x-cx,t.y-cy)<92+15*t.s))return false;
+      if(stones.some(s=>!s.collected&&Math.hypot(s.x-cx,s.y-cy)<92+s.radius+8))return false;
+      if(looseWood.some(o=>!o.collected&&Math.hypot(o.x-cx,o.y-cy)<110))return false;
+      if(chickens.some(ch=>Math.hypot(ch.x-cx,ch.y-cy)<110))return false;
+      if(roosters.some(ro=>Math.hypot(ro.x-cx,ro.y-cy)<110))return false;
+      if(waterPuddles.some(w=>{
+        const c=Math.cos(-(w.angle||0)),s=Math.sin(-(w.angle||0)),dx=cx-w.x,dy=cy-w.y;
+        const lx=dx*c-dy*s,ly=dx*s+dy*c,rx=Math.max(1,w.rx+92),ry=Math.max(1,w.ry+92);
+        return (lx*lx)/(rx*rx)+(ly*ly)/(ry*ry)<1;
+      }))return false;
+      return true;
+    };
+
+    const penCandidates=[
+      [0,180],[180,0],[-180,0],[0,-180],
+      [190,150],[-190,150],[190,-150],[-190,-150],
+      [220,80],[-220,80],[220,-80],[-220,-80]
+    ];
+    let fences=[];
+    for(const [dx,dy] of penCandidates){
+      const cx=player.x+dx,cy=player.y+dy;
+      if(initialPenFree(cx,cy)){fences=createInitialPen(cx,cy);break;}
+    }
+    if(fences.length===0){
+      for(let i=0;i<40&&!fences.length;i++){
+        const cx=100+rand()*(width-200),cy=100+rand()*(height-200);
+        if(initialPenFree(cx,cy))fences=createInitialPen(cx,cy);
+      }
+    }
+
+    return {trees,stones,looseWood,chickens,roosters,chicks:[],waterPuddles,fences};
   }
 }
