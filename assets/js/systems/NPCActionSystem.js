@@ -57,18 +57,24 @@ export class NPCActionSystem{
       item=getItem("egg");
       const index=this.world.eggs.indexOf(food.object);
       if(index<0)return false;
-      this.world.eggs.splice(index,1);
     }else{
       item=getItem(food.object.id);
       const index=this.world.droppedItems.indexOf(food.object);
       if(index<0)return false;
-      this.world.droppedItems.splice(index,1);
     }
 
     if(!item)return false;
 
     const used=useItem({item,player:npc,world:this.world});
     if(!used)return false;
+
+    if(food.kind==="egg"){
+      const index=this.world.eggs.indexOf(food.object);
+      if(index>=0)this.world.eggs.splice(index,1);
+    }else{
+      const index=this.world.droppedItems.indexOf(food.object);
+      if(index>=0)this.world.droppedItems.splice(index,1);
+    }
 
     return true;
   }
