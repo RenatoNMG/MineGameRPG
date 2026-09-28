@@ -48,7 +48,55 @@ export class TransformationSystem{
       w.chicks.splice(i,1);
     }
   }
-  updateChickens(dt){const w=this.world;for(let i=w.chickens.length-1;i>=0;i--){const chicken=w.chickens[i];chicken.age=(chicken.age||0)+dt;if(chicken.age>=this.chickenLifespan){w.droppedItems.push({...createItem("chickenMeat",1),x:chicken.x,y:chicken.y,dropAge:0});w.chickens.splice(i,1);}}}
-  updateRoosters(dt){const w=this.world;for(let i=w.roosters.length-1;i>=0;i--){const rooster=w.roosters[i];rooster.age=(rooster.age||0)+dt;if(rooster.age>=this.chickenLifespan){w.droppedItems.push({...createItem("chickenMeat",1),x:rooster.x,y:rooster.y,dropAge:0});w.roosters.splice(i,1);}}}
-  updateMeat(dt){const w=this.world;for(let i=w.droppedItems.length-1;i>=0;i--){const item=w.droppedItems[i];if(item.id!=="chickenMeat"&&item.id!=="rottenMeat")continue;item.dropAge=(item.dropAge||0)+dt;if(item.id==="chickenMeat"&&item.dropAge>=this.meatRotTime){const rotten=createItem("rottenMeat",item.qty||1);if(!rotten)continue;Object.assign(item,rotten,{x:item.x,y:item.y,dropAge:0});}else if(item.id==="rottenMeat"&&item.dropAge>=this.rottenMeatLife)w.droppedItems.splice(i,1);}}
+  createChickenMeatDrop(x,y){
+    const meat=createItem("chickenMeat",1);
+    if(!meat)return null;
+    return {...meat,x,y,dropAge:0};
+  }
+  updateChickens(dt){
+    const w=this.world;
+    for(let i=w.chickens.length-1;i>=0;i--){
+      const chicken=w.chickens[i];
+      chicken.age=(chicken.age||0)+dt;
+      if(chicken.age<this.chickenLifespan)continue;
+
+      /* Um animal adulto gera exatamente um drop antes de ser removido. */
+      const meat=this.createChickenMeatDrop(chicken.x,chicken.y);
+      if(meat)w.droppedItems.push(meat);
+      w.chickens.splice(i,1);
+    }
+  }
+  updateRoosters(dt){
+    const w=this.world;
+    for(let i=w.roosters.length-1;i>=0;i--){
+      const rooster=w.roosters[i];
+      rooster.age=(rooster.age||0)+dt;
+      if(rooster.age<this.chickenLifespan)continue;
+
+      /* Mesmo ciclo para o galo: uma morte, uma carne. */
+      const meat=this.createChickenMeatDrop(rooster.x,rooster.y);
+      if(meat)w.droppedItems.push(meat);
+      w.roosters.splice(i,1);
+    }
+  }
+  updateMeat(dt){
+    const w=this.world;
+    for(let i=w.droppedItems.length-1;i>=0;i--){
+      const item=w.droppedItems[i];
+      if(item.id!=="chickenMeat"&&item.id!=="rottenMeat")continue;
+      item.dropAge=(item.dropAge||0)+dt;
+
+      if(item.id==="chickenMeat"&&item.dropAge>=this.meatRotTime){
+        /*
+         * A carne catalogada é transformada na mesma entidade do mundo.
+         * Depois da troca de id, esta condição não pode executar novamente.
+         */
+        const rotten=createItem("rottenMeat",item.qty||1);
+        if(!rotten)continue;
+        Object.assign(item,rotten,{x:item.x,y:item.y,dropAge:0});
+      }else if(item.id==="rottenMeat"&&item.dropAge>=this.rottenMeatLife){
+        w.droppedItems.splice(i,1);
+      }
+    }
+  }
 }
