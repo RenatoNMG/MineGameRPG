@@ -1,3 +1,4 @@
+import {Config} from "../core/Config.js";
 import {NPCTask} from "./NPCTask.js";
 
 export class NPCTaskRegistry{
@@ -13,6 +14,7 @@ export class NPCTaskRegistry{
     this.register({
       type:"eat",
       objective:"satisfy_hunger",
+      canStart:npc=>npc.needs.hunger<=Config.NPC.needs.lowThreshold,
       getPriority:npc=>100-npc.needs.hunger,
       findTarget:npc=>this.world.query.findFood(npc),
       steps:["move","action","complete"]
@@ -21,9 +23,18 @@ export class NPCTaskRegistry{
     this.register({
       type:"drink",
       objective:"satisfy_thirst",
+      canStart:npc=>npc.needs.thirst<=Config.NPC.needs.lowThreshold,
       getPriority:npc=>100-npc.needs.thirst,
       findTarget:npc=>this.world.query.findWater(Infinity,npc),
       steps:["move","action","complete"]
+    });
+
+    this.register({
+      type:"cutTree",
+      objective:"collect_wood",
+      getPriority:()=>5,
+      findTarget:npc=>this.world.query.findTree(Infinity,npc),
+      steps:["move","action","collect","complete"]
     });
 
     this.register({
@@ -41,6 +52,7 @@ export class NPCTaskRegistry{
   getCandidates(npc){
     const candidates=[];
     for(const definition of this.definitions.values()){
+      if(definition.canStart&&!definition.canStart(npc))continue;
       const target=definition.findTarget(npc);
       if(!target)continue;
       candidates.push({
