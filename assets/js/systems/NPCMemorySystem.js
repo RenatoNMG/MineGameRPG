@@ -22,8 +22,10 @@ export class NPCMemorySystem{
 
   keyForTarget(target){
     if(!target)return null;
-    if(target.id!==undefined)return String(target.id);
-    if(target.x!==undefined&&target.y!==undefined)return `${Math.round(target.x)}:${Math.round(target.y)}`;
+    const value=target.object||target;
+    if(value.id!==undefined)return String(value.id);
+    if(value.x!==undefined&&value.y!==undefined)return `${Math.round(value.x)}:${Math.round(value.y)}`;
+    if(target.type)return String(target.type);
     return null;
   }
 
