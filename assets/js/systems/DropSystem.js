@@ -56,10 +56,10 @@ export class DropSystem{
        * openProgress/gateOpen de uma construção anterior) pode ser transportado
        * para o mundo. A orientação pertence ao FenceFeature/Placement.
        */
-      const placedItem=createItem(held.id,1);
+      const placedItem=this.createConstruction({itemId:held.id,x,y,orientation});
       if(!placedItem)return {ok:false,type:"createFailed"};
       if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
-      world.fences.push({...placedItem,x,y,orientation});
+      world.fences.push(placedItem);
     }else{
       if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
       world.droppedItems.push({...held,qty:1,x,y});
@@ -67,6 +67,17 @@ export class DropSystem{
     player.attackCd=Config.COMBAT.attackCooldown;
     particles.push({x,y:y-18,t:.8,text:"ITEM SOLTO"});
     return {ok:true,type:"dropped",itemId:held.id,empty:inventory.qty(held.id)<=0};
+  }
+
+  /*
+   * ÚNICA fábrica de instâncias físicas de fence/fenceGate.
+   * A colocação manual e a construção inicial usam exatamente a mesma forma
+   * de objeto armazenada em world.fences.
+   */
+  static createConstruction({itemId,x,y,orientation="horizontal"}){
+    if(!this.isConstruction({id:itemId}))return null;
+    const placedItem=createItem(itemId,1);
+    return placedItem?{...placedItem,x,y,orientation}:null;
   }
 
   static collectItem({player,world,inventory,particles}){
