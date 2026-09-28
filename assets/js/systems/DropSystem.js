@@ -74,6 +74,18 @@ export class DropSystem{
    * A colocação manual e a construção inicial usam exatamente a mesma forma
    * de objeto armazenada em world.fences.
    */
+  static createInitialConstruction({centerX,centerY}){
+    const pieces=[];
+    for(const dx of [-96,-64,-32,0,32,64,96])pieces.push(this.createConstruction({itemId:"fence",x:centerX+dx,y:centerY-64,orientation:"horizontal"}));
+    for(const dx of [-96,-64,-32,32,64,96])pieces.push(this.createConstruction({itemId:"fence",x:centerX+dx,y:centerY+64,orientation:"horizontal"}));
+    for(const dy of [-32,0,32]){
+      pieces.push(this.createConstruction({itemId:"fence",x:centerX-96,y:centerY+dy,orientation:"vertical"}));
+      pieces.push(this.createConstruction({itemId:"fence",x:centerX+96,y:centerY+dy,orientation:"vertical"}));
+    }
+    pieces.push(this.createConstruction({itemId:"fenceGate",x:centerX,y:centerY+64,orientation:"horizontal"}));
+    return pieces.filter(Boolean);
+  }
+
   static createConstruction({itemId,x,y,orientation="horizontal"}){
     if(!this.isConstruction({id:itemId}))return null;
     const placedItem=createItem(itemId,1);
