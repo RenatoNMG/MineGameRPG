@@ -11,13 +11,13 @@ export class InitialWorldConstruction{
     const makePiece=(itemId,x,y,orientation)=>DropSystem.createConstruction({itemId,x,y,orientation});
     const build=(cx,cy)=>{
       const pieces=[];
-      for(const dx of [-64,-32,0,32,64])pieces.push(makePiece("fence",cx+dx,cy-48,"horizontal"));
-      for(const dx of [-64,-32,32,64])pieces.push(makePiece("fence",cx+dx,cy+48,"horizontal"));
-      for(const dy of [-16,16]){
-        pieces.push(makePiece("fence",cx-64,cy+dy,"vertical"));
-        pieces.push(makePiece("fence",cx+64,cy+dy,"vertical"));
+      for(const dx of [-96,-64,-32,0,32,64,96])pieces.push(makePiece("fence",cx+dx,cy-64,"horizontal"));
+      for(const dx of [-96,-64,-32,32,64,96])pieces.push(makePiece("fence",cx+dx,cy+64,"horizontal"));
+      for(const dy of [-32,0,32]){
+        pieces.push(makePiece("fence",cx-96,cy+dy,"vertical"));
+        pieces.push(makePiece("fence",cx+96,cy+dy,"vertical"));
       }
-      pieces.push(makePiece("fenceGate",cx,cy+48,"horizontal"));
+      pieces.push(makePiece("fenceGate",cx,cy+64,"horizontal"));
       return pieces.filter(Boolean);
     };
 
@@ -37,9 +37,9 @@ export class InitialWorldConstruction{
     };
 
     const valid=(cx,cy)=>{
-      if(cx<105||cx>width-105||cy<95||cy>height-95)return false;
+      if(cx<137||cx>width-137||cy<111||cy>height-111)return false;
       const pieces=build(cx,cy);
-      if(pieces.length!==14)return false;
+      if(pieces.length!==20)return false;
 
       /*
        * Verifica cada peça e também pontos intermediários do segmento físico.
@@ -66,7 +66,10 @@ export class InitialWorldConstruction{
      * até cobrir o mapa inteiro em uma malha de 32px.
      */
     const candidates=[];
-    for(let radius=160;radius<=640;radius+=32){
+    const mapCenterX=width/2,mapCenterY=height/2;
+    const centerCandidates=[[mapCenterX+192,mapCenterY],[mapCenterX-192,mapCenterY],[mapCenterX,mapCenterY+192],[mapCenterX,mapCenterY-192],[mapCenterX+224,mapCenterY+96],[mapCenterX-224,mapCenterY+96],[mapCenterX+224,mapCenterY-96],[mapCenterX-224,mapCenterY-96]];
+    candidates.push(...centerCandidates);
+    for(let radius=192;radius<=640;radius+=32){
       for(let x=-radius;x<=radius;x+=32){
         candidates.push([player.x+x,player.y-radius]);
         candidates.push([player.x+x,player.y+radius]);
@@ -88,7 +91,7 @@ export class InitialWorldConstruction{
      * O mapa atual é amplo e possui área livre suficiente para essa construção.
      * Se uma futura configuração impossibilitar toda a malha, não inventamos uma
      * construção parcialmente inválida: retornamos vazio para preservar colisões.
-     * Com a configuração atual, a busca determinística encontra as 14 peças.
+     * Com a configuração atual, a busca determinística encontra as 20 peças.
      */
     return [];
   }
