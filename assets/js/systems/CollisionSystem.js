@@ -15,7 +15,14 @@ export class CollisionSystem{
     }
     return false;
   }
-  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null){
+  /*
+   * REGRA DOS ANIMAIS:
+   * um animal não pode bloquear o próprio movimento. O consumidor pode
+   * informar o galo que está se movendo; os demais animais continuam físicos.
+   * Isso evita o loop de troca de direção quando a posição candidata ainda
+   * está dentro do raio de colisão do próprio galo.
+   */
+  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null){
     const w=this.world;
     if(w.trees.some(t=>t.blocks(x,y,r)))return true;
     if(w.stones.some(s=>s.blocks(x,y,r)))return true;
@@ -23,7 +30,7 @@ export class CollisionSystem{
     if(this.waterBlocks(x,y,r))return true;
     if(w.chickens.some(ch=>ch!==ignoreChicken&&Math.hypot(ch.x-x,ch.y-y)<r+11))return true;
     if(w.chicks.some(ch=>ch!==ignoreChick&&Math.hypot(ch.x-x,ch.y-y)<r+7))return true;
-    if(w.roosters.some(ro=>Math.hypot(ro.x-x,ro.y-y)<r+12))return true;
+    if(w.roosters.some(ro=>ro!==ignoreRooster&&Math.hypot(ro.x-x,ro.y-y)<r+12))return true;
     return false;
   }
   canMove(px,py){
