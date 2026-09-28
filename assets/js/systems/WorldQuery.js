@@ -36,6 +36,15 @@ export class WorldQuery{
     return found;
   }
 
+  findConstructionRequest(npc){
+    return (this.world.constructionRequests||[]).find(request=>
+      !request.assignedTo &&
+      request.itemId &&
+      Number.isFinite(request.x) &&
+      Number.isFinite(request.y)
+    )||null;
+  }
+
   findTree(range=58,origin=this.world.player){
     const w=this.world;
     let found=null,dist=range;
