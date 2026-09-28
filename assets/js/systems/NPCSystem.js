@@ -21,8 +21,40 @@ export class NPCSystem{
     return true;
   }
 
+  moveTo(npc,targetX,targetY,dt,arrivalRadius=24){
+    const dx=targetX-npc.x;
+    const dy=targetY-npc.y;
+    const distance=Math.hypot(dx,dy);
+    if(distance<=arrivalRadius){
+      npc.moveX=0;
+      npc.moveY=0;
+      return true;
+    }
+
+    const length=distance||1;
+    const baseX=dx/length;
+    const baseY=dy/length;
+    const step=Config.NPC.speed*dt;
+    const angles=[0,-.35,.35,-.7,.7,-1.05,1.05,Math.PI];
+
+    for(const angle of angles){
+      const c=Math.cos(angle),s=Math.sin(angle);
+      const moveX=baseX*c-baseY*s;
+      const moveY=baseX*s+baseY*c;
+      if(this.tryMove(npc,moveX*step,moveY*step)){
+        npc.moveX=moveX;
+        npc.moveY=moveY;
+        npc.dir=moveX<0?-1:1;
+        return false;
+      }
+    }
+
+    return false;
+  }
+
   update(dt){
     for(const npc of this.world.npcs){
+      if(npc.task)continue;
       if(npc.state!=="wander")continue;
 
       this.setDirection(npc);

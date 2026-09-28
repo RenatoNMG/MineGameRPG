@@ -33,6 +33,7 @@ export class NPCBehaviorSystem{
 
   update(dt){
     for(const npc of this.world.npcs){
+      if(npc.task)continue;
       npc.stateTimer-=dt;
       if(npc.stateTimer<=0)this.decideNextState(npc);
     }
