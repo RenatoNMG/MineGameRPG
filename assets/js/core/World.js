@@ -15,7 +15,11 @@ export class World{
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
     this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);
   }
-  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick);}
+  /*
+   * O movimento da galinha e do galo usa o mesmo fluxo de colisão.
+   * Preserve todos os objetos ignorados até o CollisionSystem.
+   */
+  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick,ignoreRooster);}
   waterBlocks(x,y,r=0){return this.collision.waterBlocks(x,y,r);}
   canMove(px,py){return this.collision.canMove(px,py);}
   movePlayer(dx,dy){this.collision.movePlayer(dx,dy);}
