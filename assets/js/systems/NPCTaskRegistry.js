@@ -1,4 +1,5 @@
 import {Config} from "../core/Config.js";
+import {Crafting} from "./Crafting.js";
 import {NPCTask} from "./NPCTask.js";
 
 export class NPCTaskRegistry{
@@ -9,6 +10,11 @@ export class NPCTaskRegistry{
   }
 
   register(definition){this.definitions.set(definition.type,definition);}
+
+  hasConstructionResources(npc,request){
+    const recipe=new Crafting(npc.inventory).getRecipe(request.itemId);
+    return !!recipe&&new Crafting(npc.inventory).canCraft(recipe);
+  }
 
   registerDefaults(){
     this.register({
@@ -35,6 +41,20 @@ export class NPCTaskRegistry{
       getPriority:()=>5,
       findTarget:npc=>this.world.query.findTree(Infinity,npc),
       steps:["move","action","collect","complete"]
+    });
+
+    this.register({
+      type:"build",
+      objective:"construct",
+      canStart:npc=>{
+        const request=npc.constructionOrder;
+        if(!request)return false;
+        return this.hasConstructionResources(npc,request) ||
+          !!this.world.query.findTree(Infinity,npc);
+      },
+      getPriority:npc=>this.hasConstructionResources(npc,npc.constructionOrder)?10:4,
+      findTarget:npc=>npc.constructionOrder,
+      steps:["craft","move","validate","build","complete"]
     });
 
     this.register({
