@@ -52,8 +52,11 @@ export class FencePlacement{
           candidate={x:item.x+side*32,y:item.y,orientation:"horizontal"};
         }
         if(this.isInBuildDirection(player,candidate.x,candidate.y,direction)&&this.isSafeForPlayer(candidate,player)){
-          bestDist=d;
-          best=candidate;
+          const snapDist=Math.hypot(player.x-candidate.x,player.y-candidate.y);
+          if(snapDist<bestDist){
+            bestDist=snapDist;
+            best=candidate;
+          }
         }
         continue;
       }
