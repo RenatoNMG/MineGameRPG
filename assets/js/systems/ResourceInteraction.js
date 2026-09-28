@@ -3,8 +3,10 @@ import {ToolSystem} from "./ToolSystem.js";
 import {Stone} from "../entities/Stone.js";
 
 export class ResourceInteraction{
-  static interact({player,world,inventory,equipped,particles}){
-    const tree=world.findTree();
+  static interact({player,world,inventory,equipped,particles,target=null}){
+    const tree=target?.kind==="tree"
+      ?target.object
+      :world.findTree(undefined,player);
     if(tree){
       if(!ToolSystem.canUse(equipped,"axe")){
         particles.push({x:player.x,y:player.y-35,t:.7,text:"EQUIPE UM MACHADO"});
@@ -31,7 +33,9 @@ export class ResourceInteraction{
       return {type:"treeHit"};
     }
 
-    const wood=world.findLooseWood();
+    const wood=target?.kind==="looseWood"
+      ?target.object
+      :world.findLooseWood(undefined,player);
     if(wood){
       wood.collected=true;
       player.attackCd=Config.COMBAT.attackCooldown;
