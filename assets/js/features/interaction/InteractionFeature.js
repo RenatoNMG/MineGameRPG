@@ -14,14 +14,14 @@ export class InteractionFeature{
     this.player=player;this.world=world;this.inventory=inventory;this.input=input;
     this.particles=particles;this.getEquipped=getEquipped;this.setEquipped=setEquipped;
     this.onInventoryChanged=onInventoryChanged;this.events=events;this.gateFeature=gateFeature;
-    this.fenceRemovalFeature=new FenceRemovalFeature({player,world,particles});
+    this.fenceRemovalFeature=new FenceRemovalFeature({player,world,particles,inventory});
   }
   update(){if(this.input.consumeAttack())this.attack();}
   attack(){
     const equipped=this.getEquipped();
     if(this.player.attackCd>0)return;
     const removed=this.fenceRemovalFeature.remove(equipped);
-    if(removed){this.player.attackCd=.2;this.events.emit(removed.type,removed);return;}
+    if(removed){this.player.attackCd=.2;if(removed.type!=="inventoryFull")this.onInventoryChanged();this.events.emit(removed.type,removed);return;}
     if(this.gateFeature?.interact()){this.player.attackCd=.2;return;}
     const rooster=RoosterCarrySystem.toggle({player:this.player,world:this.world,particles:this.particles});
     if(rooster){this.player.attackCd=.2;this.events.emit(rooster.type,rooster);return;}
