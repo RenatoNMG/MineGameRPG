@@ -21,11 +21,11 @@ export class DropSystem{
      * -> ovo no mundo. Não existe um segundo item para incubação.
      */
     if(isEgg){
-      if(w.eggs.length>=20){
+      if(world.eggs.length>=(world.animalSystem?.maxEggs??20)){
         particles.push({x:player.x,y:player.y-35,t:.7,text:"LIMITE DE OVOS ATINGIDO"});
         return {ok:false,type:"eggLimit"};
       }
-      if(world.objectBlocks(x,y,6)||w.eggs.some(e=>Math.hypot(e.x-x,e.y-y)<18)){
+      if(world.objectBlocks(x,y,6)||world.eggs.some(e=>Math.hypot(e.x-x,e.y-y)<18)){
         particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
         return {ok:false,type:"blocked"};
       }
