@@ -8,18 +8,7 @@ export class InitialWorldConstruction{
    * comportamento de portão específico para o cercado inicial.
    */
   static create({player,width,height,trees,stones,looseWood,chickens,roosters,waterPuddles}){
-    const makePiece=(itemId,x,y,orientation)=>DropSystem.createConstruction({itemId,x,y,orientation});
-    const build=(cx,cy)=>{
-      const pieces=[];
-      for(const dx of [-96,-64,-32,0,32,64,96])pieces.push(makePiece("fence",cx+dx,cy-64,"horizontal"));
-      for(const dx of [-96,-64,-32,32,64,96])pieces.push(makePiece("fence",cx+dx,cy+64,"horizontal"));
-      for(const dy of [-32,0,32]){
-        pieces.push(makePiece("fence",cx-96,cy+dy,"vertical"));
-        pieces.push(makePiece("fence",cx+96,cy+dy,"vertical"));
-      }
-      pieces.push(makePiece("fenceGate",cx,cy+64,"horizontal"));
-      return pieces.filter(Boolean);
-    };
+    const build=(cx,cy)=>DropSystem.createInitialConstruction({centerX:cx,centerY:cy});
 
     const blocked=(x,y,r=0)=>{
       if(Math.hypot(x-player.x,y-player.y)<r+48)return true;
