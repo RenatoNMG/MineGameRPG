@@ -40,7 +40,7 @@ export class Inventory{
     const definition=getItem(id);
     if(!definition||qty<=0)return false;
     const item=this.items.find(x=>x.id===id);
-    if(item){item.qty=Math.min(item.maxStack,item.qty+qty);return true;}
+    if(item){if(item.qty>=item.maxStack)return false;item.qty=Math.min(item.maxStack,item.qty+qty);return true;}
     if(this.items.length>=this.slots)return false;
     this.items.push(createItem(id,Math.min(qty,definition.maxStack)));
     return true;
