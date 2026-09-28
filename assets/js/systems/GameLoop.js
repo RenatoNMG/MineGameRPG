@@ -3,13 +3,24 @@
  *
  * REGRA PARA FUTURAS IAs: este arquivo só define a ordem do ciclo. Se uma
  * mecânica nova precisar de estado próprio, crie/estenda uma Feature.
+ *
+ * REGRA DE ESTABILIDADE: uma falha em uma atualização de mundo não pode
+ * impedir o Renderer de executar o próximo frame. O erro é registrado e o
+ * restante do ciclo visual continua normalmente.
  */
 export class GameLoop{
   constructor(game){this.game=game;this.last=performance.now();}
   update(dt){
     const game=this.game;if(game.paused)return;game.time+=dt;
     game.playerFeature.update(dt);game.fenceFeature.update();game.gateFeature.update(dt);game.dropFeature.updateBeforeWorld();game.interactionFeature.update();
-    game.world.update(dt);game.interactionFeature.afterWorldUpdate();game.dropFeature.updateAfterWorld();
+
+    try{
+      game.world.update(dt);
+    }catch(error){
+      console.error("MineGame GameLoop: falha durante atualização do mundo",error);
+    }
+
+    game.interactionFeature.afterWorldUpdate();game.dropFeature.updateAfterWorld();
     game.particles.forEach(p=>p.t-=dt);game.particles=game.particles.filter(p=>p.t>0);
     if(game.player.hp<=0){game.player.respawn();game.world.enemies=[];game.particles.push({x:game.player.x,y:game.player.y,t:1.5,text:"VOCÊ CAIU — RETORNOU"});}
     game.ui.updateHUD();
