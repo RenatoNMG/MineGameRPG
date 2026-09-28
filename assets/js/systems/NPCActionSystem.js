@@ -16,6 +16,7 @@ export class NPCActionSystem{
       return w.droppedItems.includes(task.target.object);
     }
     if(task.type==="drink")return w.waterPuddles.includes(task.target);
+    if(task.type==="rest")return !!task.target?.npc;
     if(task.type==="cutTree")return w.trees.includes(task.target);
     if(task.type==="build")return this.world.constructionRequests.includes(task.target);
     if(task.type==="walk")return !!task.target;
@@ -42,6 +43,11 @@ export class NPCActionSystem{
       if(index>=0)this.world.droppedItems.splice(index,1);
     }
     return true;
+  }
+
+  rest(npc){
+    const energy=this.world.npcNeedsSystem.restoreEnergy(npc,1/60);
+    return energy>=Config.NPC.needs.restTarget?"done":"continue";
   }
 
   cutTree(npc,tree){
@@ -116,6 +122,9 @@ export class NPCActionSystem{
         particles:[],
         water:task.target
       });
+    }
+    if(task.type==="rest"){
+      return this.rest(npc);
     }
     if(task.type==="cutTree"){
       if(task.step==="action")return this.cutTree(npc,task.target);
