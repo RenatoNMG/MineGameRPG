@@ -36,7 +36,7 @@ export class NPCTaskSystem{
     }
 
     if(task.step!=="complete"){
-      const result=this.world.npcActionSystem.execute(npc,task);
+      const result=this.world.npcActionSystem.execute(npc,task,dt);
       if(result==="continue")return;
       if(result)task.nextStep();
       else{
