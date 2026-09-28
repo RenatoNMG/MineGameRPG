@@ -17,7 +17,7 @@ export class World{
   constructor(player){
     this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
     this.trees=[];this.stones=[];this.looseWood=[];this.npcs=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
-    this.droppedItems=[];this.fences=[];this.enemies=[];
+    this.droppedItems=[];this.fences=[];this.constructionRequests=[];this.enemies=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
     this.collision=new CollisionSystem(this);
     this.query=new WorldQuery(this);
@@ -42,6 +42,21 @@ export class World{
   findLooseWood(range=50){return this.query.findLooseWood(range);}
   findEgg(range=50){return this.query.findEgg(range);}
   findStone(range=50){return this.query.findStone(range);}
+  requestConstruction({itemId,x,y,orientation="horizontal"}){
+    const request={itemId,x,y,orientation,assignedTo:null};
+    this.constructionRequests.push(request);
+    return request;
+  }
+
+  completeConstructionRequest(request){
+    const index=this.constructionRequests.indexOf(request);
+    if(index>=0)this.constructionRequests.splice(index,1);
+  }
+
+  releaseConstructionRequest(request){
+    if(request)this.constructionRequests.find(item=>item===request)?.assignedTo=null;
+  }
+
   spawnEnemy(){}
 
   update(dt){
