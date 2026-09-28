@@ -11,8 +11,30 @@ export class DropSystem{
     if(!held||held.qty<1)return {ok:false,type:"empty"};
     const dropPosition=placement||{x:player.x+player.lastDir*28,y:player.y+8};
     const isConstruction=this.isConstruction(equipped);
+    const isEgg=equipped.id==="egg";
     const orientation=isConstruction?(dropPosition.orientation||"horizontal"):null;
     const x=dropPosition.x,y=dropPosition.y;
+
+    /*
+     * O ovo colocado continua sendo a mesma entidade world.eggs usada pela
+     * incubação existente. O item "egg" só muda de representação: inventário
+     * -> ovo no mundo. Não existe um segundo item para incubação.
+     */
+    if(isEgg){
+      if(world.eggs.length>=(world.animalSystem?.maxEggs??20)){
+        particles.push({x:player.x,y:player.y-35,t:.7,text:"LIMITE DE OVOS ATINGIDO"});
+        return {ok:false,type:"eggLimit"};
+      }
+      if(world.objectBlocks(x,y,6)||world.eggs.some(e=>Math.hypot(e.x-x,e.y-y)<18)){
+        particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
+        return {ok:false,type:"blocked"};
+      }
+      if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
+      world.eggs.push({x,y,age:0,collected:false});
+      player.attackCd=Config.COMBAT.attackCooldown;
+      particles.push({x,y:y-18,t:.8,text:"OVO COLOCADO"});
+      return {ok:true,type:"dropped",itemId:held.id,empty:inventory.qty(held.id)<=0};
+    }
 
     /* Cerca e porta são construções físicas com a mesma geometria/tamanho. */
     if(isConstruction){
