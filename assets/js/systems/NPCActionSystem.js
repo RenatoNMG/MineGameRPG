@@ -3,6 +3,8 @@ import {useItem} from "./ItemBehaviorSystem.js";
 import {WaterInteraction} from "./WaterInteraction.js";
 import {ToolSystem} from "./ToolSystem.js";
 import {ResourceInteraction} from "./ResourceInteraction.js";
+import {Crafting} from "./Crafting.js";
+import {DropSystem} from "./DropSystem.js";
 
 export class NPCActionSystem{
   constructor(world){this.world=world;}
@@ -15,6 +17,7 @@ export class NPCActionSystem{
     }
     if(task.type==="drink")return w.waterPuddles.includes(task.target);
     if(task.type==="cutTree")return w.trees.includes(task.target);
+    if(task.type==="build")return this.world.constructionRequests.includes(task.target);
     if(task.type==="walk")return !!task.target;
     return false;
   }
@@ -75,6 +78,35 @@ export class NPCActionSystem{
     return result?.type==="woodCollected" ? "continue" : false;
   }
 
+  craftConstruction(npc,construction){
+    const crafting=new Crafting(npc.inventory);
+    const recipe=crafting.getRecipe(construction.itemId);
+    return !!recipe&&crafting.craft(recipe);
+  }
+
+  validateConstruction(npc,construction){
+    return DropSystem.canPlaceConstruction({
+      builder:npc,
+      world:this.world,
+      itemId:construction.itemId,
+      x:construction.x,
+      y:construction.y,
+      orientation:construction.orientation
+    });
+  }
+
+  buildConstruction(npc,construction){
+    return DropSystem.placeConstruction({
+      builder:npc,
+      world:this.world,
+      inventory:npc.inventory,
+      itemId:construction.itemId,
+      x:construction.x,
+      y:construction.y,
+      orientation:construction.orientation
+    }).ok;
+  }
+
   execute(npc,task){
     if(task.type==="eat")return this.eat(npc,task.target);
     if(task.type==="drink"){
@@ -88,6 +120,11 @@ export class NPCActionSystem{
     if(task.type==="cutTree"){
       if(task.step==="action")return this.cutTree(npc,task.target);
       if(task.step==="collect")return this.collectWood(npc);
+    }
+    if(task.type==="build"){
+      if(task.step==="craft")return this.craftConstruction(npc,task.target);
+      if(task.step==="validate")return this.validateConstruction(npc,task.target);
+      if(task.step==="build")return this.buildConstruction(npc,task.target);
     }
     if(task.type==="walk")return true;
     return false;

@@ -4,7 +4,13 @@ export class NPCTaskSystem{
     this.arrivalRadius=24;
   }
 
-  finish(npc){
+  finish(npc,{completed=false}={}){
+    const task=npc.task;
+    if(task?.type==="build"){
+      if(completed)this.world.completeConstructionRequest(task.target);
+      else this.world.releaseConstructionRequest(task.target);
+      if(npc.constructionOrder===task.target)npc.assignConstruction(null);
+    }
     npc.task=null;
     this.world.npcBehaviorSystem.setState(npc,"idle");
   }
@@ -25,7 +31,7 @@ export class NPCTaskSystem{
       return;
     }
 
-    if(task.step==="action"||task.step==="collect"){
+    if(task.step!=="complete"){
       const result=this.world.npcActionSystem.execute(npc,task);
       if(result==="continue")return;
       if(result)task.nextStep();
@@ -33,7 +39,9 @@ export class NPCTaskSystem{
       return;
     }
 
-    if(task.step==="complete")this.finish(npc);
+    if(task.step==="complete"){
+      this.finish(npc,{completed:task.type==="build"});
+    }
   }
 
   update(dt){

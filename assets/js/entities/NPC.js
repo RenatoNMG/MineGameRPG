@@ -10,7 +10,13 @@ export class NPC{
     this.state=state;
     this.radius=radius;
     this.task=null;
+    this.constructionOrder=null;
   }
 
   createTask(data){return new NPCTask(data);}
+
+  assignConstruction(construction){
+    this.constructionOrder=construction||null;
+    return this.constructionOrder;
+  }
 }

@@ -36,31 +36,24 @@ export class DropSystem{
       return {ok:true,type:"dropped",itemId:held.id,empty:inventory.qty(held.id)<=0};
     }
 
-    /* Cerca e porta são construções físicas com a mesma geometria/tamanho. */
     if(isConstruction){
-      const structure={x,y,orientation};
-      if(FenceGeometry.blocksPlayer(structure,player)){
+      const result=this.placeConstruction({
+        builder:player,
+        world,
+        inventory,
+        itemId:held.id,
+        x,y,
+        orientation
+      });
+      if(!result.ok){
+        particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
+        return result;
+      }
+    }else{
+      if(world.objectBlocks(x,y,6)){
         particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
         return {ok:false,type:"blocked"};
       }
-    }
-
-    if(world.objectBlocks(x,y,6)){
-      particles.push({x:player.x,y:player.y-35,t:.7,text:"NÃO HÁ ESPAÇO PARA SOLTAR"});
-      return {ok:false,type:"blocked"};
-    }
-    if(isConstruction){
-      /*
-       * Construção colocada é uma nova instância do item catalogado.
-       * Assim, nenhum estado temporário da instância equipada (por exemplo,
-       * openProgress/gateOpen de uma construção anterior) pode ser transportado
-       * para o mundo. A orientação pertence ao FenceFeature/Placement.
-       */
-      const placedItem=this.createConstruction({itemId:held.id,x,y,orientation});
-      if(!placedItem)return {ok:false,type:"createFailed"};
-      if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
-      world.fences.push(placedItem);
-    }else{
       if(!inventory.remove(held.id,1))return {ok:false,type:"removeFailed"};
       world.droppedItems.push({...held,qty:1,x,y});
     }
@@ -90,6 +83,37 @@ export class DropSystem{
     if(!this.isConstruction({id:itemId}))return null;
     const placedItem=createItem(itemId,1);
     return placedItem?{...placedItem,x,y,orientation}:null;
+  }
+
+  /*
+   * ÚNICA validação de posição física para colocar uma construção.
+   * Jogador e NPC passam pelo mesmo caminho; o builder só define quem deve
+   * ser ignorado na própria colisão.
+   */
+  static canPlaceConstruction({builder,world,itemId,x,y,orientation="horizontal"}){
+    if(!builder||!world||!this.isConstruction({id:itemId}))return false;
+    const structure={x,y,orientation};
+    if(FenceGeometry.blocksPoint(structure,builder.x,builder.y,builder.r||0))return false;
+    if(world.objectBlocks(x,y,6,null,null,null,builder))return false;
+    return true;
+  }
+
+  /*
+   * Fábrica/colocação oficial compartilhada pelo jogador e pelos NPCs.
+   * Não existe uma segunda criação de cerca para a IA.
+   */
+  static placeConstruction({builder,world,inventory,itemId,x,y,orientation="horizontal"}){
+    if(!inventory||inventory.qty(itemId)<1)return {ok:false,type:"empty"};
+    if(!this.canPlaceConstruction({builder,world,itemId,x,y,orientation})){
+      return {ok:false,type:"blocked"};
+    }
+
+    const placedItem=this.createConstruction({itemId,x,y,orientation});
+    if(!placedItem)return {ok:false,type:"createFailed"};
+    if(!inventory.remove(itemId,1))return {ok:false,type:"removeFailed"};
+
+    world.fences.push(placedItem);
+    return {ok:true,type:"constructed",itemId};
   }
 
   static collectItem({player,world,inventory,particles}){

@@ -9,6 +9,14 @@ export class NPCDecisionSystem{
   chooseTask(npc){
     if(npc.task)return;
 
+    if(!npc.constructionOrder){
+      const request=this.world.query.findConstructionRequest(npc);
+      if(request){
+        request.assignedTo=npc.id;
+        npc.assignConstruction(request);
+      }
+    }
+
     const candidates=this.taskRegistry.getCandidates(npc);
     if(!candidates.length)return;
 
