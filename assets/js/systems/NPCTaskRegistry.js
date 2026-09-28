@@ -1,6 +1,5 @@
 import {Config} from "../core/Config.js";
 import {Crafting} from "./Crafting.js";
-import {ToolSystem} from "./ToolSystem.js";
 import {NPCTask} from "./NPCTask.js";
 
 export class NPCTaskRegistry{
@@ -13,7 +12,6 @@ export class NPCTaskRegistry{
   register(definition){this.definitions.set(definition.type,definition);}
 
   hasConstructionResources(npc,request){
-    if(!request)return false;
     const recipe=new Crafting(npc.inventory).getRecipe(request.itemId);
     return !!recipe&&new Crafting(npc.inventory).canCraft(recipe);
   }
@@ -38,19 +36,8 @@ export class NPCTaskRegistry{
     });
 
     this.register({
-      type:"rest",
-      objective:"recover_energy",
-      canStart:npc=>npc.needs.energy<=Config.NPC.needs.lowThreshold,
-      getPriority:npc=>100-npc.needs.energy,
-      findTarget:npc=>({x:npc.x,y:npc.y,npc}),
-      steps:["action","complete"]
-    });
-
-    this.register({
       type:"cutTree",
       objective:"collect_wood",
-      canStart:npc=>ToolSystem.canUse(npc.inventory?.get("axe"),"axe") &&
-        npc.needs.energy>Config.NPC.needs.criticalThreshold,
       getPriority:()=>5,
       findTarget:npc=>this.world.query.findTree(Infinity,npc),
       steps:["move","action","collect","complete"]
@@ -59,18 +46,20 @@ export class NPCTaskRegistry{
     this.register({
       type:"build",
       objective:"construct",
-      canStart:npc=>!!npc.constructionOrder &&
-        this.hasConstructionResources(npc,npc.constructionOrder) &&
-        npc.needs.energy>Config.NPC.needs.criticalThreshold,
-      getPriority:npc=>this.hasConstructionResources(npc,npc.constructionOrder)?10:0,
+      canStart:npc=>{
+        const request=npc.constructionOrder;
+        if(!request)return false;
+        return this.hasConstructionResources(npc,request) ||
+          !!this.world.query.findTree(Infinity,npc);
+      },
+      getPriority:npc=>this.hasConstructionResources(npc,npc.constructionOrder)?10:4,
       findTarget:npc=>npc.constructionOrder,
       steps:["craft","move","validate","build","complete"]
     });
 
     this.register({
       type:"walk",
-      objective:"explore",
-      canStart:npc=>npc.needs.energy>Config.NPC.needs.criticalThreshold,
+      objective:"wander",
       getPriority:()=>1,
       findTarget:npc=>({
         x:Math.max(npc.radius,Math.min(this.world.width-npc.radius,npc.x+(Math.random()-.5)*240)),

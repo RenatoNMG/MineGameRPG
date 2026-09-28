@@ -20,12 +20,6 @@ export class NPCNeedsSystem{
     return Math.max(0,value-rate*dt);
   }
 
-  restoreEnergy(npc,dt){
-    npc.needs.energy=Math.min(100,npc.needs.energy+Config.NPC.needs.restRecovery*dt);
-    this.updatePriority(npc);
-    return npc.needs.energy;
-  }
-
   updateNPC(npc,dt){
     const rates=Config.NPC.needs;
     npc.needs.hunger=this.updateNeed(npc.needs.hunger,rates.hungerDrain,dt);
