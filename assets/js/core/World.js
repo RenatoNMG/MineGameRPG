@@ -9,7 +9,7 @@ import {TransformationSystem} from "../systems/TransformationSystem.js";
 export class World{
   constructor(player){
     this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
-    this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
+    this.trees=[];this.stones=[];this.looseWood=[];this.npcs=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
     /* Drops são coletáveis; fences são objetos físicos permanentes. */
     this.droppedItems=[];this.fences=[];this.enemies=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
