@@ -22,7 +22,6 @@ export class World{
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
 
     // Ordem de inicialização: primeiro todos os serviços do NPC, depois os NPCs.
-    // Isso evita criar entidades que dependem de serviços ainda não montados.
     this.collision=new CollisionSystem(this);
     this.query=new WorldQuery(this);
     this.animalSystem=new AnimalSystem(this);
@@ -81,8 +80,8 @@ export class World{
     this.animalSystem.update(dt);
     this.npcNeedsSystem.update(dt);
     this.npcMemorySystem.update(dt);
-    this.npcDecisionSystem.update(dt);
     this.npcTaskSystem.update(dt);
+    this.npcDecisionSystem.update(dt);
     this.npcBehaviorSystem.update(dt);
     this.npcSystem.update(dt);
     this.transformationSystem.update(dt);
