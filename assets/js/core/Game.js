@@ -1,6 +1,6 @@
 import {Config} from "./Config.js";
 import {Player} from "../entities/Player.js";
-import {World} from "./World.js";
+import {World} from "./World.js?v=2.114";
 import {Inventory} from "../systems/Inventory.js";
 import {Crafting} from "../systems/Crafting.js";
 import {Input} from "../systems/Input.js";
