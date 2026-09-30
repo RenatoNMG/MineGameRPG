@@ -14,10 +14,15 @@ export class World{
   constructor(player){
     this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
     this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
-    /* Drops são coletáveis; fences são objetos físicos permanentes. */
     this.droppedItems=[];this.fences=[];this.enemies=[];this.npcs=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
     this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);this.npcPerception=new NPCPerceptionFeature(this);this.npcDecision=new NPCDecisionFeature();this.npcAction=new NPCActionFeature(this);
+    this.npcActions={execute:(npc,intent,target)=>{
+      if(intent==="DRINK"){npc.needs.thirst=100;return{status:"completed",intent,target};}
+      if(intent==="EAT"){npc.needs.hunger=100;if(target?.collected!==undefined)target.collected=true;return{status:"completed",intent,target};}
+      if(intent==="FLEE"){return{status:"completed",intent,target};}
+      return{status:"failed",intent,reason:"unsupported_action"};
+    }};
     this.spawnNPC({id:"npc-001",name:"Alden",x:player.x+80,y:player.y});
   }
   objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick,ignoreRooster);}
