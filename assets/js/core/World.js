@@ -5,15 +5,17 @@ import {WorldQuery} from "../systems/WorldQuery.js";
 import {SpawnSystem} from "../systems/SpawnSystem.js";
 import {AnimalSystem} from "../systems/AnimalSystem.js";
 import {TransformationSystem} from "../systems/TransformationSystem.js";
+import {NPC} from "../entities/NPC.js";
 
 export class World{
   constructor(player){
     this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
     this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
     /* Drops são coletáveis; fences são objetos físicos permanentes. */
-    this.droppedItems=[];this.fences=[];this.enemies=[];
+    this.droppedItems=[];this.fences=[];this.enemies=[];this.npcs=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
     this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);
+    this.spawnNPC({id:"npc-001",name:"Alden",x:player.x+80,y:player.y});
   }
   /*
    * O movimento da galinha e do galo usa o mesmo fluxo de colisão.
@@ -28,6 +30,7 @@ export class World{
   findLooseWood(range=50){return this.query.findLooseWood(range);}
   findEgg(range=50){return this.query.findEgg(range);}
   findStone(range=50){return this.query.findStone(range);}
+  spawnNPC(data){const npc=new NPC(data);this.npcs.push(npc);return npc;}
   spawnEnemy(){}
-  update(dt){this.trees.forEach(t=>t.update(dt));this.animalSystem.update(dt);this.transformationSystem.update(dt);this.spawnSystem.update(dt);}
+  update(dt){this.trees.forEach(t=>t.update(dt));this.animalSystem.update(dt);this.transformationSystem.update(dt);this.spawnSystem.update(dt);this.npcs.forEach(npc=>npc.update(dt));}
 }
