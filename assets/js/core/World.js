@@ -3,23 +3,37 @@ import {WorldGenerator} from "../systems/WorldGenerator.js";
 import {CollisionSystem} from "../systems/CollisionSystem.js";
 import {WorldQuery} from "../systems/WorldQuery.js";
 import {SpawnSystem} from "../systems/SpawnSystem.js";
+import {NPCNeedsSystem} from "../systems/NPCNeedsSystem.js";
+import {NPCDecisionSystem} from "../systems/NPCDecisionSystem.js";
+import {NPCTaskSystem} from "../systems/NPCTaskSystem.js";
+import {NPCActionSystem} from "../systems/NPCActionSystem.js";
+import {NPCInventorySystem} from "../systems/NPCInventorySystem.js";
+import {NPCSystem} from "../systems/NPCSystem.js";
+import {NPCBehaviorSystem} from "../systems/NPCBehaviorSystem.js";
 import {AnimalSystem} from "../systems/AnimalSystem.js";
 import {TransformationSystem} from "../systems/TransformationSystem.js";
 
 export class World{
   constructor(player){
     this.width=Config.WORLD.width;this.height=Config.WORLD.height;this.player=player;
-    this.trees=[];this.stones=[];this.looseWood=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
-    /* Drops são coletáveis; fences são objetos físicos permanentes. */
+    this.trees=[];this.stones=[];this.looseWood=[];this.npcs=[];this.chickens=[];this.roosters=[];this.chicks=[];this.eggs=[];this.waterPuddles=[];
     this.droppedItems=[];this.fences=[];this.enemies=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
-    this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);
+    this.collision=new CollisionSystem(this);
+    this.query=new WorldQuery(this);
+    this.animalSystem=new AnimalSystem(this);
+    this.spawnSystem=new SpawnSystem(this);
+    this.npcInventorySystem=new NPCInventorySystem(this);
+    this.npcNeedsSystem=new NPCNeedsSystem(this);
+    this.npcActionSystem=new NPCActionSystem(this);
+    this.npcTaskSystem=new NPCTaskSystem(this);
+    this.npcBehaviorSystem=new NPCBehaviorSystem(this);
+    this.npcDecisionSystem=new NPCDecisionSystem(this);
+    this.npcSystem=new NPCSystem(this);
+    this.transformationSystem=new TransformationSystem(this);
   }
-  /*
-   * O movimento da galinha e do galo usa o mesmo fluxo de colisão.
-   * Preserve todos os objetos ignorados até o CollisionSystem.
-   */
-  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick,ignoreRooster);}
+
+  objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null,ignoreNPC=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick,ignoreRooster,ignoreNPC);}
   waterBlocks(x,y,r=0){return this.collision.waterBlocks(x,y,r);}
   canMove(px,py){return this.collision.canMove(px,py);}
   movePlayer(dx,dy){this.collision.movePlayer(dx,dy);}
@@ -29,5 +43,16 @@ export class World{
   findEgg(range=50){return this.query.findEgg(range);}
   findStone(range=50){return this.query.findStone(range);}
   spawnEnemy(){}
-  update(dt){this.trees.forEach(t=>t.update(dt));this.animalSystem.update(dt);this.transformationSystem.update(dt);this.spawnSystem.update(dt);}
+
+  update(dt){
+    this.trees.forEach(t=>t.update(dt));
+    this.animalSystem.update(dt);
+    this.npcNeedsSystem.update(dt);
+    this.npcDecisionSystem.update(dt);
+    this.npcTaskSystem.update(dt);
+    this.npcBehaviorSystem.update(dt);
+    this.npcSystem.update(dt);
+    this.transformationSystem.update(dt);
+    this.spawnSystem.update(dt);
+  }
 }
