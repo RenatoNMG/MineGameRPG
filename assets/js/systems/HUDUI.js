@@ -7,7 +7,11 @@ export class HUDUI{
     q("#thirst").style.width=Math.max(0,game.player.thirst)+"%";
     q("#xp").style.width=game.player.xp/game.player.next*100+"%";
     q("#level").textContent="Lv."+game.player.level;
-    q("#gold").textContent=game.money.getBalance();
+    const gold=q("#gold");
+    if(gold){
+      const balance=game.money&&typeof game.money.getBalance==="function"?game.money.getBalance():0;
+      gold.textContent=Number.isInteger(balance)&&balance>=0?balance:0;
+    }
     q("#kills").textContent=game.player.kills;
     q("#enemyCount").textContent=game.world.enemies.length;
     q("#timer").textContent=new Date(game.time*1000).toISOString().slice(14,19);
