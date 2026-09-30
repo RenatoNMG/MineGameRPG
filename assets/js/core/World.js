@@ -6,6 +6,7 @@ import {SpawnSystem} from "../systems/SpawnSystem.js";
 import {AnimalSystem} from "../systems/AnimalSystem.js";
 import {TransformationSystem} from "../systems/TransformationSystem.js";
 import {NPC} from "../entities/NPC.js";
+import {NPCPerceptionFeature} from "../features/npc/NPCPerceptionFeature.js";
 
 export class World{
   constructor(player){
@@ -14,13 +15,9 @@ export class World{
     /* Drops são coletáveis; fences são objetos físicos permanentes. */
     this.droppedItems=[];this.fences=[];this.enemies=[];this.npcs=[];
     Object.assign(this,WorldGenerator.generate({player,width:this.width,height:this.height}));
-    this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);
+    this.collision=new CollisionSystem(this);this.query=new WorldQuery(this);this.animalSystem=new AnimalSystem(this);this.spawnSystem=new SpawnSystem(this);this.transformationSystem=new TransformationSystem(this);this.npcPerception=new NPCPerceptionFeature(this);
     this.spawnNPC({id:"npc-001",name:"Alden",x:player.x+80,y:player.y});
   }
-  /*
-   * O movimento da galinha e do galo usa o mesmo fluxo de colisão.
-   * Preserve todos os objetos ignorados até o CollisionSystem.
-   */
   objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null){return this.collision.objectBlocks(x,y,r,ignoreChicken,ignoreChick,ignoreRooster);}
   waterBlocks(x,y,r=0){return this.collision.waterBlocks(x,y,r);}
   canMove(px,py){return this.collision.canMove(px,py);}
@@ -32,5 +29,5 @@ export class World{
   findStone(range=50){return this.query.findStone(range);}
   spawnNPC(data){const npc=new NPC(data);this.npcs.push(npc);return npc;}
   spawnEnemy(){}
-  update(dt){this.trees.forEach(t=>t.update(dt));this.animalSystem.update(dt);this.transformationSystem.update(dt);this.spawnSystem.update(dt);this.npcs.forEach(npc=>npc.update(dt));}
+  update(dt){this.trees.forEach(t=>t.update(dt));this.animalSystem.update(dt);this.transformationSystem.update(dt);this.spawnSystem.update(dt);this.npcs.forEach(npc=>{this.npcPerception.update(npc,dt);npc.update(dt);});}
 }
