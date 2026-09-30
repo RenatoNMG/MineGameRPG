@@ -7,7 +7,7 @@ export class HUDUI{
     q("#thirst").style.width=Math.max(0,game.player.thirst)+"%";
     q("#xp").style.width=game.player.xp/game.player.next*100+"%";
     q("#level").textContent="Lv."+game.player.level;
-    q("#gold").textContent=game.player.gold;
+    q("#gold").textContent=game.money.getBalance();
     q("#kills").textContent=game.player.kills;
     q("#enemyCount").textContent=game.world.enemies.length;
     q("#timer").textContent=new Date(game.time*1000).toISOString().slice(14,19);
