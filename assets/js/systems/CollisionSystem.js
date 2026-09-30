@@ -2,9 +2,7 @@ import {FenceGeometry} from "../features/fence/FenceGeometry.js";
 
 export class CollisionSystem{
   constructor(world){this.world=world;}
-  fenceBlocks(x,y,r=0){
-    return FenceGeometry.blocksWorld(this.world.fences||[],x,y,r);
-  }
+  fenceBlocks(x,y,r=0){return FenceGeometry.blocksWorld(this.world.fences||[],x,y,r);}
   waterBlocks(x,y,r=0){
     for(const water of this.world.waterPuddles){
       const dx=x-water.x,dy=y-water.y;
@@ -15,13 +13,6 @@ export class CollisionSystem{
     }
     return false;
   }
-  /*
-   * REGRA DOS ANIMAIS:
-   * um animal não pode bloquear o próprio movimento. O consumidor pode
-   * informar o galo que está se movendo; os demais animais continuam físicos.
-   * Isso evita o loop de troca de direção quando a posição candidata ainda
-   * está dentro do raio de colisão do próprio galo.
-   */
   objectBlocks(x,y,r=0,ignoreChicken=null,ignoreChick=null,ignoreRooster=null){
     const w=this.world;
     if(w.trees.some(t=>t.blocks(x,y,r)))return true;
@@ -33,18 +24,21 @@ export class CollisionSystem{
     if(w.roosters.some(ro=>ro!==ignoreRooster&&Math.hypot(ro.x-x,ro.y-y)<r+12))return true;
     return false;
   }
-  canMove(px,py){
+  canMove(px,py,r=this.world.player.r,mover=null){
     const w=this.world;
-    if(w.trees.some(t=>t.blocks(px,py,w.player.r)))return false;
-    if(w.stones.some(s=>s.blocks(px,py,w.player.r)))return false;
-    if(this.fenceBlocks(px,py,w.player.r))return false;
-    if(this.waterBlocks(px,py,w.player.r+1))return false;
+    if(px<25||py<25||px>w.width-25||py>w.height-25)return false;
+    if(w.trees.some(t=>t.blocks(px,py,r)))return false;
+    if(w.stones.some(s=>s.blocks(px,py,r)))return false;
+    if(this.fenceBlocks(px,py,r))return false;
+    if(this.waterBlocks(px,py,r+1))return false;
+    if(mover!==w.player&&Math.hypot(w.player.x-px,w.player.y-py)<r+w.player.r)return false;
+    if(w.npcs.some(n=>n!==mover&&Math.hypot(n.x-px,n.y-py)<r+n.r))return false;
     return true;
   }
   movePlayer(dx,dy){
     const w=this.world,nx=w.player.x+dx,ny=w.player.y+dy;
-    if(this.canMove(nx,w.player.y))w.player.x=nx;
-    if(this.canMove(w.player.x,ny))w.player.y=ny;
+    if(this.canMove(nx,w.player.y,w.player.r,w.player))w.player.x=nx;
+    if(this.canMove(w.player.x,ny,w.player.r,w.player))w.player.y=ny;
     w.player.x=Math.max(25,Math.min(w.width-25,w.player.x));
     w.player.y=Math.max(25,Math.min(w.height-25,w.player.y));
   }
