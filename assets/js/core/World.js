@@ -37,13 +37,21 @@ export class World{
   findEgg(range=50){return this.query.findEgg(range);}
   findStone(range=50){return this.query.findStone(range);}
   _findNPCSpawnPosition(x,y,r=14){
-    const valid=(px,py)=>px>=25&&py>=25&&px<=this.width-25&&py<=this.height-25&&Math.hypot(px-this.player.x,py-this.player.y)>=r+this.player.r+12&&!this.collision.objectBlocks(px,py,r)&&!this.npcs.some(n=>Math.hypot(px-n.x,py-n.y)<r+n.r+12);
-    if(valid(x,y))return{x,y};
-    for(let distance=35;distance<=220;distance+=25){for(let i=0;i<16;i++){const angle=i*Math.PI/8,px=x+Math.cos(angle)*distance,py=y+Math.sin(angle)*distance;if(valid(px,py))return{x:px,y:py};}}
-    for(let i=0;i<200;i++){const px=25+Math.random()*(this.width-50),py=25+Math.random()*(this.height-50);if(valid(px,py))return{x:px,y:py};}
-    return{x:Math.max(25,Math.min(this.width-25,x)),y:Math.max(25,Math.min(this.height-25,y))};
+    const valid=(px,py)=>this.canMove(px,py,r,{x:px,y:py,r})&&Math.hypot(px-this.player.x,py-this.player.y)>=r+this.player.r+12&&!this.npcs.some(n=>Math.hypot(px-n.x,py-n.y)<r+n.r+12);
+    for(let distance=0;distance<=260;distance+=20){
+      const count=distance===0?1:Math.max(8,Math.ceil(2*Math.PI*distance/20));
+      for(let i=0;i<count;i++){
+        const angle=i*2*Math.PI/count,px=x+Math.cos(angle)*distance,py=y+Math.sin(angle)*distance;
+        if(valid(px,py))return{x:px,y:py};
+      }
+    }
+    for(let i=0;i<1000;i++){
+      const px=25+Math.random()*(this.width-50),py=25+Math.random()*(this.height-50);
+      if(valid(px,py))return{x:px,y:py};
+    }
+    return null;
   }
-  spawnNPC(data){const position=this._findNPCSpawnPosition(data.x,data.y,14);const npc=new NPC({...data,x:position.x,y:position.y,speed:Math.max(1,Number(data.speed)||18)});this.npcs.push(npc);this.npcSocial?.update(npc,this);return npc;}
+  spawnNPC(data){const position=this._findNPCSpawnPosition(data.x,data.y,14);if(!position)return null;const npc=new NPC({...data,x:position.x,y:position.y,speed:Math.max(1,Number(data.speed)||18)});this.npcs.push(npc);this.npcSocial?.update(npc,this);return npc;}
   spawnEnemy(){}
   update(dt){this.trees.forEach(t=>t.update(dt));this.animalSystem.update(dt);this.transformationSystem.update(dt);this.spawnSystem.update(dt);this.npcs.forEach(npc=>{this.npcPerception.update(npc,dt);this.npcSocial.update(npc,this);this.npcDecision.update(npc);this.npcAction.update(npc,dt);npc.update(dt);});}
 }
