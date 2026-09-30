@@ -9,6 +9,9 @@ export class NPC{
     this.speed=speed;
     this.state=state;
     this.radius=radius;
+    // Compatibilidade com sistemas de interação compartilhados com o jogador.
+    this.r=radius;
+    this.attackCd=0;
     this.task=null;
     this.constructionOrder=null;
   }
