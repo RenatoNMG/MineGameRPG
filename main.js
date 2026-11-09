@@ -18,11 +18,58 @@
     y: Math.floor(canvas.height / 2) + 35,
     width: 32,
     height: 40,
+    speed: 220,
     hp: 100,
     maxHp: 100,
     mana: 40,
     maxMana: 40
   };
+
+  const keys = new Set();
+  const controls = new Set([
+    "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+    "w", "a", "s", "d"
+  ]);
+
+  window.addEventListener("keydown", (event) => {
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    if (!controls.has(key)) return;
+    event.preventDefault();
+    keys.add(key);
+  });
+
+  window.addEventListener("keyup", (event) => {
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    keys.delete(key);
+  });
+
+  window.addEventListener("blur", () => keys.clear());
+
+  function updatePlayer(deltaSeconds) {
+    let moveX = 0;
+    let moveY = 0;
+
+    if (keys.has("ArrowLeft") || keys.has("a")) moveX -= 1;
+    if (keys.has("ArrowRight") || keys.has("d")) moveX += 1;
+    if (keys.has("ArrowUp") || keys.has("w")) moveY -= 1;
+    if (keys.has("ArrowDown") || keys.has("s")) moveY += 1;
+
+    // Normaliza a diagonal para manter a mesma velocidade em todas as direções.
+    if (moveX !== 0 || moveY !== 0) {
+      const length = Math.hypot(moveX, moveY);
+      moveX /= length;
+      moveY /= length;
+    }
+
+    const halfWidth = player.width / 2;
+    const halfHeight = player.height / 2;
+    player.x += moveX * player.speed * deltaSeconds;
+    player.y += moveY * player.speed * deltaSeconds;
+
+    // Mantém o sprite inteiramente dentro da área do canvas.
+    player.x = Math.max(halfWidth, Math.min(canvas.width - halfWidth, player.x));
+    player.y = Math.max(halfHeight, Math.min(canvas.height - halfHeight, player.y));
+  }
 
   function drawStatus() {
     const hpValue = document.getElementById("hp-value");
@@ -40,7 +87,6 @@
     ctx.fillStyle = "#355b3b";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Textura discreta de grama em padrão, sem imagens externas.
     for (let y = 18; y < canvas.height; y += 48) {
       for (let x = 18; x < canvas.width; x += 48) {
         ctx.fillStyle = ((x + y) / 48) % 2 === 0 ? "#3b6541" : "#315437";
@@ -49,7 +95,6 @@
       }
     }
 
-    // Pequeno caminho para dar referência de escala ao personagem.
     ctx.fillStyle = "#756b4b";
     ctx.fillRect(0, canvas.height - 72, canvas.width, 72);
     ctx.fillStyle = "#8a7c55";
@@ -62,13 +107,11 @@
     const x = Math.round(player.x);
     const y = Math.round(player.y);
 
-    // Sombra no chão.
     ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
     ctx.beginPath();
     ctx.ellipse(x, y + 4, 17, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Sprite provisório em pixel art: botas, pernas, túnica, braços e cabeça.
     ctx.fillStyle = "#302b2a";
     ctx.fillRect(x - 10, y - 5, 7, 10);
     ctx.fillRect(x + 3, y - 5, 7, 10);
@@ -93,17 +136,21 @@
     ctx.fillRect(x + 3, y - 28, 3, 3);
   }
 
-  function render() {
+  let previousFrame = 0;
+  function gameLoop(timestamp) {
+    const deltaSeconds = previousFrame === 0
+      ? 0
+      : Math.min((timestamp - previousFrame) / 1000, 0.05);
+    previousFrame = timestamp;
+
+    updatePlayer(deltaSeconds);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawWorld();
     drawPlayer();
     drawStatus();
-  }
 
-  function gameLoop() {
-    render();
     requestAnimationFrame(gameLoop);
   }
 
-  gameLoop();
+  requestAnimationFrame(gameLoop);
 })();
