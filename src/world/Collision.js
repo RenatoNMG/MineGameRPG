@@ -1,44 +1,62 @@
-function overlaps(a, b) {
-  return a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y;
+import { TILE_SIZE, MAP_COLUMNS, MAP_ROWS, WORLD_WIDTH, WORLD_HEIGHT } from "./ForestTileMap.js";
+import { getForestObjects } from "./ForestObjects.js";
+
+const forestObjects = getForestObjects();
+const solidMatrix = Array.from({ length: MAP_ROWS }, () =>
+  Array.from({ length: MAP_COLUMNS }, () => [])
+);
+
+for (const object of forestObjects) {
+  const box = object.collider;
+  const firstColumn = Math.max(0, Math.floor(box.x / TILE_SIZE));
+  const lastColumn = Math.min(MAP_COLUMNS - 1, Math.floor((box.x + box.width - 0.001) / TILE_SIZE));
+  const firstRow = Math.max(0, Math.floor(box.y / TILE_SIZE));
+  const lastRow = Math.min(MAP_ROWS - 1, Math.floor((box.y + box.height - 0.001) / TILE_SIZE));
+  for (let row = firstRow; row <= lastRow; row += 1) {
+    for (let column = firstColumn; column <= lastColumn; column += 1) {
+      solidMatrix[row][column].push(box);
+    }
+  }
 }
 
-function getPlayerCollider(player) {
-  return {
-    x: player.x - player.colliderWidth / 2,
-    y: player.y - player.colliderHeight / 2 + 4,
+function intersects(a, b) {
+  return a.x < b.x + b.width && a.x + a.width > b.x &&
+    a.y < b.y + b.height && a.y + a.height > b.y;
+}
+
+function collidesAt(player, x, y) {
+  const box = {
+    x: x - player.colliderWidth / 2,
+    y: y - player.colliderHeight / 2 + player.colliderOffsetY,
     width: player.colliderWidth,
     height: player.colliderHeight
   };
-}
+  const firstColumn = Math.max(0, Math.floor(box.x / TILE_SIZE));
+  const lastColumn = Math.min(MAP_COLUMNS - 1, Math.floor((box.x + box.width - 0.001) / TILE_SIZE));
+  const firstRow = Math.max(0, Math.floor(box.y / TILE_SIZE));
+  const lastRow = Math.min(MAP_ROWS - 1, Math.floor((box.y + box.height - 0.001) / TILE_SIZE));
 
-export function moveWithCollisions(player, deltaX, deltaY, obstacles, worldWidth, worldHeight) {
-  const startX = player.x;
-  const startY = player.y;
-
-  player.x = Math.max(player.colliderWidth / 2,
-    Math.min(worldWidth - player.colliderWidth / 2, player.x + deltaX));
-  let collider = getPlayerCollider(player);
-  for (const obstacle of obstacles) {
-    if (overlaps(collider, obstacle.collider)) {
-      if (deltaX > 0) player.x = obstacle.collider.x - player.colliderWidth / 2;
-      else if (deltaX < 0) player.x = obstacle.collider.x + obstacle.collider.width + player.colliderWidth / 2;
-      collider = getPlayerCollider(player);
+  for (let row = firstRow; row <= lastRow; row += 1) {
+    for (let column = firstColumn; column <= lastColumn; column += 1) {
+      for (const obstacle of solidMatrix[row][column]) {
+        if (intersects(box, obstacle)) return true;
+      }
     }
   }
-
-  player.y = Math.max(player.colliderHeight / 2,
-    Math.min(worldHeight - player.colliderHeight / 2, player.y + deltaY));
-  collider = getPlayerCollider(player);
-  for (const obstacle of obstacles) {
-    if (overlaps(collider, obstacle.collider)) {
-      if (deltaY > 0) player.y = obstacle.collider.y - obstacle.collider.height / 2 + player.colliderHeight / 2 - 4;
-      else if (deltaY < 0) player.y = obstacle.collider.y + obstacle.collider.height + player.colliderHeight / 2 - 4;
-      collider = getPlayerCollider(player);
-    }
-  }
-
-  return player.x !== startX || player.y !== startY;
+  return false;
 }
+
+export function moveWithCollisions(player, deltaX, deltaY) {
+  const minX = player.colliderWidth / 2;
+  const maxX = WORLD_WIDTH - minX;
+  const minY = player.colliderHeight / 2;
+  const maxY = WORLD_HEIGHT - minY;
+
+  const nextX = Math.max(minX, Math.min(maxX, player.x + deltaX));
+  if (!collidesAt(player, nextX, player.y)) player.x = nextX;
+
+  const nextY = Math.max(minY, Math.min(maxY, player.y + deltaY));
+  if (!collidesAt(player, player.x, nextY)) player.y = nextY;
+}
+
+export { forestObjects, solidMatrix };
