@@ -6,6 +6,27 @@ import { moveWithCollisions } from "./src/world/Collision.js";
 
 (() => {
   "use strict";
+
+  // Detecta uma nova publicação do GitHub Pages e atualiza o navegador sem F5.
+  let deployedVersion = null;
+  async function checkForNewBuild() {
+    try {
+      const response = await fetch("./version.json?ts=" + Date.now(), { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data.version) return;
+      if (deployedVersion === null) {
+        deployedVersion = data.version;
+      } else if (data.version !== deployedVersion) {
+        window.location.reload();
+      }
+    } catch (error) {
+      // Falhas transitórias de rede não interrompem o jogo.
+    }
+  }
+  checkForNewBuild();
+  window.setInterval(checkForNewBuild, 15000);
+
   const canvas = document.getElementById("game-canvas");
   if (!(canvas instanceof HTMLCanvasElement)) {
     console.error("MineGame RPG: elemento #game-canvas não encontrado.");
