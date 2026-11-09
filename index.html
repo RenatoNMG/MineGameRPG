@@ -1,2 +1,28 @@
-
-ola mundo
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10140f">
+  <title>MineGame RPG</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main id="game">
+    <header class="hud" aria-label="Status do personagem">
+      <h1>MineGame RPG</h1>
+      <div class="status">
+        <span>Vida <strong id="hp-value">100 / 100</strong></span>
+        <div class="bar"><div id="hp-bar" class="fill health"></div></div>
+        <span>Mana <strong id="mana-value">40 / 40</strong></span>
+        <div class="bar"><div id="mana-bar" class="fill mana"></div></div>
+      </div>
+    </header>
+    <canvas id="game-canvas" width="960" height="540" aria-label="Área do jogo">
+      Seu navegador não oferece suporte ao elemento canvas.
+    </canvas>
+    <p class="controls-hint">Movimentação: WASD ou setas do teclado</p>
+  </main>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
