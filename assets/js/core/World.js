@@ -56,7 +56,8 @@ export class World{
   }
 
   releaseConstructionRequest(request){
-    if(request)this.constructionRequests.find(item=>item===request)?.assignedTo=null;
+    const pending=this.constructionRequests.find(item=>item===request);
+    if(pending)pending.assignedTo=null;
   }
 
   spawnEnemy(){}
