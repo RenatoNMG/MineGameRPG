@@ -2,6 +2,7 @@ import { Camera } from "./src/rendering/Camera.js";
 import { drawWorld } from "./src/rendering/WorldRenderer.js";
 import { drawPlayer } from "./src/rendering/PlayerRenderer.js";
 import { WORLD_WIDTH, WORLD_HEIGHT } from "./src/world/ForestTileMap.js";
+import { moveWithCollisions } from "./src/world/Collision.js";
 
 (() => {
   "use strict";
@@ -21,6 +22,9 @@ import { WORLD_WIDTH, WORLD_HEIGHT } from "./src/world/ForestTileMap.js";
     y: WORLD_HEIGHT / 2,
     width: 32,
     height: 40,
+    colliderWidth: 18,
+    colliderHeight: 18,
+    colliderOffsetY: 5,
     speed: 220,
     hp: 100,
     maxHp: 100,
@@ -55,10 +59,9 @@ import { WORLD_WIDTH, WORLD_HEIGHT } from "./src/world/ForestTileMap.js";
       moveX /= length;
       moveY /= length;
     }
-    player.x += moveX * player.speed * deltaSeconds;
-    player.y += moveY * player.speed * deltaSeconds;
-    player.x = Math.max(player.width / 2, Math.min(WORLD_WIDTH - player.width / 2, player.x));
-    player.y = Math.max(player.height / 2, Math.min(WORLD_HEIGHT - player.height / 2, player.y));
+    const deltaX = moveX * player.speed * deltaSeconds;
+    const deltaY = moveY * player.speed * deltaSeconds;
+    moveWithCollisions(player, deltaX, deltaY);
   }
 
   function drawStatus() {
