@@ -3,10 +3,12 @@ name: Playwright - Game Validation
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "version.json"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   playwright:
@@ -29,6 +31,19 @@ jobs:
 
       - name: Run browser tests
         run: npm test
+
+
+      - name: Publish successful build version for auto-refresh
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          printf '{"version":"%s"}\n' "$GITHUB_SHA" > version.json
+          if ! git diff --quiet -- version.json; then
+            git add version.json
+            git commit -m "chore: publish tested build version [skip ci]"
+            git push
+          fi
 
       - name: Upload screenshots and test report
         if: always()
